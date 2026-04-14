@@ -1,0 +1,13 @@
+# Files excluded from Antigravity context loading
+# These files are large, binary, or not useful for AI context
+
+workspace-files/
+_archive/
+mockups/
+.DS_Store
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.pdf
+_blueprint.md

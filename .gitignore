@@ -1,0 +1,8 @@
+# OS files
+.DS_Store
+
+# Workspace drop zone — transient files, not version-controlled
+workspace-files/
+
+# Archive — old research and artifacts, preserved locally only
+_archive/
