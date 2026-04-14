@@ -1,7 +1,7 @@
 # CarrotFin Strategy Workspace — Implementation Blueprint
 
 > **Product:** CarrotFin — AI-powered personal finance advisor  
-> **Stage:** Pre-funding, solo founder  
+> **Stage:** Pre-funding, 2 co-founders (product/strategy + tech/dev)  
 > **Purpose:** Founder's second brain for product design + strategy  
 > **Phases:** 5 (execute sequentially, one session each)
 
@@ -153,7 +153,8 @@ Inline date annotations for individual claims: `[as of YYYY-MM-DD]` or `[source:
 ## What This Workspace Is
 [3-4 sentences: Strategic brainstorming and product design workspace for CarrotFin — 
 an AI-powered personal finance advisor for Indian consumers.
-Stage: pre-funding, MVP live (FIRE calculator), solo founder.
+Stage: pre-funding, 2 co-founders (product/strategy + tech/dev).
+InsurEasy MVP live (~300 users). FIRE calculator built as a thought experiment (not yet marketed).
 Supports both product UX/UI design and strategic thinking.]
 
 ## Workspace Structure
@@ -256,9 +257,9 @@ Anti-hallucination protocol: `.agent/rules/grounding-rules.md` — all workflows
 
 | File | What to write |
 |---|---|
-| `company-context.md` | CarrotFin product definition (AI-native personal finance advisor, not a robo-advisor). Current stage (pre-funding, solo founder). Live products (FIRE calculator at fire.insureasy.in). Key constraints (zero marketing budget, solo). Immediate goals. |
+| `company-context.md` | CarrotFin product definition (AI-native personal finance advisor, not a robo-advisor). Current stage (pre-funding, 2 co-founders). Existing products: InsurEasy MVP (~300 users), FIRE calculator (thought experiment, not yet marketed). Key constraints (zero marketing budget, pre-funding). Immediate goals. |
 | `market-intel.md` | Indian personal finance app landscape with inline date annotations. Key competitors (CRED, ET Money, Kuvera, INDmoney, Groww). Market sizing. What existing apps get right and wrong. Use `[as of YYYY-MM-DD]` for all metrics. |
-| `user-insights.md` | Target segments for CarrotFin. Existing signals from FIRE calculator users (~500 unique users). User behavior patterns. Unmet needs in personal finance advisory. |
+| `user-insights.md` | Target segments for CarrotFin. Existing signals from InsurEasy users (~300 users). User behavior patterns from InsurEasy. Unmet needs in personal finance advisory. No direct CarrotFin user data yet. |
 | `assumptions-tracker.md` | Table: ID, Assumption, Status (Untested/Partially Validated/Validated/Invalidated), Evidence, Date Added. Seed with 5-8 initial assumptions about the product and market. |
 
 ### Prior Learnings Distillation
@@ -274,7 +275,7 @@ Write `prior-learnings.md` — **interpret for CarrotFin context, don't copy Ins
 | **User behavior insights** | B1 (human validation need), B2 (confidence > information), B3 (network ≠ acquisition) |
 | **Validated assumptions** | A2 (users trust AI — partially), A12 (AI-first differentiates) |
 | **Growth learnings** | LinkedIn failure (push ≠ pull), SEO decline (AI Overviews), intent > broadcast |
-| **Product design lessons** | FIRE calculator (conversation-first, shareability, progressive disclosure) |
+| **Product design lessons** | FIRE calculator thought experiment (progressive disclosure, variant analysis UX). InsurEasy conversational AI (conversation-first, shareability) |
 | **Do NOT carry forward** | Insurance-specific constraints, policy upload mechanics, InsurEasy brand |
 
 ---
