@@ -1,7 +1,7 @@
 # Product Design — Reading Guide
 
 > **Domain:** Design  
-> **Last updated:** 2025-04-15  
+> **Last updated:** 2026-04-15  
 > **Staleness threshold:** 30 days
 
 ---
@@ -47,7 +47,7 @@ These are not wireframes or pixel specs. They are the design decisions, constrai
 
 - **Knowledge Base** (`knowledge-base/`) provides the user insights, market context, and assumptions that inform design decisions
 - **Workflows** (`.agent/workflows/`) invoke these files — `/ux-designer` and `/product` both read this layer
-- **Skills** (`.agent/skills/ux-design-system/`) will contain reusable component templates and methodology checklists (Phase 4)
+- **Skills** (`.agent/skills/ux-design-system/`) contains reusable component templates and methodology checklists
 
 ---
 

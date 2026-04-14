@@ -1,7 +1,7 @@
 # CarrotFin — Design Principles
 
 > **Domain:** Design  
-> **Last updated:** 2025-04-15  
+> **Last updated:** 2026-04-15  
 > **Staleness threshold:** 90 days (foundational, low volatility)  
 > **Related assumptions:** C4, C5, C6  
 > **Related decisions:** —

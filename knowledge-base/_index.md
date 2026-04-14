@@ -1,7 +1,7 @@
 # Knowledge Base — Reading Guide
 
 > **Purpose:** Index of all knowledge-base files. Start here when entering any workflow.  
-> **Last updated:** 2025-04-14  
+> **Last updated:** 2026-04-14  
 > **Staleness threshold:** 30 days
 
 ---
@@ -10,12 +10,12 @@
 
 | File | Domain | Description | Last Updated |
 |---|---|---|---|
-| [company-context.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/company-context.md) | Company | CarrotFin product definition, team, stage, constraints, immediate goals | 2025-04-14 |
-| [market-intel.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/market-intel.md) | Market | Indian personal finance app landscape, competitors, market sizing | 2025-04-14 |
-| [user-insights.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/user-insights.md) | Users | Target segments, behavioral signals from InsurEasy, unmet needs | 2025-04-14 |
-| [assumptions-tracker.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/assumptions-tracker.md) | Risk | Tracked assumptions with status, evidence, and validation plan | 2025-04-14 |
-| [prior-learnings.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/prior-learnings.md) | Learnings | Distilled insights from InsurEasy era — what carries forward to CarrotFin | 2025-04-14 |
-| [design-principles.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/design-principles.md) | Design | Governing design axioms (Phase 3 deliverable) | — |
+| [company-context.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/company-context.md) | Company | CarrotFin product definition, team, stage, constraints, immediate goals | 2026-04-14 |
+| [market-intel.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/market-intel.md) | Market | Indian personal finance app landscape, competitors, market sizing | 2026-04-14 |
+| [user-insights.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/user-insights.md) | Users | Target segments, behavioral signals from InsurEasy, unmet needs | 2026-04-14 |
+| [assumptions-tracker.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/assumptions-tracker.md) | Risk | Tracked assumptions with status, evidence, and validation plan | 2026-04-14 |
+| [prior-learnings.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/prior-learnings.md) | Learnings | Distilled insights from InsurEasy era — what carries forward to CarrotFin | 2026-04-14 |
+| [design-principles.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/design-principles.md) | Design | Five governing design axioms — adaptive-first, conversational + visual integration, hyperpersonalization, generative UI, progressive trust | 2026-04-15 |
 
 ---
 

@@ -1,7 +1,7 @@
 # Component Patterns — Index
 
 > **Domain:** Design  
-> **Last updated:** 2025-04-15  
+> **Last updated:** 2026-04-15  
 > **Staleness threshold:** 30 days
 
 ---

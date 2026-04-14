@@ -1,7 +1,7 @@
 # CarrotFin — User Insights
 
 > **Domain:** Users  
-> **Last updated:** 2025-04-14  
+> **Last updated:** 2026-04-14  
 > **Staleness threshold:** 30 days  
 > **Related assumptions:** C1, C2, C3, C6  
 > **Related decisions:** —

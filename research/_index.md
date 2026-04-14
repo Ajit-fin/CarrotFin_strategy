@@ -1,7 +1,7 @@
 # Research — Index & Freshness Tracker
 
 > **Purpose:** Index of deep research artifacts. Each entry includes a freshness date and staleness threshold.  
-> **Last updated:** 2025-04-14  
+> **Last updated:** 2026-04-14  
 > **Staleness threshold:** 30 days (for this index)
 
 ---
@@ -25,7 +25,7 @@
 
 ## Freshness Rules
 
-- Research artifacts older than **90 days** should be moved to `_archive/` within each subdirectory (Phase 5 creates these)
+- Research artifacts older than **90 days** should be moved to `_archive/` within each subdirectory
 - **One-in-one-out:** When a new research artifact on the same topic is created, the old one moves to `_archive/`
 - All research must carry inline `[as of YYYY-MM-DD]` annotations on data points
 - Total active research files should stay under ~20. More signals insufficient synthesis.

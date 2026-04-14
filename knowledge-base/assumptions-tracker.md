@@ -1,7 +1,7 @@
 # CarrotFin — Assumptions Tracker
 
 > **Domain:** Risk  
-> **Last updated:** 2025-04-14  
+> **Last updated:** 2026-04-14  
 > **Staleness threshold:** 30 days  
 > **Related assumptions:** all  
 > **Related decisions:** —
@@ -21,12 +21,12 @@
 
 | ID | Assumption | Status | Evidence | Date Added |
 |---|---|---|---|---|
-| C1 | Indian millennials/GenZ (25-35) will engage with an AI-powered personal finance advisor | 🟡 Partially validated | InsurEasy traction (~300 users, organic). 11% already use ChatGPT for insurance info [source: Policybazaar survey, as of 2025-04]. GenZ at 14%. Adjacent, not direct validation — InsurEasy is insurance-specific, not holistic finance. | 2025-04-14 |
-| C2 | Holistic financial advice (not just one vertical like insurance or MFs) is what users actually want | 🟡 Partially validated | FIRE calculator users ask about goals beyond retirement — travel, education, housing. A tool designed for insurance led to broader personal finance demand. But: self-selected sample, not representative. | 2025-04-14 |
-| C3 | Users will share financial planning outputs with family/friends (viral coefficient potential) | 🟡 Partially validated | InsurEasy shareable PDF reports built. Sharing behavior not yet measured. The mechanism exists but the behavior is unproven. Cultural sensitivity around sharing financial details is a risk — see C6. | 2025-04-14 |
-| C4 | An adaptive/personalized UI meaningfully outperforms a static dashboard for financial planning | ⬜ Untested | **Core product thesis. Zero A/B data.** This is the highest-conviction, highest-risk assumption. The entire product architecture depends on this being true. Need to validate with first prototype. | 2025-04-14 |
-| C5 | Conversational AI integrated with visuals is better than chat + dashboard as separate surfaces | ⬜ Untested | Design thesis only. No user data. International reference: Cleo's conversational model works for spending, but Cleo doesn't do visual integration at the level CarrotFin envisions. | 2025-04-14 |
-| C6 | Users trust AI financial advice enough to act on it (beyond just information consumption) | ⬜ Untested | **Critical risk.** InsurEasy insight B2 says users want confidence, not just information. AI may not provide enough confidence alone — 80%+ still consult humans before financial decisions [as of 2025-04]. If this is wrong, the entire AI-native thesis fails. | 2025-04-14 |
+| C1 | Indian millennials/GenZ (25-35) will engage with an AI-powered personal finance advisor | 🟡 Partially validated | InsurEasy traction (~300 users, organic). 11% already use ChatGPT for insurance info [source: Policybazaar survey, as of 2025-04]. GenZ at 14%. Adjacent, not direct validation — InsurEasy is insurance-specific, not holistic finance. | 2026-04-14 |
+| C2 | Holistic financial advice (not just one vertical like insurance or MFs) is what users actually want | 🟡 Partially validated | FIRE calculator users ask about goals beyond retirement — travel, education, housing. A tool designed for insurance led to broader personal finance demand. But: self-selected sample, not representative. | 2026-04-14 |
+| C3 | Users will share financial planning outputs with family/friends (viral coefficient potential) | 🟡 Partially validated | InsurEasy shareable PDF reports built. Sharing behavior not yet measured. The mechanism exists but the behavior is unproven. Cultural sensitivity around sharing financial details is a risk — see C6. | 2026-04-14 |
+| C4 | An adaptive/personalized UI meaningfully outperforms a static dashboard for financial planning | ⬜ Untested | **Core product thesis. Zero A/B data.** This is the highest-conviction, highest-risk assumption. The entire product architecture depends on this being true. Need to validate with first prototype. | 2026-04-14 |
+| C5 | Conversational AI integrated with visuals is better than chat + dashboard as separate surfaces | ⬜ Untested | Design thesis only. No user data. International reference: Cleo's conversational model works for spending, but Cleo doesn't do visual integration at the level CarrotFin envisions. | 2026-04-14 |
+| C6 | Users trust AI financial advice enough to act on it (beyond just information consumption) | ⬜ Untested | **Critical risk.** InsurEasy insight B2 says users want confidence, not just information. AI may not provide enough confidence alone — 80%+ still consult humans before financial decisions [as of 2025-04]. If this is wrong, the entire AI-native thesis fails. | 2026-04-14 |
 
 ---
 
@@ -34,8 +34,8 @@
 
 | ID | Assumption | Status | Evidence | Date Added |
 |---|---|---|---|---|
-| C7 | Intent-driven channels (Reddit, search, communities) outperform broadcast (LinkedIn, social media) for acquisition | 🟡 Partially validated | InsurEasy LinkedIn launch: 55 likes, 45 comments, <10 new users. Engagement was from personal network, not intent-driven strangers. Reddit/Quora untested for CarrotFin but promising based on active communities (r/IndiaInvestments, r/FIREIndia). | 2025-04-14 |
-| C8 | SEO/content-as-acquisition is no longer a reliable primary channel | 🟡 Partially validated | Google AI Overviews reduce organic CTR by up to 70% for informational finance queries [as of 2025]. InsurEasy blog drove <10 new users. The era of "write a blog, get traffic" is ending. | 2025-04-14 |
+| C7 | Intent-driven channels (Reddit, search, communities) outperform broadcast (LinkedIn, social media) for acquisition | 🟡 Partially validated | InsurEasy LinkedIn launch: 55 likes, 45 comments, <10 new users. Engagement was from personal network, not intent-driven strangers. Reddit/Quora untested for CarrotFin but promising based on active communities (r/IndiaInvestments, r/FIREIndia). | 2026-04-14 |
+| C8 | SEO/content-as-acquisition is no longer a reliable primary channel | 🟡 Partially validated | Google AI Overviews reduce organic CTR by up to 70% for informational finance queries [as of 2025]. InsurEasy blog drove <10 new users. The era of "write a blog, get traffic" is ending. | 2026-04-14 |
 
 ---
 
@@ -43,8 +43,8 @@
 
 | ID | Assumption | Status | Evidence | Date Added |
 |---|---|---|---|---|
-| C9 | No existing Indian personal finance app has meaningful AI advisory intelligence | 🟡 Partially validated | Competitive analysis [as of 2025-04]: CRED, ET Money, INDmoney, Groww, Kuvera — none have proactive AI advisory. INDmoney has data aggregation but no intelligence layer. Window is open but narrowing — large players (Jio, banks) could enter. | 2025-04-14 |
-| C10 | AI-first positioning differentiates from all incumbents | 🟡 Partially validated | Extended from InsurEasy assumption A12. 11% ChatGPT usage for insurance validates consumer appetite. Domain-specific AI should outperform generic LLMs for finance. But: "AI-first" is becoming table stakes in marketing — need to demonstrate it in product, not just positioning. | 2025-04-14 |
+| C9 | No existing Indian personal finance app has meaningful AI advisory intelligence | 🟡 Partially validated | Competitive analysis [as of 2025-04]: CRED, ET Money, INDmoney, Groww, Kuvera — none have proactive AI advisory. INDmoney has data aggregation but no intelligence layer. Window is open but narrowing — large players (Jio, banks) could enter. | 2026-04-14 |
+| C10 | AI-first positioning differentiates from all incumbents | 🟡 Partially validated | Extended from InsurEasy assumption A12. 11% ChatGPT usage for insurance validates consumer appetite. Domain-specific AI should outperform generic LLMs for finance. But: "AI-first" is becoming table stakes in marketing — need to demonstrate it in product, not just positioning. | 2026-04-14 |
 
 ---
 
