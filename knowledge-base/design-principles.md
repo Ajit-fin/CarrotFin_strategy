@@ -3,18 +3,18 @@
 > **Domain:** Design  
 > **Last updated:** 2026-04-15  
 > **Staleness threshold:** 90 days (foundational, low volatility)  
-> **Related assumptions:** C4, C5, C6  
-> **Related decisions:** DD-001
+> **Related assumptions:** C4, C5  
+> **Related decisions:** DD-001, DD-002
 
 ---
 
 ## Purpose
 
-Four governing axioms that define what CarrotFin is architecturally — not aspirationally. These are not feature requests or nice-to-haves. They are structural constraints that every screen, component, and interaction must satisfy. When two principles conflict, the resolution framework below applies.
+Three governing axioms that define what CarrotFin is architecturally — not aspirationally. These are not feature requests or nice-to-haves. They are structural constraints that every screen, component, and interaction must satisfy. When two principles conflict, the resolution framework below applies.
 
 ---
 
-## The Four Axioms
+## The Three Axioms
 
 ### 1. Adaptive Composition
 
@@ -86,36 +86,19 @@ Personalization is not a feature layer bolted on top of a generic app. The entir
 
 ---
 
-### 4. Progressive Trust Architecture
-
-Trust is earned in micro-increments, not demanded upfront.
-
-Financial products require an unusual amount of trust. CarrotFin asks users to share sensitive data (income, spending, debts) and act on AI-generated financial advice. Both require trust that must be built progressively — never assumed.
-
-**What it means concretely:**
-- First interaction: zero data required. The AI provides value with public information ("Here are 3 things every 28-year-old in Bangalore should know about tax-saving").
-- Second interaction: one data point requested ("What's your approximate monthly income?"). AI immediately shows value from that single input.
-- Over time: the AI earns the right to ask for more, because each data point visibly improves the advice quality.
-- Confidence indicators: the AI shows its reasoning, not just its conclusions. "I'm recommending this because [X], [Y], and [Z]. Here's what I'm less sure about."
-
-**The anti-pattern:** A 15-field onboarding form before the user sees any value. Every field without preceding value is a trust violation.
-
-> **Critical dependency:** C6 (users trust AI enough to act) — existential risk. This axiom is the mitigation strategy.
-
----
-
 ## Conflict Resolution
 
 When axioms conflict — and they will — resolve using this hierarchy:
 
 | Priority | Axiom | Rationale |
 |---|---|---|
-| 1 | Progressive Trust | Without trust, nothing else matters. Users leave before experiencing personalization. |
-| 2 | Adaptive Composition | The core product thesis — both the bet (adaptive > static) and the mechanism (AI-composed interfaces). If this fails, we're building another dashboard. |
-| 3 | Conversational + Visual Integration | The interaction paradigm. Without it, adaptive composition becomes just "different dashboards per segment." |
-| 4 | Hyperpersonalization Is Architecture | The long-term moat. Requires data depth that won't exist on day one. |
+| 1 | Adaptive Composition | The core product thesis — both the bet (adaptive > static) and the mechanism (AI-composed interfaces). If this fails, we're building another dashboard. |
+| 2 | Conversational + Visual Integration | The interaction paradigm. Without it, adaptive composition becomes just "different dashboards per segment." |
+| 3 | Hyperpersonalization Is Architecture | The long-term moat. Requires data depth that won't exist on day one. |
 
-**Example conflict:** Hyperpersonalization wants deep data access. Progressive Trust says don't ask until you've earned the right. Resolution: progressive trust wins — personalization quality increases as trust deepens. Day-one personalization uses inferred signals (device, time, location, browsing behavior), not demanded data.
+**Example conflict:** Hyperpersonalization wants to render a 6-component information-dense surface for an advanced user. Adaptive Composition's composition rules limit a generative surface to 4 components maximum to maintain coherence. Resolution: Adaptive Composition wins — the AI selects the 4 highest-priority components, dropping the lowest-value two. Composition coherence outranks information density.
+
+> **Note on trust:** Progressive trust — when the AI earns the right to ask for data, how confidence is built, and how trust level governs the AI's behavior — is a product-level concern governed by the [Behavioral Intelligence Framework](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/behavioral-framework.md) (Part 6: Trust Architecture). Trust level is one of the context dimensions that Adaptive Composition composes against, but the trust architecture itself is not a design axiom — it's AI decision logic.
 
 ---
 

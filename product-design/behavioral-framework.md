@@ -5,7 +5,7 @@
 > **Staleness threshold:** 60 days (active evolution expected)  
 > **Status:** Living document — evolves with research, user data, and learnings  
 > **Related assumptions:** C4, C5, C6  
-> **Related decisions:** —
+> **Related decisions:** DD-002
 
 ---
 
@@ -389,7 +389,7 @@ The AI doesn't wait for a tap in these scenarios:
 
 ### 5.4 Relationship to Trust Architecture
 
-Verification Anchors operationalize design principle #4 (Progressive Trust) specifically for AI-generated calculations:
+Verification Anchors operationalize the Trust Architecture (Part 6) specifically for AI-generated calculations:
 
 | Trust Level | Verification Behavior |
 |---|---|
@@ -406,6 +406,88 @@ Verification Anchors are one specific resolution pattern for tension T4 (AI Conf
 - ❌ "There's a 78% chance that 70% equity is optimal." (uncertainty math that creates anxiety)
 
 Confidence is in the conviction of the recommendation. Transparency is in the verifiability of the reasoning. Both coexist.
+
+---
+
+## Part 6: Trust Architecture
+
+Progressive trust is the governing constraint on the AI's relationship with each user. Trust is earned in micro-increments, not demanded upfront. This part defines the mechanics — when to ask for data, what value must precede each ask, and how trust level shapes the AI's entire behavioral repertoire.
+
+> **Critical dependency:** C6 (users trust AI enough to act) — existential risk. This architecture is the mitigation strategy. If C6 is invalidated, the AI-native thesis fails regardless of interface quality.
+
+---
+
+### 6.1 The Trust Ramp
+
+Users progress through trust levels based on value delivered, not time elapsed. Each level unlocks new AI capabilities.
+
+| Trust Level | User Behavior Signals | AI Data Rights | AI Behavior |
+|---|---|---|---|
+| **New** (0 interactions) | Just arrived. No history. | Zero user data. AI uses public information only (age cohort from device signals, city from IP, generic financial context). | Provide value with no data: "Here are 3 things every 28-year-old in Bangalore should know about tax-saving." No data requests. |
+| **Curious** (1-3 value-delivering interactions) | Returned after first value. Engaged with at least one insight. | One data point per interaction, max. Each request must follow delivered value. | "What's your approximate monthly income?" → immediately show what that data point unlocked: "For your income, here's how your tax savings break down." |
+| **Warming** (3-10 interactions, shared 3+ data points) | Voluntarily shared data. Acted on at least one suggestion. | Can request related data clusters (income → expenses → savings rate). Can suggest account linking. | Active recommendations with reasoning. "I'd suggest X because Y." Verification anchors available but not forced. |
+| **Trusting** (10+ interactions, acted on recommendations) | Regular user. Has acted on AI advice. Returns proactively. | Can request sensitive data (debts, insurance details, investment portfolio). Can propose automated actions. | Full advisory mode. Nudge levels 1-4 available. Proactive alerts. Confidence projection without excessive caveats. |
+| **Dependent** (50+ interactions, high engagement) | Deep reliance on AI. Rarely questions. | Full data access (user has granted it). | AI should periodically surface verification anchors to prevent blind dependence. "I want to make sure you understand how this works." Maintain user agency. |
+
+### 6.2 The Value-Before-Ask Principle
+
+Every data request must be preceded by delivered value from previously collected data. This is a hard constraint, not a guideline.
+
+**The rule:** The AI earns the right to ask by demonstrating what it did with what it already knows.
+
+**Illustrative sequence:**
+1. Session 1: Zero data. AI provides value from public information. → Earns the right to ask one question.
+2. Session 2: AI asks "What's your age?" User answers. AI immediately shows: "At your age, here's the #1 financial priority." → Earns the right to ask another.
+3. Session 3: AI asks "Roughly, what's your monthly take-home?" User answers. AI shows: "For your income and age, here's how you compare to peers. Here's what I'd do." → Earns the right to ask another.
+4. Each data point visibly improves advice quality. The user can SEE why sharing data was worth it.
+
+**The anti-pattern:** A 15-field onboarding form before the user sees any value. Every field without preceding value is a trust violation.
+
+**Calibration:** The value delivered must be proportional to the sensitivity of the data requested. Asking for monthly income requires more preceding value than asking for age. Asking to link a bank account requires significantly more.
+
+### 6.3 Trust Level → AI Behavior Gating
+
+Trust level gates not just data requests but the AI's entire behavioral repertoire:
+
+| AI Capability | Minimum Trust Level | Why |
+|---|---|---|
+| Passive insights (spending trends, market context) | New | Low-stakes, high-value. Builds initial trust. |
+| Contextual suggestions ("this idle cash could earn more") | Curious | Requires user to believe AI understands their situation |
+| Active recommendations ("I'd move ₹50K to ELSS") | Warming | User must trust AI judgment, not just AI information |
+| Friction interventions ("Sleep on this redemption") | Trusting | Deeply personal. AI is overriding user intent — requires earned authority. |
+| Automated actions (auto-SIP increase, auto-rebalance) | Trusting+ | AI acting on user's behalf. Highest trust requirement. |
+| Escalation alerts ("Payment due tomorrow") | Warming | Time-sensitive value justifies earlier deployment — but tone must match trust level |
+
+**Relationship to nudge taxonomy (§2.2):** The trust ramp is the same escalation principle applied to data requests and behavioral authority. §2.2 already says "Never deploy level 4-5 nudges for users at low trust level." Part 6 extends this: never request sensitive data or deploy high-authority actions at low trust level.
+
+### 6.4 Trust Regression
+
+Trust is not monotonically increasing. It can regress.
+
+| Regression Trigger | Effect | AI Response |
+|---|---|---|
+| AI recommendation led to visible loss | Trust drops 1-2 levels for recommendation authority | Acknowledge the outcome. Show the reasoning. Don't deflect. Temporarily increase verification anchor frequency. |
+| Data breach or security concern (industry-wide) | Trust drops across all dimensions | Proactively surface data handling practices. Reduce data request frequency. |
+| User manually revokes data access | Trust drops to the level matching remaining data | Accept gracefully. Show what's still possible with reduced data. Never guilt-trip. |
+| Extended inactivity (30+ days) | Partial trust decay — user may not remember prior context | Re-establish with a summary of prior context: "Last time, we were working on X. Want to pick up there?" |
+
+### 6.5 The Trust-Personalization Conflict Resolution
+
+When trust constraints conflict with data-hungry features, **trust always wins**.
+
+This was previously the #1 priority in design-principles conflict resolution. It's now a hard constraint in the behavioral framework:
+
+- Hyperpersonalization wants deep data access → Trust architecture says don't ask until you've earned the right → **Trust wins.**
+- Day-one personalization uses inferred signals (device, time, location, browsing behavior), not demanded data.
+- Personalization quality increases as trust deepens — this is a feature, not a limitation. The improving experience IS the trust-building mechanism.
+
+### 6.6 Confidence Indicators
+
+The AI shows its reasoning, not just its conclusions. This is how trust is built at the interaction level:
+
+- "I'm recommending this because [X], [Y], and [Z]. Here's what I'm less sure about."
+- Confidence backed by visible logic is stronger than confidence by assertion
+- See §5 (Verification Anchors) for the graduated transparency mechanism that operationalizes this
 
 ---
 
@@ -432,6 +514,7 @@ This file is explicitly a **living document**. It evolves with research, user da
 | Date | Change | Rationale |
 |---|---|---|
 | 2026-04-15 | Initial creation | Fills the AI Reasoning Layer gap in the product design pipeline |
+| 2026-04-15 | Added Part 6: Trust Architecture | Progressive Trust relocated from design axioms (DD-002) — product-level decision logic, not a UX structural constraint |
 
 ---
 
