@@ -389,7 +389,7 @@ The AI doesn't wait for a tap in these scenarios:
 
 ### 5.4 Relationship to Trust Architecture
 
-Verification Anchors operationalize design principle #5 (Progressive Trust) specifically for AI-generated calculations:
+Verification Anchors operationalize design principle #4 (Progressive Trust) specifically for AI-generated calculations:
 
 | Trust Level | Verification Behavior |
 |---|---|

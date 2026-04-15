@@ -68,7 +68,7 @@ Hyperpersonalization requires a rich model of who the user is. Not just demograp
 | **Emotional state** | Calm → Anxious → Excited → Overwhelmed | Session signals: browsing speed, portfolio check frequency, time of day | Governs tone, pacing, information density |
 | **Trust level** | New → Warming → Trusting → Dependent | Longitudinal: data shared, recommendations acted on, return frequency | Governs what data the AI asks for, recommendation confidence display |
 
-> **Day-one constraint:** Most of these dimensions start unknown. The AI must provide value with minimal context and deepen personalization as it learns. See design principle #5 (Progressive Trust Architecture).
+> **Day-one constraint:** Most of these dimensions start unknown. The AI must provide value with minimal context and deepen personalization as it learns. See design principle #4 (Progressive Trust Architecture).
 
 ---
 

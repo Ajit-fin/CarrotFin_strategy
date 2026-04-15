@@ -36,7 +36,7 @@ These are not wireframes or pixel specs. They are the design decisions, constrai
 
 ## Reading Order for New Contributors
 
-1. **Start with** [design-principles.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/design-principles.md) in `knowledge-base/` — the five governing axioms
+1. **Start with** [design-principles.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/design-principles.md) in `knowledge-base/` — the four governing axioms
 2. **Then** `ux-philosophy.md` — the thesis that drives everything
 3. **Then** `behavioral-framework.md` — the AI decision intelligence layer that fills the "AI Reasoning Layer" gap in the pipeline
 4. **Then** `interaction-model.md` — how the thesis manifests in the interaction paradigm

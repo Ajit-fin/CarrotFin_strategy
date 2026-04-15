@@ -46,7 +46,7 @@ Unresolved design tensions — genuine conflicts between opposing forces where n
 |---|---|
 | Deep personalization requires deep data access. The more the AI knows (income, spending, debts, goals, family situation), the better the advice. | Indian users are wary of sharing financial data with any app, let alone an AI. Banking data, salary, and debt are sensitive — culturally and practically. |
 
-**Why unresolved:** Trust is progressive (design principle #5), but we don't know the trust ramp. How many value-delivering interactions does a user need before they'll share their income? Their bank statement? Their debts? The entire UX architecture depends on this ramp speed, and we have zero data.
+**Why unresolved:** Trust is progressive (design principle #4), but we don't know the trust ramp. How many value-delivering interactions does a user need before they'll share their income? Their bank statement? Their debts? The entire UX architecture depends on this ramp speed, and we have zero data.
 
 **What would resolve it:** Longitudinal study of data-sharing behavior across at least 50 users over 30+ days. Until then, assume conservative trust ramp and design for graceful degradation when data is withheld.
 

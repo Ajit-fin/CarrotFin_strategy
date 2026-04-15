@@ -15,7 +15,7 @@ Journeys are NOT wireframes. They define:
 - **AI behavior** — what the AI does at each step (questions asked, decisions made, components rendered)
 - **Adaptive variations** — how the journey changes for different user contexts
 - **Modality flow** — when conversation leads vs. visualization leads (per `interaction-model.md`)
-- **Trust gates** — what data the AI needs and when it earns the right to ask (per design principle #5)
+- **Trust gates** — what data the AI needs and when it earns the right to ask (per design principle #4)
 
 ---
 

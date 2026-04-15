@@ -15,7 +15,7 @@
 | [user-insights.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/user-insights.md) | Users | Target segments, behavioral signals from InsurEasy, unmet needs | 2026-04-14 |
 | [assumptions-tracker.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/assumptions-tracker.md) | Risk | Tracked assumptions with status, evidence, and validation plan | 2026-04-14 |
 | [prior-learnings.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/prior-learnings.md) | Learnings | Distilled insights from InsurEasy era — what carries forward to CarrotFin | 2026-04-14 |
-| [design-principles.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/design-principles.md) | Design | Five governing design axioms — adaptive-first, conversational + visual integration, hyperpersonalization, generative UI, progressive trust | 2026-04-15 |
+| [design-principles.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/design-principles.md) | Design | Four governing design axioms — adaptive composition, conversational + visual integration, hyperpersonalization, progressive trust | 2026-04-15 |
 
 ---
 
