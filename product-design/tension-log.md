@@ -76,6 +76,34 @@ Unresolved design tensions — genuine conflicts between opposing forces where n
 
 ---
 
+### T6: Behavioral Nudging vs. User Autonomy
+
+| Force A | Force B |
+|---|---|
+| Behavioral science gives us powerful tools to guide user behavior — loss framing, anchoring, friction design, social proof. These genuinely help users make better financial decisions. A well-timed nudge prevents an impulsive redemption. A loss-framed insight motivates savings. | Every nudge is a subtle manipulation. Loss framing exploits a cognitive bias. Defaults shape behavior through inertia, not informed choice. Where does "helpful guidance" end and "dark pattern" begin? The AI has asymmetric power — it controls what the user sees and how it's framed. |
+
+**Why unresolved:** The line between helpful nudge and manipulation depends on intent AND outcome. CarrotFin's intent is genuinely good (improve financial health), but the tools are the same ones used for dark patterns. We need ethical guardrails that are more specific than "don't be manipulative" — but the precise boundaries are unclear without user feedback on what feels helpful vs. coercive.
+
+**What would resolve it:** User testing of nudge patterns at different intensity levels. Observe: (1) Does the user feel helped or pressured? (2) Does the nudge lead to financial outcomes the user later regrets or endorses? The ethical test: would the user, fully informed about the nudge mechanism, still want the AI to use it?
+
+> **Related:** [behavioral-framework.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/behavioral-framework.md) Part 2 (Nudge Taxonomy), Part 4 (Urgency Calibration)
+
+---
+
+### T7: Verification Depth vs. Cognitive Load
+
+| Force A | Force B |
+|---|---|
+| "Show Your Work" builds trust — users who can verify the AI's math trust its judgment faster. Transparency earns the right to advise. In a high-trust domain like finance, verifiability is non-negotiable. | Most users don't want to see formulas. Showing too much math creates anxiety ("I don't understand this, should I be worried?") or overwhelm. The whole point of an AI advisor is that users DON'T have to do the math themselves. Too much transparency can undermine the confidence the AI is trying to project. |
+
+**Why unresolved:** The right depth depends on user literacy level AND the specific context. A financially literate user wants to see the formula. A novice user wants to see a plain-English explanation at most. Progressive disclosure helps (headline → reasoning → formula → data sources), but we don't know how many users actually drill down, or whether the OPTION to drill down is sufficient for trust even if it's never used.
+
+**What would resolve it:** Prototype "Show Your Work" at 3 disclosure depths. Measure: (1) trust scores at each depth, (2) actual tap-through rates on verification, (3) whether the presence of a "see calculation" affordance improves trust even when not used (the "fire extinguisher effect" — you trust the building more knowing it's there, even if you never use it).
+
+> **Related:** [behavioral-framework.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/behavioral-framework.md) Part 5 (Verification Anchors)
+
+---
+
 ## Resolved Tensions (Archive)
 
 *No tensions have been resolved yet. Move tensions here with a link to the design-decision record that resolved them.*

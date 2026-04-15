@@ -19,6 +19,7 @@ These are not wireframes or pixel specs. They are the design decisions, constrai
 | File | What It Contains | Read When |
 |---|---|---|
 | [ux-philosophy.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/ux-philosophy.md) | The hyperpersonalization thesis — why CarrotFin's UX is architecturally different, not incrementally better | Starting any UX/product design work |
+| [behavioral-framework.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/behavioral-framework.md) | AI Reasoning Layer — behavioral science principles, adaptive rigor guardrails, trust mechanisms, content framing rules that govern what the AI decides to show, when, and how | Product decisions, nudge design, AI behavior, content framing |
 | [interaction-model.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/interaction-model.md) | How conversational AI and visual surfaces integrate — surface types, flow modes, modality handoffs | Designing any screen or interaction flow |
 | [screen-taxonomy.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/screen-taxonomy.md) | Generative, Static, and Hybrid screen types — when each applies, constraints, examples | Deciding how to implement a specific screen |
 | [tension-log.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/tension-log.md) | Unresolved design tensions — forces in opposition, why they can't be resolved yet | Before making design tradeoffs |
@@ -37,9 +38,10 @@ These are not wireframes or pixel specs. They are the design decisions, constrai
 
 1. **Start with** [design-principles.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/design-principles.md) in `knowledge-base/` — the five governing axioms
 2. **Then** `ux-philosophy.md` — the thesis that drives everything
-3. **Then** `interaction-model.md` — how the thesis manifests in the interaction paradigm
-4. **Then** `screen-taxonomy.md` — the practical framework for implementing screens
-5. **Check** `tension-log.md` before making any design tradeoff — the hard problems we haven't solved yet
+3. **Then** `behavioral-framework.md` — the AI decision intelligence layer that fills the "AI Reasoning Layer" gap in the pipeline
+4. **Then** `interaction-model.md` — how the thesis manifests in the interaction paradigm
+5. **Then** `screen-taxonomy.md` — the practical framework for implementing screens
+6. **Check** `tension-log.md` before making any design tradeoff — the hard problems we haven't solved yet
 
 ---
 

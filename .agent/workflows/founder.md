@@ -22,6 +22,7 @@ Load these files before responding:
 Load on-demand if the question touches:
 - Product/UX → `product-design/_index.md`, `knowledge-base/design-principles.md`
 - Growth → `knowledge-base/market-intel.md`
+- Product-level behavioral decisions → `product-design/behavioral-framework.md`
 
 ## Embedded Rules
 

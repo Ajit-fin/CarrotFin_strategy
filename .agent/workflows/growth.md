@@ -20,6 +20,7 @@ Load on-demand if the question touches:
 - Product capabilities → `product-design/_index.md`
 - Assumptions → `knowledge-base/assumptions-tracker.md`
 - Competitive positioning → `research/competitors/` (if any files exist)
+- Positioning, messaging framing, acquisition copy → `product-design/behavioral-framework.md`
 
 ## Embedded Rules
 

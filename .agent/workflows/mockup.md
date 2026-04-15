@@ -20,6 +20,7 @@ Load on-demand:
 - Component patterns → `product-design/component-patterns/_index.md`
 - User segments → `knowledge-base/user-insights.md`
 - Existing mockups → `mockups/` directory
+- Nudges, AI-driven content, behavioral framing → `product-design/behavioral-framework.md`
 
 ## Embedded Rules
 

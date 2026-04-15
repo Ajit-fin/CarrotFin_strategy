@@ -15,6 +15,7 @@ Load these files before responding:
 2. `knowledge-base/user-insights.md`
 3. `product-design/_index.md`
 4. `knowledge-base/design-principles.md`
+5. `product-design/behavioral-framework.md`
 
 Load on-demand if the question touches:
 - Market context → `knowledge-base/market-intel.md`
@@ -58,3 +59,4 @@ Load on-demand if the question touches:
 3. **Progressive value delivery** — every interaction must deliver value. If a feature requires 5 setup steps before value, redesign the steps to deliver value at step 1.
 4. **Assumption-gated roadmap** — don't build features that depend on untested assumptions. Validate first, build second.
 5. **Less is more, relentlessly** — a two-person team must obsess over scope. Cut features that are nice-to-have. Ship the minimum that delivers the core value.
+6. **Behavioral grounding** — every product decision should reference the behavioral framework. A feature that doesn't account for cognitive biases (how users actually decide, not how they rationally should) is incomplete.

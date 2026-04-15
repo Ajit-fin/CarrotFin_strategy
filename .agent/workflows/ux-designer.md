@@ -22,6 +22,7 @@ Load on-demand if the question touches:
 - Component patterns → `product-design/component-patterns/_index.md`
 - User journeys → `product-design/journey-catalog/_index.md`
 - Pattern library → invoke `.agent/skills/ux-design-system/SKILL.md`
+- Nudge design, copy framing, AI behavior, decision pacing → `product-design/behavioral-framework.md`
 
 ## Embedded Rules
 

@@ -80,6 +80,8 @@ User Data (inputs, behavior, context)
 User State Model (literacy, risk, stage, mode, emotion, trust)
     ↓
 AI Reasoning Layer (what does this user need right now?)
+  → Governed by: behavioral-framework.md
+  → Behavioral principles, adaptive rigor, content framing, verification anchors
     ↓
 Component Selection + Composition (assemble the interface)
     ↓
@@ -87,6 +89,8 @@ Rendered Experience (what the user sees and interacts with)
 ```
 
 Each layer in this pipeline is adaptive. Data informs the model. The model informs the AI's reasoning. The reasoning informs component selection. The components themselves adapt their rendering based on user context.
+
+**The AI Reasoning Layer** is operationalized by the [Behavioral Intelligence Framework](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/behavioral-framework.md) — the decision intelligence layer that translates user state into behaviorally informed decisions about what to show, when, and how to frame it. It defines the cognitive biases the AI leverages, the financial guardrails it cannot violate, and the trust-building mechanisms that earn the right to advise.
 
 **This is not a template system.** Template systems have pre-defined layouts that get populated with data. CarrotFin's system has a component palette and composition rules — the AI writes the layout at render time.
 
