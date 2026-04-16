@@ -4,10 +4,35 @@
 > **Last updated:** 2026-04-16
 > **Status:** Phase 1 complete — scope locked, journey phases defined. Phase 2 (interaction design) is next.
 > **Trigger:** First-launch onboarding. New user opens CarrotFin for the first time.
-> **User segments:** All — EF setup IS onboarding. Primary design anchors: New Parent (30–38) and Sandwich Generation (35–45). Adaptive engine handles all 9 archetypes.
-> **Assumptions depended on:** EF-11 (8 dimensions are the right sizing set), C5 (conversational+visual integration feasible), C6 (adaptive composition viable in Flutter)
+> **User segments:** All — EF setup IS onboarding. Primary design anchors: New Parent (30–38) and Sandwich Generation (35–45). The Adaptive Engine (see §0 below) handles all 9 archetypes at runtime.
+> **Assumptions depended on:** EF-11 (8 core sizing dimensions + 1 open/contextual dimension — see §2), C5 (conversational+visual integration feasible), C6 (adaptive composition viable in Flutter)
 > **Design decisions:** DD01 (EF as onboarding), DD02 (advisory-only model), DD03 (V1 scope boundary)
 > **Source philosophy:** `research/market/emergency-fund-philosophy.md`
+
+---
+
+## 0. What Is the Adaptive Engine — and Where Does It Sit?
+
+> **For Phase 2 onwards:** This section clarifies a term used throughout J01 so downstream design and engineering phases are aligned.
+
+The **Adaptive Engine** is CarrotFin's runtime decision layer — the logic that determines what the AI says, what components are rendered, and how the experience adapts based on what it knows about the user at any given moment. It is **not a separate product or service to be built independently** — it is the product intelligence that lives inside the app.
+
+In practical terms, it is:
+- The **LLM inference layer** that drives conversational turns (what the AI asks next, how it frames answers, which beat to enter)
+- The **composition rules engine** that decides which screen type (Generative / Hybrid / Static — per `screen-taxonomy.md`) and which components to render
+- The **user state model** that tracks what we know about the user (literacy signal, trust level, engagement mode, archetype signals, life stage) and updates it in real time
+
+**Where it sits in the product build journey:**
+
+| Phase | What is built | Adaptive Engine involvement |
+|:---|:---|:---|
+| **Phase 1 (this doc)** | Product scope + flow definition | Defined in terms of what decisions the engine must make |
+| **Phase 2 (UX Journey Design)** | Step-by-step interaction spec | Specifies adaptive variations per archetype — the engine's behavioral contract |
+| **Phase 3 (Component Specs)** | Adaptive component specs | Defines the component palette the engine selects from and the composition rules |
+| **Phase 4 (Stitch Briefs)** | Mockup generation | Visualises 2–3 archetype paths the engine would produce |
+| **Phase 5 (BuildSpec)** | Engineering handoff | Translates the engine's decision logic into concrete implementation guidance for the Flutter dev |
+
+> **Key point:** The adaptive engine is not a separate micro-service to spec and build in isolation. It is the sum of the LLM's conversational capability + the component palette + the composition rules. Phase 2 and Phase 3 together define its behavioral contract. Phase 5 translates it to implementation.
 
 ---
 
@@ -17,18 +42,36 @@
 
 | Entry Point | Trigger | User State at Entry | Notes |
 |:---|:---|:---|:---|
-| **First-launch onboarding** | App installed, first open | New, zero context, zero trust | Primary V1 entry. EF setup IS the onboarding experience. |
+| **First-launch onboarding** | App installed, first open | New, zero context, zero trust | Primary V1 entry. The app presents a multi-path starting point (see §0A below) — but only the EF path is active in V1. All other paths are visible placeholders. |
 | **Home surface prompt** | Returning user, EF not set up | Low trust, some context exists | For users who skipped or abandoned onboarding mid-flow. |
 | **Ambient nudge** | App detects no emergency fund data and user has been active for 7+ days | Warm trust, some context | Re-entry via notification: "You haven't set up your safety net yet." |
 
 > The conversational stream (per `interaction-model.md`) is the entry modality for all paths — not a form, not a dashboard. The AI starts the conversation.
+
+#### §0A — First-Run Experience: Multi-Path Shell, EF as the Only Active Path
+
+When a user opens CarrotFin for the first time, they should not land directly into an EF-specific flow. Instead:
+
+1. The app presents a **goal discovery surface** — the AI asks: *"What's on your mind financially?"* or *"What would you like to work on first?"* — with visible options like:
+   - 🛡️ **Build my safety net** (Emergency Fund) ← *Active in V1*
+   - 🎯 **Plan for a goal** (Retirement / Education / Buy a home) ← *Placeholder — visible, not interactive*
+   - 📈 **Grow my wealth** ← *Placeholder*
+   - 🧾 **Understand my finances** ← *Placeholder*
+
+2. Only the **Emergency Fund path is live**. All other paths show a "Coming soon — we're building this" state when tapped — but their presence sets the product vision from day one.
+
+3. If the user selects Emergency Fund (or if the AI recommends it as the most relevant starting point based on any contextual signals), the J01 EF setup flow begins.
+
+4. This shell means onboarding is **conceptually goal-agnostic** — it is not permanently EF-only. Future goal types slot in without restructuring the first-run experience.
+
+> **Engineering note (from DD01):** The app shell must support multi-goal navigation from day one. The EF path being the only active one is a V1 content constraint, not an architectural constraint.
 
 ### Exit Points
 
 | Exit Point | User State at Exit | What "Done" Means |
 |:---|:---|:---|
 | **Contribution plan confirmed** | Target set, allocation advised, SIP-equivalent plan agreed | User knows their target, knows where to put the money, knows how much to set aside per month. Advisory complete. |
-| **Monitoring state activated** | After contribution plan confirmation | App shifts to ambient monitoring — periodic "How's your fund growing?" nudges. |
+| **Monitoring state activated** | After contribution plan confirmation | App shifts to ambient monitoring — nudges are **contextual, personalised, and evolving** (not periodic check-ins). See §1A below. |
 | **Partial exit (deferred)** | User completes assessment but defers contribution planning | Journey saves state. User is re-engaged via ambient layer. A partial EF profile is better than none. |
 | **Full abandonment** | User exits before assessment | Minimal data saved. Re-entry prompt on next session. |
 
@@ -40,6 +83,21 @@
 | **Salary Credit Nudge** | After contribution plan: "Your salary hit. Want to move ₹X to your EF?" | Future ambient trigger. Not in V1 scope. |
 | **Goal Tracker** | EF appears as Goal #1 in the goal list on the home surface | Navigation scaffold exists in V1 (D2). |
 | **Recalibration Flow** | Life event detected → EF target adjusted | Recalibration trigger logic in V1 data model. Active UX in V2. |
+
+#### §1A — Nudge Philosophy: Contextual, Personalised, Evolving
+
+Nudges triggered after the monitoring state activates are **not** a scheduled ping cadence. They are event-driven, phase-aware, and must evolve as the user and their fund evolve.
+
+| Nudge type | Trigger condition | Journey phase | Personalisation dimension |
+|:---|:---|:---|:---|
+| **Milestone celebration** | Fund hits 25%, 1 month, 3 months, etc. | Active build phase | Milestone label + what they can now survive |
+| **Momentum nudge** | Auto-transfer scheduled but no growth detected for 30+ days | Active build phase | Specific month amount, next milestone gap |
+| **Recalibration signal** | Life event detected (salary change, new dependent, job change) | Any phase | Dimension that changed + new target estimate |
+| **Inactivity re-engagement** | User hasn't opened app in 14+ days | Any phase | Last milestone reached + personalised hook |
+| **Overshoot alert** | Fund ≥ 100% of target | Funded state | Redirect to wealth creation — this money is now over-working |
+| **Risk environment signal** | Macro signal (e.g., sector layoffs in user's industry) | Any phase | Framed to user's employment type and current fund coverage |
+
+**Key principle:** Nudges should feel like they come from a thoughtful advisor who knows the user's situation — not a notification system. Tone, framing, and timing must adapt to the user's current emotional state (per `behavioral-framework.md`) and journey phase. A user who just lost their job gets a different signal than one who just got a raise.
 
 ---
 
@@ -73,6 +131,14 @@ V2 ─────────────────────────�
 ---
 
 ### Phase 1: Discovery / Education
+
+> [!IMPORTANT]
+> **All journey phases described below are one possible scenario — not a rigid script.** The GenAI layer must adapt in real time to what the user actually says and does. The phase descriptions capture the design intent and a representative happy path, not a decision tree the AI must execute literally. Phase 2 (UX Journey Design) defines the adaptive variation matrix; Phase 5 (BuildSpec) defines the engineering contract for how real-time adaptation is implemented in Flutter.
+>
+> Specific implications:
+> - The AI may collapse or skip phases if the user is clearly already past that point (e.g., a user who says "I already have some savings but I'm not sure if it's enough" enters Phase 2 directly).
+> - The AI may revisit a phase if the user contradicts an earlier answer or asks to adjust.
+> - The sequence within each beat is a guide; the actual conversational path is driven by the user's responses, not a fixed script.
 
 **User question:** "Do I actually need an emergency fund? I thought my savings/investments cover me."
 
@@ -109,7 +175,7 @@ V2 ─────────────────────────�
 
 **The 8-dimension conversation design:**
 
-The AI does NOT ask 8 sequential questions. It groups them into 3 smart conversation beats:
+The AI does NOT ask 8 sequential questions. It groups them into 3 smart conversation beats. Each beat also leaves space for a **9th open dimension** — factors the user volunteers that don't fit neatly into the 8 (see §D9 below).
 
 > **Beat 1 — Income Profile** (covers Dimensions 1, 7)
 > "What's your primary income source — salaried job, freelance/contract, or running your own business?"
@@ -128,6 +194,20 @@ The AI does NOT ask 8 sequential questions. It groups them into 3 smart conversa
 > → "And your age, roughly? (20s / 30s / 40s / 50s+)"
 > → Health profile: "Any ongoing health conditions in the family that could mean higher medical costs?" (Yes/No/Prefer not to say — respects privacy)
 > → Value after: Final dimension set resolved. "Here's what all of this adds up to…" → bridges to Phase 3.
+
+> **Beat 4 — Open Dimension (D9: User-Surfaced Context)** *(triggered by user behaviour, not a fixed beat)*
+> If at any point in Beats 1–3 the user volunteers information that doesn't map to the 8 dimensions — for example: *"I also support a sibling in another city"* / *"We have a legal matter pending"* / *"I run a small side business"* — the AI acknowledges it, asks a clarifying follow-up, and incorporates it into the target as a contextual adjustment. The attribution strip label reads: **"+ [N] months (your specific situation)"** — honest about what it is without forcing it into an ill-fitting dimension.
+> If the user proactively asks *"What about X?"* where X isn't covered, the AI explains whether it's already captured in another dimension or adds it as a contextual factor.
+
+#### §D9 — The Ninth Dimension: Open / Contextual
+
+The 8-dimension model is the baseline. Real users will surface factors outside it. The AI must:
+1. **Not ignore them.** Dismissing user-surfaced context breaks trust.
+2. **Not over-engineer a response.** Use a conservative adjustment and flag it — no new form field needed.
+3. **Label it honestly** in the attribution: *"+ 1 month (based on your specific situation)"* — not buried in the base calculation.
+4. **Track it.** User-surfaced D9 factors in the first cohort inform whether any should be promoted to a permanent dimension.
+
+> **Assumption EF-11B:** The 8-dimension model covers the majority of Indian users' sizing factors. D9 is the safety valve for the remainder. Track D9 invocation rate — if >20% of users surface a D9 factor of the same type, promote it to a permanent dimension in the next iteration.
 
 **Trust gate:** Beat 2 asks for income-adjacent data (fixed obligations). Per behavioral framework trust architecture — this is asked only after Beat 1 delivers value. The AI earns permission to go deeper.
 
@@ -298,8 +378,18 @@ Per the Behavioral Framework trust architecture, the EF onboarding starts at **T
 | City / tier | Beat 3 | Low | Default to Tier 2 if skipped |
 | Age bracket | Beat 3 | Low | Offer 4 brackets — not an exact year |
 | Health conditions | Beat 3 | High | Fully optional. "Prefer not to say" is a valid answer. |
+| **Monthly income (rough range)** | Beat 2 | Medium | Ask with a range picker — not a blank text field. If withheld, infer from city tier + employment type. |
+| **D9 — Open / contextual factor** | Any beat | Variable | Accept and incorporate if user volunteers it. |
 
-**Design rule:** No raw income numbers are asked in the assessment — the AI infers monthly expense level from city tier + employment type + obligation questions. Asking "what's your monthly income?" at Trust Level: New risks drop-off. Obligations-based inference is more privacy-respectful and achieves the same sizing result.
+**Design rule — Data collection philosophy (applies to all fields, not just income):**
+
+Users are generally willing to share information when asked sensitively and when they can see why it matters. The default posture is **ask, with care** — not avoid-and-infer.
+
+- **Ask directly, but make it low-friction.** Use range pickers, bracket selectors, and sliders — not blank text fields for sensitive data. *"Roughly what's your monthly income? (Pick a range)"* is fine. *"Enter your exact annual CTC"* is not.
+- **Explain the why, immediately.** Before asking for sensitive data, the AI states the purpose: *"To figure out how much you'd need, I need to know roughly what your monthly expenses are — your income level helps me estimate that."* Justification earns permission.
+- **Graceful degradation if withheld.** If a data point is skipped, the AI uses a conservative estimate and tells the user: *"I'll use a cautious estimate here — you can refine this anytime."* The flow never stalls.
+- **No permanent locks.** Any data point can be revised later. The assessment is a live profile, not a one-time form.
+- **Universally applicable.** This sensitivity-first, ask-directly approach is the CarrotFin-wide data collection philosophy — not specific to income or any single field.
 
 ---
 
