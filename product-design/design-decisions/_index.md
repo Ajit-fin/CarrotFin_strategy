@@ -35,6 +35,9 @@ Design decisions differ from strategic decisions (`decision-log/`): they concern
 | [DD04](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD04-voice-screen-hybrid-modality.md) | Voice + Screen Hybrid Modality | 2026-04-16 | — |
 | [DD05](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD05-multi-stage-re-entry.md) | Multi-Stage Re-Entry — AI-Routed Journey Entry | 2026-04-16 | — |
 | [DD06](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD06-assessment-stream-primary.md) | Assessment Stream-Primary — No Composed Surface in Assessment | 2026-04-16 | — |
+| [DD07](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD07-attribution-strip-design.md) | Attribution Strip — Tiered Linear Arrow Diagram with Literacy Fallback | 2026-04-16 | — |
+| [DD08](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD08-allocation-visual-design.md) | Three-Layer Allocation Visual — Horizontal Liquidity Gradient Strip | 2026-04-16 | — |
+| [DD09](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD09-contribution-plan-deliverable.md) | Contribution Plan Deliverable — Action Card + Salary-Day Reminder | 2026-04-16 | — |
 
 ---
 

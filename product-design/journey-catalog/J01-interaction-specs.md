@@ -2,7 +2,7 @@
 
 > **Parent document:** [J01-emergency-fund-setup.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/journey-catalog/J01-emergency-fund-setup.md)
 > **Last updated:** 2026-04-16
-> **Status:** Phases 1–2 fully specced (Step 2B). Phases 3–5 skeleton only (Steps 2C–2D pending).
+> **Status:** Phases 1–5 fully specced (Step 2D complete). All 6 open questions resolved. See §7.
 > **Dependencies:** This file instantiates the cross-cutting patterns defined in J01 §0B (voice+screen, re-entry, §C1–§C4 confirmation patterns). Read §0B first.
 
 ---
@@ -604,36 +604,368 @@ Based on selections in Step 2.5, the AI asks targeted follow-ups:
 
 ---
 
-### Phase 3: Target Setting ("Why This Number")
+### Phase 3: Target Setting ("Why This Number") — Full Interaction Spec
 
 **User question:** "What's my number? And why?"
 
-**AI's job:** Reveal the personalized target with full dimension attribution. Make the number feel inevitable and personal — not arbitrary.
+**AI's job:** Reveal the personalized target with full dimension attribution. Make the number feel inevitable and personal — not arbitrary. This is CarrotFin's signature trust-building moment — the user sees the AI's reasoning laid bare.
 
-**Modality:** Conversation → Visual pivot ( per `interaction-model.md`, "Decide" modality). Stream sets up the reveal. Visual component materializes inline with the number.
+**Modality:** Conversation → Visual pivot (per `interaction-model.md`, "Decide" modality). Stream sets up the reveal. Visual component materializes inline with the number. The AI narrates while the screen renders — simultaneous, not sequential (§0B Rule 3).
 
-**Screen type:** Hybrid (conversational reveal + inline target card with dimension attribution)
+**Screen type:** Hybrid (conversational reveal + inline Target Card with attribution strip)
 
-**The reveal sequence:**
-1. AI delivers conversational setup: "Here's what all of that adds up to."
-2. **Personalized Target Card** materializes inline:
-   - Headline: "Your emergency fund target: ₹[X]L ([N] months)"
-   - Attribution strip below the number: dimension-by-dimension arrows showing what increased/decreased the base estimate:
-     > "Started at 6 months (salaried baseline) → +2 months (single earner with dependents) → +1 month (parent without health insurance) → −1 month (stable large employer) → **Final: 8 months**"
-   - "Was this calculation right?" / "Adjust an answer" — escape hatch.
-3. **Myth busting surfaces here** if the number differs materially from "the usual advice" (§7 of philosophy): "This is higher than the '3-6 months' you may have heard — here's why that rule doesn't fit your situation."
-4. AI delivers the plain-English "Why This Number" explanation with one key insight highlighted.
+**Trust level at entry:** Warming. The user has invested 3–5 minutes in Assessment, shared sensitive data, confirmed it at §C3. The AI has delivered two "value after" moments. Phase 3 is where this earned trust converts to perceived competence — the AI proving it did something meaningful with the data.
 
-**Social Obligation Buffer (D3 — V1 optional step):**
-After the primary target is revealed:
-> "One more thing — many Indian families also set aside a small separate buffer for family obligations: a wedding in the family, a ceremony, community support. This keeps your EF intact for true emergencies. Want to add one?"
-> → **Yes:** Simple input: "How many months of obligations typically hit in a year?" → adds a clearly labeled "Family Buffer" sub-fund target.
-> → **Skip:** Core EF target unchanged.
+> [!NOTE]
+> **Design Decision:** [DD07](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD07-attribution-strip-design.md) — Attribution Strip uses a **tiered linear arrow diagram** (vertical stack) as default, with a plain-text conversational fallback for low-literacy users. Partially resolves T7 for Phase 3.
 
-**"Starter Shield" framing for large targets:**
-If the revealed target is ≥ ₹5L AND the user appears to be early-career or low-income (signal from Beat 1):
-> AI offers: "That's a big goal. The real win is getting to your first month — your 'Starter Shield' of ₹[monthly_expense]. Once you hit that, your most acute risk drops significantly. Let's start there."
-→ Milestone 1 = 1 month. Full target is the horizon, not the first step.
+---
+
+#### Phase 3 — Step-by-Step Interaction Spec
+
+> **Prerequisite:** The user has passed the §C3 Summary Confirm gate at the end of Phase 2. All 8 dimensions (+ optional D9) are captured and confirmed. The "Building Your Picture" indicator shows the resolved single number (e.g., "Your target: 7 months (₹4.9L)"). Phase 3 receives a clean, confirmed data set.
+
+**Step 3.1 — Conversational Setup (The Reveal Beat)**
+
+> The AI builds a brief narrative pause before the Target Card materializes. This beat is emotional pacing — the AI does NOT jump straight to the visual. The pause creates a "moment" that distinguishes the reveal from a calculator output.
+
+| Aspect | Spec |
+|:---|:---|
+| **AI voice** | Speaks the setup line aloud. Tone: confident, warm, slightly deliberate — like an advisor who has finished their analysis and is about to deliver the verdict. Not rushed. |
+| **AI text** | "Here's what all of that adds up to — and why your number is what it is." |
+| **Screen** | AI message bubble appears in the stream. A brief pause (800ms) follows before the Target Card materializes — this is not a loading delay, it's pacing. The "Building Your Picture" indicator remains pinned above with the number already visible (from §C3 close). |
+| **Voice-off mode** | AI text appears; same 800ms pause before card. No information lost. |
+
+**Step 3.2 — Target Card Materialization**
+
+> The Target Card materializes inline in the conversational stream — not as a separate composed surface.
+
+| Aspect | Spec |
+|:---|:---|
+| **Animation** | The card slides up from below with a smooth ease-out (300ms). The headline number renders first, then the attribution strip fills in row by row with a 100ms stagger between rows (top to bottom). Total card build time: ~800ms. The staggered build makes the logic feel like it's being "assembled" — reinforcing that the AI computed something, not looked up a table. |
+| **AI voice (simultaneous)** | While the card animates, the AI speaks: "Your emergency fund target is [₹X lakh] — that's [N] months of your essential expenses." The AI narrates **only the headline**, not the attribution strip. The visual carries the detail (§0B Rule 3). |
+| **Screen — Target Card layout** | See layout below. |
+
+**Target Card layout:**
+
+```
+┌──────────────────────────────────────────────┐
+│                                              │
+│  🛡️  Your Emergency Fund Target               │
+│                                              │
+│        ₹4.9L                                 │
+│        7 months of essential expenses        │
+│                                              │
+│  ── How we got to your number ──────────── │
+│                                              │
+│  Salaried, large private      → 5 mo base   │
+│          ↓                                   │
+│  + Infant dependent           → +1 mo       │
+│          ↓                                   │
+│  + Uninsured parent           → +1 mo       │
+│          ↓                                   │
+│  − Dual income household      → −0.5 mo     │
+│          ↓                                   │
+│  + High fixed costs (50%)     → +0.5 mo     │
+│          ═══════════════                     │
+│  Your target                    7 months     │
+│                                 ₹4.9L        │
+│                                              │
+│  [Why is this different from "3–6 months"?]  │
+│                                              │
+│  ┌─────────────────┐  ┌──────────────────┐  │
+│  │  Looks right ✓   │  │  Adjust an answer │  │
+│  └─────────────────┘  └──────────────────┘  │
+└──────────────────────────────────────────────┘
+```
+
+**Attribution strip — Phase 3–specific additions:**
+
+> Full design rules (layout, colour coding, collapse behaviour, row tappability, literacy fallback) are in [DD07](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD07-attribution-strip-design.md). Below are Phase 3–specific interaction details only.
+
+| Aspect | Spec |
+|:---|:---|
+| **Animation** | Rows fill in with 100ms stagger (top to bottom) during Target Card materialization. Total strip build: ~500ms. |
+| **Voice** | The AI does NOT read the attribution strip. It narrates only the headline number. The strip is visual-only — screen carries the detail (§0B Rule 3). |
+| **D9 row** | If D9 was triggered, it appears as the last factor row before the total, labeled with its specific context (e.g., "Sibling support (₹20K/mo) → +1 mo"). |
+| **Level 3 data sources** | Second-level row expand reveals formula/data source (§5.2 Level 3). All data claims must be grounded — e.g., paediatric emergency cost differentials [source TBD for BuildSpec]. |
+
+**Step 3.3 — "Why This Differs" Myth-Busting (Conditional)**
+
+> Triggers ONLY when the revealed target differs materially from the "3–6 months" generic advice. Per philosophy §7: "At target-reveal, show why their number differs from 'the usual advice'."
+
+| Aspect | Spec |
+|:---|:---|
+| **Trigger condition** | Target is ≥7 months (exceeds the upper bound of generic "3–6 months" advice) OR target is ≤3 months (below common advice — rare but possible for metro single professionals with minimal obligations). |
+| **AI voice** | Speaks the myth-bust after a brief pause (400ms) following the card animation: "You may have heard that 3 to 6 months is enough. For most people, it isn't — here's why yours is different." |
+| **Screen** | The tappable link within the Target Card — "[Why is this different from '3–6 months'?]" — auto-expands if the myth-bust triggers. Shows a brief inline explanation: |
+| **Expanded content** | "The '3–6 months' rule assumes a salaried dual-income household with health insurance, no aging dependents, and a metro job market. Your situation has [specific diverging factors] — that's why your number is [N] months." The specific factors are pulled from the attribution strip's top contributors. |
+| **If NOT triggered** | The "[Why is this different…]" link remains in the card as a tappable affordance but does NOT auto-expand. User can tap it anytime. |
+| **Voice-off mode** | Same content in AI message bubble. No information lost. |
+
+**Step 3.4 — "Why This Number" Key Insight (AI Narration)**
+
+> After the card has materialized and the optional myth-bust has played, the AI delivers ONE plain-English insight — the single most important thing the user should take away. This is the emotional anchor.
+
+| Aspect | Spec |
+|:---|:---|
+| **AI voice** | Speaks the insight aloud. Tone: confident, direct, personal. This is the AI's editorial voice — not reading data, but interpreting it. |
+| **Content selection logic** | The AI picks the **single most unusual or high-impact factor** from the attribution strip. Not the largest adjustment — the most *surprising* one relative to the user's likely expectations. |
+| **Example (New Parent)** | "The biggest thing people miss is the uninsured parent. Your mother-in-law has no health cover — if she needs hospitalisation, that comes straight from your pocket. That single factor adds a full month to your target." |
+| **Example (Sandwich Gen)** | "Being the sole earner for six people is the defining factor. If your income stops for any reason, there's no second salary to absorb the impact. That's why your baseline is so much higher than someone with a working spouse." |
+| **Screen** | AI message bubble in the stream, below the Target Card. No additional visual — the card carries the data, this message carries the emotional interpretation. |
+
+**Step 3.5 — Target Card CTAs (User Response)**
+
+| Aspect | Spec |
+|:---|:---|
+| **"Looks right ✓"** (primary CTA) | User accepts the target. AI responds: "Great — let's figure out the best way to structure this." → Proceeds to Step 3.6 (Social Obligation Buffer, if applicable) or Step 3.8 (Starter Shield, if applicable) or directly to Phase 4. |
+| **"Adjust an answer"** (secondary CTA) | Triggers §C4 (Edit-in-Place). The §C3 Summary Card from Assessment re-renders inline. User taps the data point to edit → downstream recalculation → Target Card number updates with smooth morph animation (400ms). Attribution strip re-renders to reflect the change. AI narrates: "Updated. Let me recalculate…" → new number appears. |
+| **Voice** | User can say "Looks right" / "That makes sense" → same as primary CTA. User can say "My income is actually higher" or "I forgot to mention X" → AI routes to §C4 edit flow. |
+| **Flow pause** | Flow **waits** for explicit CTA action. This is deliberate friction at the Target Setting gate (per T5 — this is a life-impacting number). |
+
+---
+
+#### §3-D3 — Social Obligation Buffer (D3: Optional Post-Target Step)
+
+> **§7 Q5 Resolution:** The social obligation buffer surfaces as a **separate, visually distinct prompt** after the user accepts the primary target. It animates in as a clearly secondary element — not an extension of the Target Card. The visual design communicates: "this is an add-on, not a correction to your core number."
+
+**Trigger condition:** Always surfaces after Step 3.5 "Looks right" CTA. This is not gated by archetype — all Indian users get the offer. User can skip in one tap.
+
+**Step 3.6 — D3 Prompt**
+
+| Aspect | Spec |
+|:---|:---|
+| **Timing** | 600ms after the user taps "Looks right." Enough pause to register that the primary target is confirmed and locked. |
+| **AI voice** | Speaks the prompt: "One more thing — and this is separate from your safety net." Deliberate verbal framing: "separate" is the critical word. |
+| **AI text** | "Many Indian families also keep a small buffer for things like a wedding in the family, a ceremony, or community support. This isn't part of your emergency fund — it's a separate pot that keeps your EF intact for real emergencies. Want to add one?" |
+| **Screen** | A **D3 Prompt Card** slides up below the Target Card (not inside it). Visual differentiation: |
+
+**D3 Prompt Card layout:**
+
+```
+┌──────────────────────────────────────────────┐
+│  🎁  Family Obligation Buffer (Optional)      │
+│                                              │
+│  A small separate fund for weddings,         │
+│  ceremonies, and family support — so your    │
+│  emergency fund stays untouched.             │
+│                                              │
+│  ┌──────────────┐  ┌───────────────────┐    │
+│  │  Add a buffer │  │  Skip — not now    │   │
+│  └──────────────┘  └───────────────────┘    │
+└──────────────────────────────────────────────┘
+```
+
+| Aspect | Spec |
+|:---|:---|
+| **Visual differentiation** | The D3 card uses a **different background tint** (soft cream/warm grey) from the Target Card (white/standard). A dotted or dashed border (not solid) reinforces that this is optional/supplementary. The 🎁 icon (or equivalent warm, non-urgent icon) signals "bonus" not "warning." |
+| **Animation** | Slides up from below with ease-out (250ms). Appears BELOW the confirmed Target Card — the Target Card does not move, grow, or change. The spatial relationship communicates hierarchy: Target Card = primary (above), D3 = optional add-on (below). |
+| **"Skip — not now"** | Secondary CTA. User taps → D3 card fades out (200ms). AI says: "No worries. You can always add one later." → Flow proceeds to Step 3.8 (Starter Shield check) or Phase 4. |
+| **Voice** | User can say "No thanks" / "Skip" / "Not now" → same as skip CTA. User can say "Yes, add one" → Step 3.7. |
+
+**Step 3.7 — D3 Buffer Sizing (If User Taps "Add a Buffer")**
+
+| Aspect | Spec |
+|:---|:---|
+| **AI voice** | "Roughly, how much would a typical family obligation cost you? Think of the most common one — a wedding contribution, a ceremony, or supporting a relative." |
+| **Screen** | AI message + inline range chips: `Under ₹25K` · `₹25K–50K` · `₹50K–1L` · `₹1L–2L` · `₹2L+`. User can also type a specific amount. |
+| **Confirmation** | §C1 for range selection. If user types a number → §C2 confirm chip. |
+| **AI follow-up** | "And how often does something like this come up — roughly once a year, a couple of times?" Options: `Once a year` · `2–3 times a year` · `More often` |
+| **Calculation** | AI uses the midpoint of the selected range × midpoint of the frequency band = annual buffer. Divides by 12 for monthly contribution overlay. Example: ₹50K × 2/year = ₹1L annual → ₹8,300/mo additional. |
+| **Result display** | The D3 card updates inline: |
+
+**D3 Buffer — confirmed state:**
+
+```
+┌──────────────────────────────────────────────┐
+│  🎁  Family Obligation Buffer                 │
+│                                              │
+│  ₹1.0L / year                               │
+│  (₹50K × ~2 events/year)                    │
+│                                              │
+│  This is separate from your ₹4.9L safety net │
+│  ┌──────────┐  ┌──────────┐                  │
+│  │ Confirm ✓ │  │ Remove ✗  │                 │
+│  └──────────┘  └──────────┘                  │
+└──────────────────────────────────────────────┘
+```
+
+| Aspect | Spec |
+|:---|:---|
+| **Visual** | Buffer amount is shown clearly as a SEPARATE line item. The card explicitly states "This is separate from your ₹[X]L safety net" to prevent mental conflation with the core EF target. |
+| **AI voice** | "Got it — ₹1 lakh a year as a family buffer, separate from your emergency fund. That way when a wedding invite shows up, your safety net stays intact." |
+| **Confirm/Remove** | Confirm locks the buffer. Remove eliminates it (same as "Skip"). Either way, flow proceeds. |
+| **Impact on Phase 4/5** | The buffer appears as a separate sub-fund in Phase 4 (Fund Architecture) and a separate contribution line in Phase 5 (Contribution Planning). It is NEVER added to the core EF target number. |
+
+---
+
+#### §3-SS — "Starter Shield" Framing for Large Targets
+
+> The Starter Shield reframes a daunting number as an achievable first step. It prevents the **paralysis effect** (behavioral framework §1.2 — Present Bias): a ₹11.5L target feels so distant that the user may never start. The Starter Shield says: "You don't need to get there all at once. Your first month is the most important one."
+
+**Trigger condition:** Target ≥ ₹5L **AND** at least one of:
+- User is early-career (Age bracket: 20s or early 30s)
+- User's monthly income is ≤ ₹80K (per Step 2.6 capture)
+- Target-to-monthly-income ratio exceeds 6× (i.e., target is >6 months of take-home)
+
+> The trigger is deliberately broad. The Starter Shield never hurts — even for users who don't strictly need it, seeing the milestone architecture is motivating. The only users who DON'T see it are those with small targets (<₹5L) where the full amount already feels achievable.
+
+**Step 3.8 — Starter Shield Reveal**
+
+| Aspect | Spec |
+|:---|:---|
+| **Timing** | After Step 3.5 "Looks right" + D3 resolution (accepted, skipped, or not triggered). Before transition to Phase 4. |
+| **AI voice** | Speaks with a reassuring, motivating tone — NOT minimising the target, but reframing the journey: "That's a meaningful goal — and you don't need to build it all at once. The biggest win is your first month." |
+| **AI text** | "Your first milestone is your **Starter Shield** — ₹[1 month of essential expenses]. Once you hit that, your most acute risk drops significantly. A single-month income gap won't derail your family." |
+| **Screen** | The Target Card transforms — not replaces — with a **milestone overlay** that slides in below the headline number: |
+
+**Starter Shield — Target Card overlay:**
+
+```
+┌──────────────────────────────────────────────┐
+│                                              │
+│  🛡️  Your Emergency Fund Target               │
+│                                              │
+│        ₹11.5L                                │
+│        12 months of essential expenses       │
+│                                              │
+│  ── Your milestones ────────────────────── │
+│                                              │
+│  ★ Starter Shield     ₹96K   (1 month)  ←──│
+│    3 Months Secure    ₹2.9L  (3 months)     │
+│    Half-Year Shield   ₹5.8L  (6 months)     │
+│    Fully Funded       ₹11.5L (12 months)    │
+│                                              │
+│  "A single-month gap won't derail            │
+│   your family. Start here."                  │
+│                                              │
+│  [Got it — let's plan →]                     │
+└──────────────────────────────────────────────┘
+```
+
+| Aspect | Spec |
+|:---|:---|
+| **Animation** | The attribution strip collapses (if still expanded) with a smooth fold-up (300ms). The milestone overlay slides in from below (300ms). The ★ Starter Shield row pulses once with a warm glow (amber, 400ms) — drawing the eye to the first milestone. The arrow indicator (←) marks the current focus. |
+| **Milestone rows** | 4 milestones from philosophy §6: Starter Shield (1 mo), 3 Months Secure, Half-Year Shield, Fully Funded. Each shows the ₹ amount computed from the user's monthly essential expense (from Assessment obligations + income data). Greyed out except Starter Shield (active). |
+| **AI voice (simultaneous)** | While the overlay animates: "Your Starter Shield is ₹[X]. That's one month of your family's essential expenses. Once you reach it, if something goes wrong, you have a full month before you'd need to touch anything else. That's the first win." |
+| **Voice-off mode** | Same milestone overlay. AI text carries the Starter Shield framing in the message bubble. |
+| **If Starter Shield NOT triggered** | The milestone overlay does NOT appear in Phase 3. Milestones are previewed later in Phase 5 (Contribution Planning) as part of the contribution timeline. The full target feels achievable enough that front-loading milestones would add unnecessary complexity. |
+| **CTA** | "Got it — let's plan →" — transitions to Phase 4 (Fund Architecture). |
+
+---
+
+#### Phase 3 — Voice Handling Summary
+
+> Phase 3 is a **modality pivot**: the AI's role shifts from questioner (Phase 2) to narrator (Phase 3). The user's role shifts from data provider to evaluator. Voice handling reflects this inversion.
+
+| Beat | AI speaks | AI does NOT speak | Screen carries |
+|:---|:---|:---|:---|
+| **Step 3.1** (Setup) | "Here's what all of that adds up to — and why your number is what it is." | — | AI message bubble |
+| **Step 3.2** (Target Card) | "Your emergency fund target is ₹[X]L — that's [N] months of your essential expenses." (headline only) | Does NOT read the attribution strip row by row. Does NOT read the card headings or labels. | Full Target Card with attribution strip. The visual is far richer than the narration — simultaneous rendering. |
+| **Step 3.3** (Myth-bust) | "You may have heard that 3 to 6 months is enough. For most people, it isn't — here's why yours is different." (if triggered) | Does NOT read the expanded explanation. | Auto-expanded inline explanation within the card. |
+| **Step 3.4** (Key insight) | One personalised editorial insight — the most surprising factor. | Does NOT repeat attribution data already shown on screen. | AI message bubble below the card. |
+| **Step 3.5** (CTAs) | Silence. The user evaluates. AI speaks only if the user asks a question or initiates an edit. | Does NOT prompt or rush. | Target Card with CTAs. Flow pauses. |
+| **§3-D3** (Buffer prompt) | "One more thing — and this is separate from your safety net." Then: the D3 prompt copy. | Does NOT read D3 card labels or layout elements. | D3 Prompt Card — visually distinct from Target Card. |
+| **§3-SS** (Starter Shield) | "That's a meaningful goal — and you don't need to build it all at once. The biggest win is your first month." Then: "Your Starter Shield is ₹[X]…" | Does NOT read all milestone rows. Narrates only Starter Shield. | Milestone overlay with 4 rows. Only Starter Shield is active/highlighted. |
+
+**Key voice principles for Phase 3:**
+1. **AI is narrator, not reader.** The AI provides editorial commentary on the number. The screen provides the data. The two are complementary, not redundant.
+2. **Silence is a tool.** At Step 3.5, the AI goes quiet. The user needs space to evaluate a significant number. Any AI filler ("Take your time!" / "What do you think?") would feel performative.
+3. **Voice carries emotion, screen carries logic.** The AI's spoken insight (Step 3.4) is the emotional hook. The attribution strip (Step 3.2) is the logical proof. Together they build both trust and conviction.
+
+---
+
+#### Phase 3 — Adaptive Variations (Full Walkthrough)
+
+##### New Parent Archetype — Full Phase 3 Path
+
+> **Profile:** 34F, salaried (IT, large pvt), ₹14L/yr (~₹1.17L/mo take-home), infant + mother-in-law (no health insurance), Tier 2 city, dual income household.
+> **Target entering Phase 3:** ₹4.9L / 7 months.
+> **Attribution focus:** Why 7 months is higher than the "3–6 months" rule she probably heard.
+
+| Step | Interaction | Outcome |
+|:---|:---|:---|
+| **3.1** Setup | AI speaks: "Here's what all of that adds up to — and why your number is what it is." | 800ms pause. |
+| **3.2** Target Card | Card materializes. Headline: "₹4.9L — 7 months." Attribution strip builds row by row: salaried large pvt → 5 mo base. +1 infant. +1 uninsured parent. −0.5 dual income. +0.5 high fixed costs. = 7 months. AI speaks simultaneously: "Your emergency fund target is ₹4.9 lakh — that's 7 months of your family's essential expenses." | Target Card rendered with 5-row attribution strip. |
+| **3.3** Myth-bust | Triggers — 7 months exceeds "3–6 months." Link auto-expands: "The '3–6 months' rule assumes no dependents needing medical cover and dual-income stability as a safety net. Your infant and your mother-in-law's health risk push you above that baseline." AI speaks: "You may have heard 3 to 6 months is enough. For your situation, it isn't — here's why." | Myth-bust inline expansion visible. |
+| **3.4** Key insight | AI speaks: "The biggest thing people miss is the uninsured parent. Your mother-in-law has no health cover — if she needs hospitalisation, that comes straight from your pocket. That single factor adds a full month to your target." | AI message bubble below card. This is the editorial moment — it makes the number feel personal, not formulaic. |
+| **3.5** CTAs | She reviews the card. Taps "Looks right ✓." | Target confirmed. |
+| **3.6** D3 Prompt | D3 card slides up. AI: "One more thing — and this is separate from your safety net." She reads the prompt. | D3 card visible. |
+| **3.6** D3 Response | She taps "Skip — not now." AI: "No worries. You can always add one later." Card fades. | D3 skipped. |
+| **3.8** Starter Shield | NOT triggered. ₹4.9L is just below the ₹5L threshold. Even if it were above, dual income + stable large pvt employer signals moderate confidence in ability to build. | Proceed directly to Phase 4. |
+
+**Key moments for New Parent:**
+- The myth-bust pre-empts the "but I heard 3–6 months" doubt. The proactive explanation is the pivotal trust moment.
+- The uninsured parent insight is unexpected — she likely hadn't thought of her mother-in-law's health as an EF dimension.
+
+##### Sandwich Generation Archetype — Full Phase 3 Path
+
+> **Profile:** 42M, SME owner (variable income), ₹22L/yr (working estimate ₹1.6L/mo after §C3 edit), 2 school-age kids + aging parents (cardiac father, diabetic mother, no insurance), single earner, metro. D9: sibling support ₹20K/mo.
+> **Target entering Phase 3:** ₹11.5L / 12 months.
+> **Attribution focus:** The Starter Shield framing — ₹11.5L is a daunting number. How does the AI make it feel actionable, not paralysing.
+
+| Step | Interaction | Outcome |
+|:---|:---|:---|
+| **3.1** Setup | AI speaks: "Here's what all of that adds up to — and why your number is what it is." | 800ms pause. |
+| **3.2** Target Card | Card materializes. Headline: "₹11.5L — 12 months." Attribution strip (7 rows + D9): own business (<3 yr) → 9 mo base. +1 single earner. +1 two school-age kids. +1.5 cardiac parent (no insurance). +0.5 diabetic parent (no insurance — already counted, marginal add). −0.5 metro job market (higher re-employment options for skilled SME). +1 sibling support [D9]. = 12.5 → rounded to 12 months. AI speaks simultaneously: "Your emergency fund target is ₹11.5 lakh — that's 12 months of your family's essential expenses." | Target Card rendered with 8-row attribution strip. The strip is longer — card grows but remains scannable. |
+| **3.3** Myth-bust | Triggers — 12 months dramatically exceeds "3–6 months." Auto-expands: "The '3–6 months' rule was designed for salaried dual-income households with health insurance. As a sole earner running a business under 3 years, with aging parents who have no health cover, your risk profile is fundamentally different." AI speaks: "This is a lot higher than the '3 to 6 months' advice you've probably seen. Here's why that number was never designed for your situation." | Myth-bust expansion with strong framing. |
+| **3.4** Key insight | AI speaks: "Being the sole earner for six people is the defining factor here. If your income stops — whether it's a slow quarter, a health issue, or anything else — there's no second salary. Everyone in your household depends on this fund." | AI message bubble. This is the most emotionally resonant line in his entire journey. |
+| **3.5** CTAs | He reviews. The ₹11.5L number is large. He may pause here. He taps "Looks right ✓" — he knows the math checks out because the attribution strip laid it bare. | Target confirmed. |
+| **3.6** D3 Prompt | D3 card slides up. AI: "One more thing — and this is separate from your safety net." | D3 card visible. |
+| **3.7** D3 Response | He taps "Add a buffer." AI asks about typical obligation cost. He selects "₹50K–1L." AI asks frequency: he taps "2–3 times a year." AI computes: ₹75K (midpoint) × 2.5 = ₹1.9L/year. D3 card updates: "₹1.9L / year — separate from your ₹11.5L safety net." He taps "Confirm ✓." | D3 buffer locked at ₹1.9L/yr. |
+| **3.8** Starter Shield | TRIGGERED. ₹11.5L ≥ ₹5L. Single earner, variable income, business <3 years. Target-to-income ratio: ₹11.5L / ₹1.6L = 7.2× — well above 6× threshold. | Starter Shield overlay appears. |
+| **3.8** Starter Shield | Attribution strip collapses. Milestone overlay slides in: ★ Starter Shield ₹96K (1 mo) ← active. 3 Months Secure ₹2.9L. Half-Year Shield ₹5.8L. Fully Funded ₹11.5L. AI speaks: "That's a meaningful goal — and you don't need to build it all at once. Your Starter Shield is about ₹96,000 — one month of your family's essential expenses. Once you reach it, a single bad month in your business won't mean touching anything else. That's the first win." | He sees the milestone path. The ₹96K first target feels achievable vs. the ₹11.5L total. This is the anti-paralysis moment. |
+| **3.8** CTA | He taps "Got it — let's plan →" | Transition to Phase 4. |
+
+**Key moments for Sandwich Generation:**
+- The cardiac parent row (+1.5 mo) is the largest single factor — validates the AI's earlier promise to "factor in" his father's condition. Staggered animation ensures he processes each factor.
+- The Starter Shield is the critical anti-paralysis mechanism. ₹96K as first target feels achievable vs. ₹11.5L total — the shift from paralysis to action is the design intent.
+
+---
+
+#### Phase 3 — Re-Entry Adaptations
+
+##### Scenario B in Phase 3 (User with Existing Savings)
+
+| Adaptation | Spec |
+|:---|:---|
+| **Target Card includes gap analysis** | Headline shows: "Your target: ₹4.2L (8 months). You have ₹2.5L — you're 60% there." The ₹2.5L figure comes from the early Assessment capture (see Phase 2 re-entry, Scenario B). |
+| **Attribution strip unchanged** | Shows the same dimension-by-dimension build. The gap is shown AFTER the attribution — not within it. |
+| **AI Key Insight adaptation** | "You've already built a solid foundation — ₹2.5L puts you past the Starter Shield. The gap is ₹1.7L — about [N] months of saving ₹[X]/month. Very doable." Tone: validation, not "you're behind." |
+| **Starter Shield** | NOT triggered if existing savings already exceed 1 month of expenses. The user is past that milestone. |
+
+##### Scenario C in Phase 3 (User with Known Target — Validation Path)
+
+| Adaptation | Spec |
+|:---|:---|
+| **Comparison reveal** | Target Card shows: "Your estimate: ₹5L. My recommendation: ₹5.8L." Attribution strip shows the full build to ₹5.8L. Below: "The difference is [specific factor they likely missed]." |
+| **User choice** | Two CTAs: "Go with ₹5.8L" (primary) / "Stick with my ₹5L" (secondary). Per DD05 — user autonomy first. |
+| **AI voice** | "Your estimate was close — the gap is mostly [specific factor]. Either number is reasonable. It's your call." |
+
+##### Scenario E in Phase 3 (User with Existing EF — Review)
+
+| Adaptation | Spec |
+|:---|:---|
+| **Gap or surplus framing** | If target > existing: "Your target is ₹6.2L. You have ₹5L — you're at 81%. Here's what the gap covers: [top contributing factor for the deficit]." |
+| | If target ≤ existing: "You're actually a bit over-funded — ₹5L against a ₹4.2L target. The extra ₹80K could work harder elsewhere. Want me to show you options?" |
+| **Tone** | Pure validation. "You've been doing the right thing. Let me sharpen it." |
+
+---
+
+#### Phase 3 — Component Needs
+
+| Component | Type | Screen Type | Notes |
+|:---|:---|:---|:---|
+| **Target Card** | Inline card with headline number + collapsible attribution strip + two CTAs | Hybrid (inline in stream, but pinned during Phase 3 interaction) | Contains three sub-sections: headline, attribution strip, CTAs. Card grows vertically based on attribution row count (5–9 rows). Slide-up materialization (300ms). |
+| **Attribution Strip (DD07)** | Vertical stacked arrow diagram with tappable rows | Generative (rendered inline within Target Card) | Each row: factor label + directional adjustment (+ or −) + month contribution. Warm/cool colour coding. Rows are tappable → expand one-sentence explanation (§5.2 Level 2). Second-level tap reveals formula (§5.2 Level 3). 100ms stagger animation between rows. Collapsible. |
+| **Literacy Fallback Narration** | AI message bubble with plain-English attribution | Generative (inline in stream, replaces attribution strip) | Triggered by low-literacy signal. Full conversational breakdown. "Show me the breakdown" recovery affordance. |
+| **Myth-Bust Expansion** | Collapsible inline section within Target Card | Generative (inline within Target Card) | Auto-expands when target diverges from "3–6 months." Stays collapsed (tappable) when target is within range. |
+| **D3 Prompt Card** | Optional inline card with two CTAs | Generative (inline in stream, below Target Card) | Visually distinct from Target Card: different background tint, dashed border, 🎁 icon. Slide-up animation (250ms). Fade-out on skip (200ms). |
+| **D3 Buffer Sizing Inputs** | Range chips + frequency selector | Generative (inline in stream) | Amount range chips + frequency options. §C1 for ranges, §C2 for typed amounts. |
+| **D3 Confirmed State Card** | Updated D3 card with confirmed buffer amount | Generative (inline in stream) | Shows annual buffer, calculation breakdown, "separate from your ₹[X]L safety net" label. Confirm/Remove CTAs. |
+| **Starter Shield Overlay** | Milestone list overlaid within Target Card | Generative (replaces attribution strip area within Target Card) | 4 milestone rows from philosophy §6. Only Starter Shield row is active (★ marker, warm glow pulse). Others greyed. Attribution strip collapses to make room. Single CTA: "Got it — let's plan →". |
+| **§C4 Re-edit Flow** | Edit-in-Place from Target Card "Adjust an answer" CTA | Generative (inline in stream) | Re-renders §C3 Summary Card. User edits → downstream recalculation → Target Card number morphs (400ms). Attribution strip re-renders. |
 
 ---
 
@@ -641,24 +973,126 @@ If the revealed target is ≥ ₹5L AND the user appears to be early-career or l
 
 **User question:** "Okay, I know the target. But where do I actually put this money?"
 
-**AI's job:** Recommend the 3-layer allocation split, adapted to income pattern. Explain why this structure — without naming specific products.
+**AI's job:** Recommend how to allocate across 3 liquidity layers and explain the structure. No product execution — that belongs to Phase 5. Phase 4 ends when the user has mentally accepted the structure.
 
-**Modality:** Conversation → Visual pivot to composed surface. The 3-layer allocation chart is the dominant visual. Stream provides conversational explanatory layer.
+**Screen type:** Hybrid (conversational setup → inline Allocation Card with horizontal liquidity gradient strip per [DD08](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD08-allocation-visual-design.md))
 
-**Screen type:** Hybrid (fixed 3-column/layer structure + AI-generated amounts and explanations per layer)
+**Advisory ceiling (D4 / DD02):** Instrument type only. No specific fund names, AMC names, or bank products.
 
-**What the AI recommends (per philosophy §5):**
-- Layer 1: Instant Access — "sweep-in FD or savings account with instant UPI/ATM access" → amount = 1–2 months essential spend
-- Layer 2: Quick Access — "liquid mutual fund (many allow instant redemption up to ₹50K, rest T+1)" → amount = 2–4 months
-- Layer 3: Stability Reserve — "short-term FD or ultra-short debt fund" → remaining months
+> [!NOTE]
+> **DD08:** The 3-layer allocation visual is a **horizontal liquidity gradient strip** — a single continuous bar with proportionally-sized zones, warm amber (Instant) → cool blue-slate (Stability). This communicates liquidity as a spectrum, not three separate buckets. Resolves Q4 / T1 for Phase 4.
 
-**Adaptive income-pattern rule (from philosophy):**
-- Variable income (freelancer/gig): Weight toward Layer 1 — income is lumpy, need more instant access.
-- Dual-income salaried: Weight toward Layer 2/3 — income regularity = natural hedge.
+---
 
-**DICGC note:** If total target exceeds ₹5L, AI surfaces: "If you're putting a significant amount into FDs, keep it spread across 2+ banks — deposit insurance only covers ₹5L per depositor per bank."
+#### Phase 4 — LLM Guidance Prompt
 
-**Advisory ceiling (D4):** No specific AMC, fund name, or bank product named. Instrument type only.
+> **Architecture note:** Phase 4 does not run from a script. The following block is the context and intent guidance provided to the LLM intelligence layer. The LLM decides exactly what to say, in what order, in what tone — based on what it knows about the user at this point in the journey (income pattern, target size, archetype signals, literacy level, emotional state).
+
+```
+PHASE 4 INTENT — Fund Architecture
+
+Your goal: Help the user understand WHERE to put their emergency fund money across 3 liquidity layers.
+Phase 4 ends when the user verbally or tap-confirms they understand and accept the structure.
+Do NOT discuss contribution amounts or timelines here — that is Phase 5.
+
+WHAT YOU KNOW AT THIS POINT:
+- User's EF target (₹ amount + months) — confirmed in Phase 3
+- Income pattern (variable vs. salaried, sole vs. dual earner) — from Phase 2 Assessment
+- Target size — determines DICGC trigger
+- D3 social obligation buffer (if added) — treat as a separate sub-fund, mention briefly at the end if relevant
+
+ALLOCATION LOGIC:
+Think about the fund in terms of "3 speeds of money":
+- Speed 1 (Instant): 1–2 months in savings account or sweep-in FD. Available via ATM or UPI 24/7.
+- Speed 2 (Quick): 2–4 months in liquid mutual funds. T+1 in general; up to ₹50K is near-instant for most funds.
+- Speed 3 (Stable): Remaining months in short-term FD or ultra-short/debt fund. 1–3 business days.
+
+Adjust the layer weighting to the user's income pattern:
+- Variable income / sole earner / gig: Lean toward more Speed 1 (higher instant-access proportion). Income is lumpy — they need more buffer available without any friction.
+- Stable salaried / dual income: Shift weight toward Speed 2 and 3. Regular income is a natural hedge — they don't need as much sitting in the lowest-yield layer.
+
+HOW TO EXPLAIN THIS:
+- Lead with the "why" not the "what." The 3-layer structure exists because emergencies have different speeds. A medical ER visit is a Speed 1 problem. A 3-month job search is a Speed 2/3 problem.
+- Don't frame layers as separate products. Frame as different speeds of the same fund. The gradient strip on screen reinforces this — your narration should not contradict it by saying "three separate accounts."
+- Adapt your vocabulary. High-literacy user: "liquid fund is T+1 with near-instant for ₹50K." Low-literacy user: "it's like an FD that you can get back the next business day."
+- The layer amounts come from the target. Show proportional amounts (e.g., "₹96K in instant access, ₹2.9L in quick access, ₹2.5L in stable reserve").
+
+DICGC TRIGGER (conditional):
+If the user's target exceeds ₹5L, include: "One thing worth noting — if you're putting a large amount in FDs, spread across at least 2 banks. Deposit insurance covers only ₹5L per person per bank. This isn't scary — just a practical distribution."
+This is a factual disclosure, not a warning or upsell. Tone should be matter-of-fact.
+
+WHAT YOU DO NOT DO:
+- Name specific banks, AMCs, or fund products
+- Execute or suggest executing anything — that's Phase 5
+- Add unnecessary caveats or hedges about market returns
+- Present this as complex — the structure is simple once the "3 speeds" frame lands
+
+PHASE BOUNDARY:
+Phase 4 ends with an explicit user acceptance (tap or voice). The AI asks something like: "Does this structure make sense for how you want to manage it?" and waits for confirmation before transitioning to Phase 5.
+```
+
+---
+
+#### Phase 4 — Allocation Card (Component Spec)
+
+The Allocation Card materializes inline in the conversational stream **simultaneous** with the AI's verbal framing of the 3 speeds (§0B Rule 3 — simultaneous, not sequential).
+
+**Allocation Card layout:**
+
+```
+┌────────────────────────────────────────────────────────────┐
+│  🏦  Your Fund Structure                                    │
+│                                                            │
+│  ━━[ Instant Access ]━━━━━━[ Quick Access ]━━[ Stable ]━━  │
+│    (warm amber)             (neutral)         (cool slate) │
+│    ₹96K                    ₹2.9L             ₹2.5L         │
+│    1 month                 3 months          ~3 months     │
+│                                                            │
+│  ──────────────────────────────────────────────────────   │
+│                                                            │
+│  ⚡ Instant Access  ·  ₹96K  ·  Savings / Sweep-in FD      │
+│     Available instantly via ATM or UPI.                    │
+│                                                            │
+│  ⏱ Quick Access    ·  ₹2.9L  ·  Liquid Mutual Fund         │
+│     Back the next business day. Up to ₹50K is near-       │
+│     instant.                                               │
+│                                                            │
+│  🔒 Stable Reserve  ·  ₹2.5L  ·  Short-term FD / Debt Fund │
+│     1–3 business days. Highest idle yield.                 │
+│                                                            │
+│  ┌─────────────────────┐  ┌─────────────────────┐         │
+│  │  This works for me ✓ │  │  Tell me more        │        │
+│  └─────────────────────┘  └─────────────────────┘         │
+└────────────────────────────────────────────────────────────┘
+```
+
+**Card behaviour:**
+- The gradient strip zone widths are proportional to ₹ amounts — wider zone = more money there.
+- Warm amber fades to cool blue-slate left to right. Colour is the spectrum signal.
+- Detail rows below the strip are always visible (not collapsed) — each layer has: icon, label, ₹ amount, instrument type, access time in plain English.
+- "Tell me more" CTA: AI continues in conversational stream with a deeper explanation of whichever layer the user taps/asks about.
+- "This works for me ✓" CTA: Accepts the structure. §C3 note: per §0B §C3 table, this phase gate can use a **lighter inline confirm** rather than a full summary card — the user is accepting a recommendation, not verifying data they entered. AI acknowledges: "Perfect. Now let's figure out how to actually build it." → Phase 5.
+
+**DICGC note rendering (conditional):**
+
+If total target > ₹5L, a **contextual footnote-style text** appears below the card — NOT a warning badge or alert. Styled as plain explanatory prose:
+
+> "If you use FDs for Layer 1 or 3, spread them across 2+ banks. Deposit insurance covers ₹5L per bank — simple to do, worth doing."
+
+No icon, no red. It is a factual note, visually subordinate to the card.
+
+---
+
+#### Phase 4 — Component Needs
+
+| Component | Type | Screen Type | Notes |
+|:---|:---|:---|:---|
+| **Allocation Card** | Inline card with horizontal gradient strip + detail rows + 2 CTAs | Hybrid (inline in stream, anchors the phase) | Strip zone widths proportional to ₹ amounts. Warm amber → cool blue-slate gradient. Detail rows always visible. Slide-up materialisation (300ms). |
+| **Horizontal Liquidity Gradient Strip (DD08)** | Single proportional bar with 3 colour zones | Generative (rendered within Allocation Card) | Zone widths computed from allocation amounts. No axes, no legend — strip is self-labelled. Becomes app-wide idiom for liquidity spectrum. |
+| **Layer Detail Rows** | 3 rows: icon + label + amount + vehicle + access time | Generative (rendered within Allocation Card) | ⚡/⏱/🔒 icons reinforce access-speed mental model. Plain English for access time. No product names. |
+| **DICGC Footnote** | Inline explanatory text (not a warning/badge) | Generative (below Allocation Card, conditional) | Triggers if total target >₹5L. Plain prose style. No alarm colouring. |
+| **"Tell me more" Expansion** | AI conversational continuation in stream | Generative (inline in stream) | Triggered by tapping layer rows or asking follow-up questions. Conversational — not a modal or tooltip. |
+| **Phase Gate Confirm (light)** | "This works for me ✓" CTA in Allocation Card | Generative (inline within card) | Lighter than full §C3 — accepting a recommendation, not verifying user-entered data. |
 
 ---
 
@@ -666,47 +1100,222 @@ If the revealed target is ≥ ₹5L AND the user appears to be early-career or l
 
 **User question:** "How do I actually build this over time?"
 
-**AI's job:** Translate the target into a monthly contribution plan. Frame it as a "self-EMI" — automatic, non-negotiable. Set up the milestone architecture.
+**AI's job:** Translate the target into a monthly contribution plan. Frame it as a "self-EMI." Connect to the Starter Shield milestone from Phase 3. Hand the user a persistent Action Card (DD09) and an optional salary-day reminder. This is the journey's highest-stakes CTA — the user must leave the app and act.
 
-**Modality:** Conversational stream → Contribution Plan Card (inline visual). Then a clear CTA to externally set up the auto-debit.
+**Screen type:** Hybrid (conversational setup → Contribution Plan Card → Action Card + reminder opt-in)
 
-**Screen type:** Hybrid (conversational setup + fixed Contribution Plan Card + single CTA)
+**Connects to:**
+- §3-SS (Starter Shield) — the first milestone in Phase 5 must be identical to the Starter Shield revealed in Phase 3. Do not re-introduce it; reference it.
+- J01 §1A (nudge philosophy) — the exit copy is defined there. Reference it; do not rewrite.
+- DD09 — the contribution plan deliverable: Action Card + salary-day reminder.
 
-**Contribution calculation logic:**
-- Ask: "What's a realistic amount you can set aside each month right now?"
-- AI computes: At ₹[user_input]/month, you'd reach your full target in [Y] months. At ₹[20% more], you'd get there in [Y - 2] months.
-- AI recommends: The faster path — with data showing the "gap months" cost (what your risk exposure is if an emergency hits before you're funded).
-- Frame: "Think of this like an EMI you pay yourself. Set up an auto-transfer on the day your salary arrives — before you can spend it."
+> [!NOTE]
+> **DD09:** When the user confirms their plan, they receive: (1) a persistent **Action Card** saved to their EF goal card on the home surface, with numbered step-by-step external setup instructions per allocation layer; (2) an opt-in **salary-day reminder** that fires monthly. No PDF export in V1. Resolves Q6.
 
-**Milestone architecture (per §6 behavioral principles):**
-| Milestone | Label | What It Means |
+---
+
+#### Phase 5 — LLM Guidance Prompt
+
+> **Architecture note:** Like Phase 4, Phase 5 does not run from a script. The block below is the context and intent guidance for the LLM intelligence layer. The LLM adapts framing, pacing, and sequencing to this specific user's situation.
+
+```
+PHASE 5 INTENT — Contribution Planning
+
+Your goal: Turn the user's EF target into a concrete monthly action they will actually start.
+The plan is advisory only. You're not executing transfers — you're giving them the plan to do it themselves.
+
+WHAT YOU KNOW AT THIS POINT:
+- EF target (₹ amount + months) — confirmed at Phase 3
+- Allocation structure (3 layers + amounts per layer) — confirmed at Phase 4
+- Monthly income (range or working estimate) — from Phase 2 Assessment
+- Income pattern (salary date predictability: fixed payday vs. variable) — infer from employment type
+- Starter Shield milestone amount (1 month of essential expenses) — from Phase 3 §3-SS if triggered
+- D3 social obligation buffer (if active) — has its own separate contribution line
+
+WHAT TO HELP THE USER FIGURE OUT:
+1. How much per month, realistically, can they set aside?
+   - Ask for an amount. Don't assume. This is personal.
+   - Once they give you a number, compute: at that rate, time to full target.
+   - Offer a comparison: "At ₹X more per month, you'd get there Y months sooner."
+   - Recommend the faster path — show the cost of the gap in plain terms (the more months before they're funded, the more months they're exposed if something goes wrong).
+   - For variable income users: reframe the question. Don't ask for a fixed monthly amount.
+     Instead: "What's the minimum you'd commit on a slow month? On a good month, you can top up."
+     Frame a floor (e.g., "target ₹X as your floor — whatever extra comes in, send it too").
+
+2. Frame it as a self-EMI.
+   The moment to introduce this frame is when you've agreed on an amount.
+   "Think of this like an EMI you pay yourself. The difference: this one builds a cushion instead of clearing a debt."
+   The self-EMI frame works because it leverages existing mental models — EMI = automatic, non-negotiable, happens before spending.
+   For variable income users, the frame flexes: "Set aside what you can on salary credit, aim for ₹X as your floor."
+
+3. Connect to the Starter Shield.
+   If the Starter Shield was shown in Phase 3 (§3-SS), the first milestone in Phase 5 is the same number.
+   Do NOT re-introduce it as if it's new. Reference it: "Your first milestone is the Starter Shield — ₹[X] — same one we talked about earlier."
+   Show how many months at their chosen contribution rate until they hit the Starter Shield.
+   This is the anti-paralysis anchor — it makes the full target feel reachable by shrinking the first step.
+
+4. Milestone timeline.
+   Show the full milestone path with estimated dates:
+   - Starter Shield (1 month): at ₹[contribution]/mo, you hit this in [N] months — around [Month Year]
+   - 3 Months Secure: [date]
+   - Half-Year Shield: [date]
+   - Fully Funded: [date]
+   Dates are more motivating than "N months" — they create a concrete mental anchor.
+
+ADVISORY OUTPUT (D4 / DD02):
+The plan specifies amounts and timing, but not products:
+"Set up an auto-transfer of ₹[Layer 1 amount] on your salary date to a savings account or sweep-in FD.
+Set up a separate recurring amount of ₹[Layer 2 amount] to a liquid mutual fund."
+No specific bank, AMC, or fund name. User executes externally.
+
+EXIT COPY:
+When the user confirms, use the exit copy defined in J01 §1A — do not improvise a new version.
+The canonical phrasing: "Your plan is set. I'll keep an eye on things and reach out when something
+meaningful happens — a milestone hit, a life change, or a chance to optimise. You won't hear from
+me just to check in."
+This tone (proactive, non-intrusive, purposeful) is the CarrotFin monitoring state voice.
+
+WHAT YOU DO NOT DO:
+- Pressure the user to commit to a higher contribution than they're comfortable with
+- Name specific products, apps, or platforms for execution
+- Suggest the user needs to "figure out" setup themselves — the Action Card handles that
+- Frame this as the end of the journey — frame it as the beginning of the build
+```
+
+---
+
+#### Phase 5 — Contribution Plan Card (Component Spec)
+
+Materializes inline after the contribution amount is agreed upon. Simultaneous with the AI's verbal confirmation of the plan.
+
+**Contribution Plan Card layout:**
+
+```
+┌────────────────────────────────────────────────────────────┐
+│  📅  Your Contribution Plan                                 │
+│                                                            │
+│  ₹6,000 / month  ·  on your salary date                   │
+│                                                            │
+│  ── Your milestone path ────────────────────────────────── │
+│                                                            │
+│  ★ Starter Shield  ₹96K  →  Aug 2026   (16 months away)   │
+│    3 Months Secure ₹2.9L  →  Oct 2027                     │
+│    Half-Year Shield ₹5.8L →  Oct 2028                     │
+│    Fully Funded    ₹11.5L →  Apr 2031                     │
+│                                                            │
+│  Your self-EMI: ₹6,000 · every salary day · auto-transfer │
+│                                                            │
+│  ┌──────────────────────┐                                  │
+│  │  Confirm my plan  →  │                                  │
+│  └──────────────────────┘                                  │
+└────────────────────────────────────────────────────────────┘
+```
+
+**Card behaviour:**
+- Contribution amount shown prominently. Tappable to edit (§C4 — edit triggers recalculation of all milestone dates).
+- Milestone rows: dates, not month counts. The Starter Shield row is ★-marked (same marker as Phase 3 §3-SS — visual continuity).
+- "Confirm my plan →" CTA: primary, full-width. On tap — triggers the Action Card + reminder flow below.
+- The card uses the self-EMI label intentionally as a persistent UI element, not just a spoken phrase.
+
+---
+
+#### Phase 5 — Action Card + Reminder (Post-Confirmation, DD09)
+
+Fires immediately after the user taps "Confirm my plan."
+
+**Sequence:**
+
+**Step 1 — AI acknowledgement (spoken + on-screen):**
+AI voice: "Perfect. Here's everything you need to set this up — saved to your emergency fund card so you can come back to it anytime."
+
+**Step 2 — Action Card materializes:**
+
+```
+┌────────────────────────────────────────────────────────────┐
+│  ✅  Your Action Plan                                       │
+│  Set these up on your next salary date.                    │
+│                                                            │
+│  1. ⚡ Instant Access layer — ₹[X]                         │
+│     Set up an auto-transfer to your savings account        │
+│     or a sweep-in FD. Do this first — it's your immediate  │
+│     buffer.                                                │
+│                                                            │
+│  2. ⏱ Quick Access layer — ₹[Y]                            │
+│     Set up a recurring amount to any liquid mutual fund.   │
+│     Money is back next business day when you need it.      │
+│                                                            │
+│  3. 🔒 Stable Reserve layer — ₹[Z]                         │
+│     Set up a recurring FD or short-term debt fund.         │
+│     Do this once you've built Layer 1 and 2 first.         │
+│                                                            │
+│  [Remind me on salary day]      [Dismiss]                  │
+└────────────────────────────────────────────────────────────┘
+```
+
+**Action Card behaviour:**
+- Three numbered steps, one per allocation layer, in order of priority (Layer 1 first — most critical, easiest to start).
+- Per-layer amounts pulled from Phase 4 allocation. Instrument type only (DD02).
+- Steps are sequenced deliberately: Layer 3 is explicitly "do this once you've built 1 and 2 first" — prevents the user from over-investing in the lowest-yield stable layer before instant access is built.
+- Card saves to the EF goal card on the home surface — accessible without re-entering the conversational flow. Persistent across sessions.
+
+**Step 3 — Salary-day reminder opt-in:**
+"Remind me on salary day" → user taps → system prompt for notification permission (standard OS flow) → if granted: recurring monthly reminder set for their stated/inferred salary date. Content: "Your ₹[X] self-EMI is due. Tap to see your action steps." Deep-links back to the Action Card.
+
+If notification permission denied: AI responds in stream — "No worries — your action plan is saved right here whenever you're ready."
+
+**Step 4 — Exit (§1A canonical copy):**
+
+AI voice and on-screen text (verbatim from J01 §1A):
+> "Your plan is set. I'll keep an eye on things and reach out when something meaningful happens — a milestone hit, a life change, or a chance to optimise. You won't hear from me just to check in."
+
+This line is never paraphrased or improvised. It is the CarrotFin monitoring-state voice — calibrated to be distinct from notification-spam apps. The phrasing "you won't hear from me just to check in" is the differentiation claim.
+
+**Monitoring state begins.** EF goal card on home surface updates to show: fund target, current amount (₹0 or existing corpus from Scenario B/E), next milestone, contribution plan summary.
+
+---
+
+#### Phase 5 — Re-Entry Adaptations (Scenarios B, C, E)
+
+> These three scenarios require meaningful contribution plan adjustments — the gap between existing savings and the full target changes what the plan looks like.
+
+| Scenario | Adaptation |
+|:---|:---|
+| **Scenario B (existing savings)** | Contribution plan starts from the gap, not the full target. "You have ₹2.5L — your gap is ₹1.7L. At ₹6,000/month, you'll close it in about 28 months." Milestone dates reflect the gap, not full target timeline. Starter Shield: if existing savings already exceed 1 month of expenses, the first active milestone is 3 Months Secure. |
+| **Scenario C (user's own target, accepted)** | If user chose their own ₹5L target: plan is built on ₹5L. Milestone amounts adjust accordingly. AI does not revisit the target discrepancy. |
+| **Scenario E (existing EF, surplus)** | If user is over-funded, Phase 5 framing shifts. "You're fully funded — nothing to build. Your next move is redirecting the ₹80K excess to work harder elsewhere. Want me to show you options?" Phase 5 pivot: from contribution plan to redirection advisory. No contribution plan card — different deliverable. |
+
+The LLM intelligence layer handles Scenario routing — no hardcoded branching. The LLM knows the existing corpus from Assessment and adapts Plan Card content accordingly.
+
+---
+
+#### Phase 5 — Component Needs
+
+| Component | Type | Screen Type | Notes |
+|:---|:---|:---|:---|
+| **Contribution Plan Card** | Inline card with amount, milestone path (dates), self-EMI label, Confirm CTA | Hybrid (inline in stream, anchors the phase) | Milestone rows show dates (not month counts). Starter Shield row ★-marked for visual continuity with Phase 3. Amount row tappable for §C4 edit with live date recalculation. |
+| **Action Card (DD09)** | Persistent numbered instruction card with 3 steps + reminder CTA | Hybrid (inline stream on confirmation; persists to EF goal card on home) | Numbered steps per allocation layer in priority order. Instrument type only. Saved to home surface goal card. |
+| **Salary-Day Reminder (DD09)** | Opt-in recurring notification trigger | System (OS notification infrastructure) | Monthly cadence. Deep-links to Action Card. Graceful degradation on denial. |
+| **Milestone Timeline Rows** | 4 rows with label, ₹ amount, target date | Generative (rendered within Contribution Plan Card) | Same milestone labels as §3-SS. Dates computed from contribution amount and gap. ★ on Starter Shield row. |
+| **§C4 Contribution Edit** | Tappable amount field → inline editor → date recalculation | Generative (inline within Contribution Plan Card) | Editing the contribution amount recalculates all milestone dates live. No full summary card needed — amount is the only input at this stage. |
+| **Exit Confirmation Message** | AI message bubble with canonical §1A copy | Generative (inline in stream) | Text is fixed — not generated. The exact phrasing from J01 §1A is the monitored state voice. |
+| **EF Goal Card (Home Surface)** | Static goal card showing: target, current amount, next milestone, plan summary | Static (home surface — outside conversational flow) | Updated after Phase 5 confirmation. Shows Action Card entry point. Progress bar reflects current corpus vs. target. |
+
+---
+
+## 7. Open Questions — Status
+
+> All phase-specific open questions are now resolved as of Step 2D.
+
+| # | Question | Status |
 |:---|:---|:---|
-| 25% fund | "Starter Shield" | "A 2-week income gap won't derail you" |
-| 1 Month | "First Month Protected" | "A full month of expenses is safe" |
-| 3 Months | "3 Months Secure" | "Most job losses are covered" |
-| 6 Months | "Half-Year Shield" | "You can weather most household crises" |
-| 100% | "Fully Funded" | "Redirect to wealth creation — this job is done" |
-
-**Advisory output (Philosophy D4 / DD02):** The plan tells the user: "Set up an auto-transfer of ₹X on your salary date to a [sweep-in FD / savings account]. Do the same for ₹Y to a liquid mutual fund." No specific platform or product named.
-
-**Exit confirmation:** "Your plan is set. I'll keep an eye on things and reach out when something meaningful happens — a milestone hit, a life change, or a chance to optimise. You won't hear from me just to check in." → Monitoring state begins (see [J01 §1A](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/journey-catalog/J01-emergency-fund-setup.md) for nudge philosophy).
+| 1 | Assessment modality | ✅ Resolved — Step 2B → DD06 |
+| 2 | "Building Your Picture" progress indicator | ✅ Resolved — Step 2B → §BYP |
+| 3 | Attribution visualization | ✅ Resolved — Step 2C → DD07 (T7 partially resolved for Phase 3) |
+| 4 | 3-layer allocation visual | ✅ Resolved — Step 2D → DD08 (horizontal liquidity gradient strip; T1 partially resolved for Phase 4) |
+| 5 | Social obligation buffer UX | ✅ Resolved — Step 2C → §3-D3 |
+| 6 | Contribution plan CTA | ✅ Resolved — Step 2D → DD09 (Action Card + salary-day reminder) |
 
 ---
-
-## 7. Open Questions for Phase 2 (UX Journey Design)
-
-> **Resolved in §0B:** Cross-cutting interaction patterns — voice+screen hybrid modality, multi-stage re-entry, and confirmation/validation UX — are addressed in [J01 §0B](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/journey-catalog/J01-emergency-fund-setup.md). The questions below are phase-specific.
-
-These are scoped questions — scope is locked, but the UX design of each phase will need to resolve these:
-
-1. ~~**Assessment modality:**~~ **✅ Resolved (Step 2B → DD06).** Stream-primary — no composed surface in any beat. See [DD06](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD06-assessment-stream-primary.md) and Phase 2 §BYP + beat-by-beat spec above.
-2. ~~**"Building Your Picture" progress indicator:**~~ **✅ Resolved (Step 2B → §BYP).** Dimension-pill progressive reveal with delayed number appearance (after Beat 1 value-after). Smooth morph + colour pulse on updates. Range → single number progression. See §BYP in Phase 2 above.
-3. **Attribution visualization:** For the "Why This Number" reveal card — is the attribution a text list (simple), an arrow diagram (moderate), or a force graph / weighted bubble chart (rich)? Per literacy level: at least 2 designs needed. (T7: Verification Depth vs. Cognitive Load)
-4. **3-layer allocation visual:** Bar chart (familiar), layered area chart, or a conceptual illustration (like stacked safe-deposit boxes)? The visual must communicate liquidity as a spectrum, not three separate buckets. (T1: Simplicity vs. Financial Rigor)
-5. **Social obligation buffer UX:** The optional step after target reveal — how does it animate in? How does it maintain the "this is separate from your core EF" mental model visually?
-6. **Contribution plan CTA:** What happens when the user "confirms the plan"? Do they get a step-by-step external instruction card? A shareable PDF? A calendar reminder? This is the highest-stakes CTA in the flow.
-
----
-
 
 *This document contains phase-by-phase interaction specifications for the J01 Emergency Fund journey. For product scope, boundaries, patterns, and metrics, see [J01-emergency-fund-setup.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/journey-catalog/J01-emergency-fund-setup.md).*
+

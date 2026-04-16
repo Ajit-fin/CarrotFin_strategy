@@ -2,7 +2,7 @@
 
 > **Workflow:** `/product` — Phase 1: Product Scoping & Flow Definition
 > **Last updated:** 2026-04-16
-> **Status:** Phase 2 in progress — Steps 2A (cross-cutting patterns) and 2B (Discovery + Assessment interaction specs) complete. Steps 2C–2E pending.
+> **Status:** Product definition locked. §0 updated for multi-agentic LLM architecture. Interaction specs (`J01-interaction-specs.md`) pending fresh rewrite with LLM-first architecture.
 > **Trigger:** First-launch onboarding. New user opens CarrotFin for the first time.
 > **User segments:** All — EF setup IS onboarding. Primary design anchors: New Parent (30–38) and Sandwich Generation (35–45). The Adaptive Engine (see §0 below) handles all 9 archetypes at runtime.
 > **Assumptions depended on:** EF-11 (8 core sizing dimensions + 1 open/contextual dimension — see §2), C5 (conversational+visual integration feasible), C6 (adaptive composition viable in Flutter)
@@ -15,24 +15,33 @@
 
 > **For Phase 2 onwards:** This section clarifies a term used throughout J01 so downstream design and engineering phases are aligned.
 
-The **Adaptive Engine** is CarrotFin's runtime decision layer — the logic that determines what the AI says, what components are rendered, and how the experience adapts based on what it knows about the user at any given moment. It is **not a separate product or service to be built independently** — it is the product intelligence that lives inside the app.
+The **Adaptive Engine** is CarrotFin's runtime intelligence layer — the system that determines what the AI says, what components are rendered, and how the experience adapts based on what it knows about the user at any given moment. It is **not a rules engine or a hardcoded decision tree** — it is an LLM-driven intelligence layer that receives structured context (prompt blocks with intent, constraints, and user state) and makes real-time decisions about conversation, composition, and adaptation.
 
-In practical terms, it is:
-- The **LLM inference layer** that drives conversational turns (what the AI asks next, how it frames answers, which beat to enter)
-- The **composition rules engine** that decides which screen type (Generative / Hybrid / Static — per `screen-taxonomy.md`) and which components to render
-- The **user state model** that tracks what we know about the user (literacy signal, trust level, engagement mode, archetype signals, life stage) and updates it in real time
+In practice, this may be a single LLM with role-specific prompt sections, or a **multi-agentic system** where specialised agents handle different concerns in parallel:
+
+| Agent concern | Responsibility | Example |
+|:---|:---|:---|
+| **Conversational** | What to say next, how to frame it, how to react to user input (including multi-info turns where the user provides several data points at once) | "User said 'I'm 34, salaried, two kids' — capture all three, acknowledge naturally, ask about the next unknown dimension" |
+| **Computation** | EF target calculation, allocation splits, milestone dates, contribution timelines | "8 dimensions captured → compute target using sizing model → return ₹4.9L / 7 months" |
+| **Composition** | Which UI components to render, with what data, in what order | "User confirmed target → render Target Card with attribution strip → queue D3 prompt if applicable" |
+| **State** | Track what's known about the user, what's still needed, what phase they're in, what signals have been observed | "Income: captured. Dependents: captured. Insurance: not yet asked. Literacy signal: high (fast taps, no hesitation)" |
+
+The product design layer (this document + the interaction specs) does **not prescribe the agent architecture**. It provides:
+1. **LLM guidance prompts** — intent, context, constraints, and phase-exit conditions for each journey phase
+2. **Component specs** — the palette of UI elements the composition layer can select from
+3. **Handover notes** — items explicitly deferred to engineering implementation
 
 **Where it sits in the product build journey:**
 
 | Phase | What is built | Adaptive Engine involvement |
 |:---|:---|:---|
-| **Phase 1 (this doc)** | Product scope + flow definition | Defined in terms of what decisions the engine must make |
-| **Phase 2 (UX Journey Design)** | Step-by-step interaction spec | Specifies adaptive variations per archetype — the engine's behavioral contract |
-| **Phase 3 (Component Specs)** | Adaptive component specs | Defines the component palette the engine selects from and the composition rules |
-| **Phase 4 (Stitch Briefs)** | Mockup generation | Visualises 2–3 archetype paths the engine would produce |
-| **Phase 5 (BuildSpec)** | Engineering handoff | Translates the engine's decision logic into concrete implementation guidance for the Flutter dev |
+| **Phase 1 (this doc)** | Product scope + flow definition | Defines what decisions the engine must make and the constraints it operates under |
+| **Phase 2 (Interaction Specs)** | LLM guidance prompts + component specs | Provides the prompt context each agent needs + the component palette the composition agent selects from |
+| **Phase 3 (Component Specs)** | Detailed adaptive component library | Defines the full component palette with interaction behaviors |
+| **Phase 4 (Stitch Briefs)** | Mockup generation | Visualises representative paths the engine would produce |
+| **Phase 5 (BuildSpec)** | Engineering handoff | Translates guidance prompts into agent prompt engineering + component implementation |
 
-> **Key point:** The adaptive engine is not a separate micro-service to spec and build in isolation. It is the sum of the LLM's conversational capability + the component palette + the composition rules. Phase 2 and Phase 3 together define its behavioral contract. Phase 5 translates it to implementation.
+> **Key point:** The adaptive engine is not a rule-based system. It is an LLM intelligence layer (single or multi-agent) that receives prompt context from the product design layer and makes adaptive decisions at runtime. The product design layer's job is to give it the right context and constraints — not to script its behavior.
 
 ---
 
@@ -226,15 +235,15 @@ Four patterns used across all phases. Each phase's interaction spec references t
 
 ### Modality Selection Heuristics Per Phase
 
-Directional guidance for how cross-cutting patterns instantiate in each phase. Detailed specs are in Steps 2B–2D.
+Directional guidance for how voice+screen patterns play out across phases. The LLM intelligence layer decides specifics at runtime — this table captures the design intent, not a rigid rule.
 
-| Journey Phase | Dominant modality | Voice value-add | Key confirmation moments |
-|:---|:---|:---|:---|
-| **Phase 1: Discovery** | Conversational stream (voice or text) | High — open-ended exploration maps naturally to voice | §C1 for inline option selections |
-| **Phase 2: Assessment** | Stream + inline structured inputs | Voice available in all beats. Confirmation is data-type-level, not beat-level: §C1 for categorical inputs (employment type, dependent types, city, age), §C2 for numeric inputs (income, obligations, insurance amounts — densest in Beat 2). Text fallback offered for sensitive inputs (Beat 3 health). | §C2 for income, obligations, insurance amounts. §C3 at end of Assessment. |
-| **Phase 3: Target Setting** | Conversation → visual pivot | High for AI output — narrates reveal while screen renders attribution card. Low for user input. | §C3 before Target Reveal (assessment data). Post-reveal: "Was this right?" |
-| **Phase 4: Fund Architecture** | Conversation + composed visual | Moderate for AI narration of allocation layers. Low for user input (no numeric capture). | §C3 for target + allocation before proceeding |
-| **Phase 5: Contribution Planning** | Conversational setup → action CTA | Moderate — AI narrates plan. User speaks monthly amount. | §C2 for monthly contribution amount. §C3 at exit (entire plan summary). |
+| Journey Phase | Dominant modality | Confirmation patterns used |
+|:---|:---|:---|
+| **Phase 1: Discovery** | Conversational stream (voice or text). Open-ended, exploratory. | §C1 for option selections |
+| **Phase 2: Assessment** | Stream + inline structured inputs. User provides data — may give multiple data points in a single turn. | §C1 for categorical (employment, city, age). §C2 for numeric (income, obligations). Text fallback for sensitive data (health). §C3 at assessment exit. |
+| **Phase 3: Target Setting** | Conversation → visual pivot. AI narrates while screen renders. Low user input. | §C3 at target confirmation. §C4 if user edits. |
+| **Phase 4: Fund Architecture** | Conversation + inline visual. AI explains allocation. | Lighter inline confirm (recommendation acceptance, not data verification). |
+| **Phase 5: Contribution Planning** | Conversational setup → persistent action card. | §C2 for contribution amount. §C3 at plan exit. |
 
 ---
 
