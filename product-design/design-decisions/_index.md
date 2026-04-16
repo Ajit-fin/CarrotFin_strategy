@@ -1,7 +1,7 @@
 # Design Decisions — Index
 
 > **Domain:** Design  
-> **Last updated:** 2026-04-15  
+> **Last updated:** 2026-04-16  
 > **Staleness threshold:** N/A (immutable records)
 
 ---
@@ -29,7 +29,9 @@ Design decisions differ from strategic decisions (`decision-log/`): they concern
 
 | ID | Decision | Date | Superseded By |
 |---|---|---|---|
-| — | *No decisions logged yet* | — | — |
+| [DD01](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD01-ef-as-onboarding.md) | EF Setup as First-Launch Onboarding | 2026-04-16 | — |
+| [DD02](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD02-advisory-only-model.md) | Advisory-Only Execution Model for V1 | 2026-04-16 | — |
+| [DD03](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD03-v1-scope-boundary.md) | V1 Scope Boundary — Discovery Through Contribution Plan | 2026-04-16 | — |
 
 ---
 

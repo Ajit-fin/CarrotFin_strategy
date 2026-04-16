@@ -1,7 +1,7 @@
 # Journey Catalog — Index
 
 > **Domain:** Design  
-> **Last updated:** 2026-04-15  
+> **Last updated:** 2026-04-16  
 > **Staleness threshold:** 30 days
 
 ---
@@ -23,7 +23,7 @@ Journeys are NOT wireframes. They define:
 
 | ID | Journey | Priority | Status |
 |---|---|---|---|
-| — | *No journeys defined yet* | — | — |
+| [J01](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/journey-catalog/J01-emergency-fund-setup.md) | Emergency Fund Setup | P0 — First use case | Phase 1 complete (scope locked) → Phase 2 next |
 
 ---
 
