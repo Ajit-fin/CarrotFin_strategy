@@ -323,6 +323,7 @@ Pinned horizontal strip between top nav and conversational stream. Always visibl
 | **Value-after computation** | The computation agent calculates the running estimate after each dimension cluster. Engineering defines the trigger logic (how many new dimensions before a value-after fires). |
 | **Progress indicator animation** | Directional guidance only: "smooth count-up," "number morph," "warm pulse." Exact ms timings and easing curves deferred to BuildSpec. |
 | **§C3 downstream recalculation** | When a user edits a value at the summary gate, the computation agent recalculates the target and all affected downstream values. Engineering defines the recalculation pipeline. |
+| **Agent interface schema — open collaboration point** | The input schema (user state, journey state, computed values) and output schema (component selection, configuration, render instructions) between agents is a joint product-engineering decision. Product provides the contract requirements (this document and the component specs). Engineering defines the technical schema. This must be co-designed — it cannot be product-only or engineering-only. Phase 2 is the most complex coordination point (4 agents, batch dimension capture, running computation, adaptive rendering) and should be the schema design starting point. |
 
 ---
 

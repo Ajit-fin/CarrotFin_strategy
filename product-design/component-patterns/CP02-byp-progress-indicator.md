@@ -127,6 +127,17 @@ Do NOT apply directional colour to pills.
 
 ---
 
+## Re-entry Scenario Notes
+
+> **Agent context — not additional component states.** The following notes inform the composition agent's rendering decisions for returning users. The BYP uses its existing states (§State Machine above) with contextually appropriate initial conditions.
+
+| Scenario | Agent behaviour |
+|:---|:---|
+| **B (existing savings)** | Agent pre-fills dimension pills for any data points already known from the user's prior session or stated corpus. BYP starts partially filled (e.g., D1, D5, D6 already ✓). Running estimate reflects the pre-filled data. The agent decides which pills are pre-filled based on what data is available and confirmed — not a fixed set |
+| **E (existing EF, review)** | Same as Scenario B — pre-fill known dimensions. If all 8 are known from a prior completed assessment, BYP renders in the "All captured" state immediately and the §C3 gate fires for re-confirmation. The agent may flag stale data for re-verification per §0B re-entry model |
+
+---
+
 ## User Context Inputs
 
 | Dimension | Effect |

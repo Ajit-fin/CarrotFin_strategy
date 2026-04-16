@@ -419,6 +419,17 @@ For users with variable income (detected from D1: freelance, gig, own business).
 
 ---
 
+## Re-entry Scenario Notes
+
+> **Agent context — not additional component states.** The following notes inform the composition agent's rendering decisions for returning users. The Contribution Plan Card and Action Card use their existing layouts and states with contextually appropriate data.
+
+| Scenario | Component | Agent behaviour |
+|:---|:---|:---|
+| **B/E (existing corpus)** | Contribution Plan Card | Milestone dates account for existing progress. If the user already has ₹2L toward a ₹11.5L target, the Starter Shield milestone date reflects only the remaining gap (₹96K − existing Layer 1 allocation). The computation agent adjusts all dates accordingly. The agent frames progress positively: "You're already 17% there — here's the plan for the rest" |
+| **B/E (existing corpus)** | Action Card | Steps reference only the remaining setup needed. If Layer 1 (Instant Access) is already adequately funded from existing savings, the agent may mark Step ① as "✓ Already covered" and emphasise Steps ② and ③. The card layout is unchanged — the step content adapts |
+
+---
+
 ## Exit Confirmation Message — Canonical Copy (§1A)
 
 > **Verbatim-locked. This copy must never be paraphrased, improvised, or truncated by the LLM.**

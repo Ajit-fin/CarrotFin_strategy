@@ -339,6 +339,17 @@ Layer ₹ amounts are determined by the computation agent based on the user's in
 
 ---
 
+## Re-entry Scenario Notes
+
+> **Agent context — not additional component states.** The following notes inform the composition agent's rendering decisions for returning users. The Allocation Card uses its existing layout and states with contextually appropriate data and verbal framing.
+
+| Scenario | Agent behaviour |
+|:---|:---|
+| **B (existing savings)** | Agent accounts for existing allocation in its verbal framing — e.g., "You already have savings. Here's how to structure the rest." Card layout is unchanged — the ₹ amounts in the gradient strip and layer detail rows reflect the new/remaining allocation, not the full target. The strip proportions are computed from the remaining amounts |
+| **E (existing EF, review)** | Same principle as Scenario B. If the user's existing corpus already covers some layers, the agent frames the card as a rebalancing recommendation — "Your Instant Access layer is already covered. Here's how to distribute the rest." Amounts reflect the gap, not the total |
+
+---
+
 ## D3 Confirmed Card — Scope Note
 
 D3 Confirmed Card is specced in **CP03 State 4** (Target Card + Attribution Strip). It is a Phase 3 artifact — it replaces the D3 Prompt Card within the Phase 3 surface after the user confirms their social obligation buffer.
