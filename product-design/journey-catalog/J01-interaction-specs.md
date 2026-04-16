@@ -102,11 +102,8 @@ contextual cards in later phases if relevant myths surface — even for users wh
 Discovery.
 
 WHAT YOU DO NOT DO:
-- Deliver a lecture or definition dump about emergency funds
 - Manufacture urgency or use fear-mongering
-- Show myth-busting content unprompted (only trigger on user signals)
 - Force users with existing savings/targets through redundant Discovery
-- Use jargon before you've calibrated the user's literacy level
 
 PHASE BOUNDARY:
 Phase 1 ends when the user expresses willingness to assess their situation (taps
@@ -227,12 +224,8 @@ The LLM decides whether a follow-up is needed based on what's already been said.
 If the user already provided the info ("I'm salaried at TCS"), don't re-ask.
 
 USER STATE CONTEXT (re-entry):
-- Scenario B: after the first value-after, ask "Roughly how much have you set aside?"
-  (§C2). Pre-fills the Phase 3 gap analysis.
-- Scenario D (returning): some dimensions may already be captured from prior session.
-  Pre-fill those pills. Confirm with the user if >30 days stale.
-- Scenario E: user may have stated specifics already ("I'm 38, salaried, two kids").
-  Pre-fill those dimensions. Confirm: "You mentioned X — let me confirm a few more."
+Re-entry routing (Scenarios B–E): see J01 §0B re-entry model. Pre-fill known dimensions.
+Confirm with user if >30 days stale.
 
 WHAT YOU DO NOT DO:
 - Turn the assessment into a sequential form (D1 → D2 → D3 → ...)
@@ -426,9 +419,6 @@ RE-ENTRY ADAPTATIONS:
 
 WHAT YOU DO NOT DO:
 - Read the attribution strip aloud row by row
-- Rush the user past the reveal moment
-- Present the number without attribution — the "why" IS the trust mechanism
-- Re-introduce myth-busting content already shown in Phase 1
 - Frame the number as an obligation — it's a recommendation the user controls
 ```
 
@@ -436,13 +426,11 @@ WHAT YOU DO NOT DO:
 
 #### §3-D3 — Social Obligation Buffer (Post-Target, Optional)
 
-> Surfaces as a separate, visually distinct prompt after the user accepts the primary target. Not gated by archetype — all users get the offer.
-
-**Trigger:** Always, after "Looks right ✓" CTA. User can skip in one tap.
+> **D3 buffer trigger:** Surfaces as a separate, visually distinct prompt after the user accepts the primary target. Not gated by archetype — all users get the offer.
 
 **LLM framing:** Frame as "separate from your safety net." The word "separate" is critical — prevents mental conflation with the core EF target.
 
-**D3 calculation (DETERMINISTIC):** Midpoint of selected amount range × midpoint of frequency band = annual buffer. ÷12 for monthly contribution. Example: ₹50K × 2/year = ₹1L annual → ₹8,300/mo. The LLM decides when to offer the prompt; the computation agent calculates the buffer.
+**D3 calculation:** DETERMINISTIC — computation agent handles the math. See BuildSpec for formula. The LLM decides when to prompt; the computation agent calculates.
 
 ```
 ┌──────────────────────────────────────────────┐
@@ -576,10 +564,8 @@ Adjust the layer weighting to the user's income pattern:
 - Stable salaried / dual income: Shift weight toward Speed 2 and 3. Regular income is a natural hedge — they don't need as much sitting in the lowest-yield layer.
 
 HOW TO EXPLAIN THIS:
-- Lead with the "why" not the "what." The 3-layer structure exists because emergencies have different speeds. A medical ER visit is a Speed 1 problem. A 3-month job search is a Speed 2/3 problem.
-- Don't frame layers as separate products. Frame as different speeds of the same fund. The gradient strip on screen reinforces this — your narration should not contradict it by saying "three separate accounts."
-- Adapt your vocabulary. High-literacy user: "liquid fund is T+1 with near-instant for ₹50K." Low-literacy user: "it's like an FD that you can get back the next business day."
-- The layer amounts come from the target. Show proportional amounts (e.g., "₹96K in instant access, ₹2.9L in quick access, ₹2.5L in stable reserve").
+- Lead with the "why" not the "what." The 3-layer structure exists because emergencies have different speeds.
+- Adapt your vocabulary to literacy level. High-literacy user: "liquid fund is T+1 with near-instant for ₹50K." Low-literacy user: "it's like an FD that you can get back the next business day."
 
 DICGC TRIGGER (conditional):
 If the user's target exceeds ₹5L, include: "One thing worth noting — if you're putting a large amount in FDs, spread across at least 2 banks. Deposit insurance covers only ₹5L per person per bank. This isn't scary — just a practical distribution."
@@ -632,10 +618,8 @@ The Allocation Card materializes inline in the conversational stream **simultane
 
 **Card behaviour:**
 - The gradient strip zone widths are proportional to ₹ amounts — wider zone = more money there.
-- Warm amber fades to cool blue-slate left to right. Colour is the spectrum signal.
-- Detail rows below the strip are always visible (not collapsed) — each layer has: icon, label, ₹ amount, instrument type, access time in plain English.
 - "Tell me more" CTA: AI continues in conversational stream with a deeper explanation of whichever layer the user taps/asks about.
-- "This works for me ✓" CTA: Accepts the structure. §C3 note: per §0B §C3 table, this phase gate can use a **lighter inline confirm** rather than a full summary card — the user is accepting a recommendation, not verifying data they entered. AI acknowledges: "Perfect. Now let's figure out how to actually build it." → Phase 5.
+- "This works for me ✓" CTA: Accepts the structure. This phase gate uses a **lighter inline confirm** — the user is accepting a recommendation, not verifying data they entered.
 
 **DICGC note rendering (conditional):**
 
@@ -740,10 +724,7 @@ me just to check in."
 This tone (proactive, non-intrusive, purposeful) is the CarrotFin monitoring state voice.
 
 WHAT YOU DO NOT DO:
-- Pressure the user to commit to a higher contribution than they're comfortable with
 - Name specific products, apps, or platforms for execution
-- Suggest the user needs to "figure out" setup themselves — the Action Card handles that
-- Frame this as the end of the journey — frame it as the beginning of the build
 ```
 
 ---

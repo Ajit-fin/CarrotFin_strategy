@@ -1,7 +1,7 @@
 # Component Patterns — Index
 
 > **Domain:** Design  
-> **Last updated:** 2026-04-15  
+> **Last updated:** 2026-04-16  
 > **Staleness threshold:** 30 days
 
 ---
@@ -33,13 +33,23 @@ Example: A "spending insight card" is not one design. It's a constraint system:
 
 Same component. Three renderings. The AI selects the rendering based on user context.
 
+**LLM autonomy boundary:** Component specs define *available states and visual constraints*. They do NOT mandate which state the agent selects or the exact sequence of composition. See CG01 §0.1 for the full prescription boundary.
+
+**Flutter/M3 native-first:** Every component spec must map to the nearest M3 widget primitive before specifying any custom behaviour. See CG01 §0.2 for the priority ladder.
+
 ---
 
 ## Component Inventory
 
 | ID | Component | Adaptive? | Status |
 |---|---|---|---|
-| — | *No components defined yet* | — | — |
+| DS01 | Design System (tokens, palette, motion) | N/A — foundation | Complete |
+| CG01 | Composition Grammar (selection rules, density, conflicts) | N/A — foundation | Complete |
+| CP01 | Confirmation Patterns (§C2 Confirm Chip, §C3 Summary Card, §C4 Edit-in-Place) | Yes | Complete |
+| CP02 | BYP Progress Indicator (pinned assessment tracker, 8+1 dimension pills, running estimate) | Yes | Complete |
+| CP03 | Target Card + Attribution Strip (phase-gate reveal, DD07 attribution, D3 Prompt, Starter Shield) | Yes | Complete |
+| CP04 | Allocation Card + Liquidity Gradient Strip (DD08 3-zone proportional strip, layer detail rows, DICGC footnote, light phase gate) | Yes | Complete |
+| CP05 | Contribution Plan Card + Action Card (DD09 milestone timeline, §C4 contribution edit, Action Card with per-layer steps, salary-day reminder, §1A exit copy, D3 Confirmed Card appendix) | Yes | Complete |
 
 ---
 
@@ -48,11 +58,17 @@ Same component. Three renderings. The AI selects the rendering based on user con
 ```markdown
 # CP[N]: [Component Name]
 
-> **Type:** [Card | Chart | Form | Alert | Nudge | Action]
+> **Type:** [Card | Chart | Form | Alert | Nudge | Action | Indicator]
 > **Used on:** [Screen types: Generative / Hybrid]
+> **M3 base:** [Primary Flutter/M3 widget this component is built on, e.g., `FilterChip`, `Card`, `ListTile`]
 
 ## Purpose
 [What this component communicates or enables]
+
+## Flutter Widget Mapping
+| Sub-element | M3 Widget | Custom work needed? |
+|---|---|---|
+| [element] | [widget] | [None / Minimal — reason / Yes — reason] |
 
 ## User Context Inputs
 | Dimension | How It Affects Rendering |
@@ -62,7 +78,7 @@ Same component. Three renderings. The AI selects the rendering based on user con
 | Emotional state | [Density and urgency] |
 
 ## Adaptive Behavior Spec
-[Concrete rendering rules per context level]
+[Concrete rendering rules per context level. States listed as options for the composition agent — not mandated sequences.]
 
 ## Composition Rules
 [Where it can appear, adjacency constraints, max instances per surface]

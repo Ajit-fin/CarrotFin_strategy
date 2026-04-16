@@ -31,16 +31,6 @@ The product design layer (this document + the interaction specs) does **not pres
 2. **Component specs** — the palette of UI elements the composition layer can select from
 3. **Handover notes** — items explicitly deferred to engineering implementation
 
-**Where it sits in the product build journey:**
-
-| Phase | What is built | Adaptive Engine involvement |
-|:---|:---|:---|
-| **Phase 1 (this doc)** | Product scope + flow definition | Defines what decisions the engine must make and the constraints it operates under |
-| **Phase 2 (Interaction Specs)** | LLM guidance prompts + component specs | Provides the prompt context each agent needs + the component palette the composition agent selects from |
-| **Phase 3 (Component Specs)** | Detailed adaptive component library | Defines the full component palette with interaction behaviors |
-| **Phase 4 (Stitch Briefs)** | Mockup generation | Visualises representative paths the engine would produce |
-| **Phase 5 (BuildSpec)** | Engineering handoff | Translates guidance prompts into agent prompt engineering + component implementation |
-
 > **Key point:** The adaptive engine is not a rule-based system. It is an LLM intelligence layer (single or multi-agent) that receives prompt context from the product design layer and makes adaptive decisions at runtime. The product design layer's job is to give it the right context and constraints — not to script its behavior.
 
 ---
@@ -89,18 +79,15 @@ The AI does NOT narrate everything on screen. It narrates selectively:
 | Scenario | AI speaks? | Why |
 |:---|:---|:---|
 | Conversational turns (questions, follow-ups, value-after insights) | ✅ Yes | Natural conversation flow |
-| Visual component materialization (chart, card, attribution strip) | ✅ Brief narration | AI provides a spoken summary ("Here's how your factors add up"). The visual carries the detail. AI does NOT read every label. |
-| Structured input prompts (tappable options) | ✅ Speaks the question | "What's your employment type? You can pick from the options or just tell me." |
-| Summary cards at phase gates | ❌ No narration (unless requested) | Summary cards are visual — user reads/reviews at their own pace. AI says only: "Take a look — does everything check out?" |
-| Error/correction moments | ✅ Yes | "Hmm, let me fix that — did you mean 8 lakh, not 80 thousand?" |
+| Visual component materialization (chart, card, attribution strip) | ✅ Brief narration | AI provides a spoken summary. Visual carries the detail. AI does NOT read every label. |
+| Summary cards at phase gates | ❌ No narration (unless requested) | Visual — user reads/reviews at own pace. AI says only: "Take a look — does everything check out?" |
+| Error/correction moments | ✅ Yes | E.g., "Hmm, let me fix that — did you mean 8 lakh, not 80 thousand?" |
 
 #### Voice-Off Mode
 
-When voice is disabled:
-- All voice input falls back to tap+type. Structured options (inline buttons, sliders, range pickers) are the primary input.
-- All AI narration falls back to on-screen text in the conversational stream. No information is lost.
-- The experience is identical in content and flow — only the input/output modality changes.
-- **Engineering implication:** Voice is an I/O layer, not a branching path. The underlying conversation engine, state machine, and component rendering are modality-agnostic.
+When voice is disabled, all voice input falls back to tap+type and all AI narration falls back to on-screen text. No information is lost.
+
+> **Engineering implication:** Voice is an I/O layer, not a branching path. The underlying conversation engine, state machine, and component rendering are modality-agnostic.
 
 ---
 
@@ -176,9 +163,7 @@ Four patterns used across all phases. Each phase's interaction spec references t
 4. Flow proceeds to next question. No explicit tap required.
 5. **If wrong:** User says "No, I meant salaried" or taps a different option → AI corrects
 
-**Rationale:** Categorical inputs have low error rates (finite set). Forcing explicit confirmation for every selection turns conversation into a form. Verbal echo + visual display is sufficient.
-
-**In text-only mode:** User taps structured option. Same highlight behavior. No echo needed — tapping IS confirmation.
+**Rationale:** Categorical inputs have low error rates. Verbal echo + visual display is sufficient — forcing explicit confirmation turns conversation into a form.
 
 #### §C2: Active Confirm (Numeric Voice Input)
 
@@ -190,8 +175,6 @@ Four patterns used across all phases. Each phase's interaction spec references t
 3. AI verbally echoes with interpretive context: "80 thousand a month — that right?"
 4. Flow **pauses** until user acts: tap ✓, tap edit, say "yes", or speak a correction
 5. **If wrong:** User taps edit → inline number editor appears → user corrects → chip updates → flow resumes
-
-**Rationale:** Numeric voice recognition errors compound. ₹80,000 vs. ₹8,00,000 is 10× downstream impact on EF target. One extra tap is worth the accuracy. But it's a single tap — feels like a natural conversation beat, not a verification step.
 
 **In text-only mode:** Range pickers and sliders handle numeric input. Captured value appears inline with edit affordance. Same confirm chip, same pattern.
 
@@ -229,7 +212,7 @@ Four patterns used across all phases. Each phase's interaction spec references t
 4. **Downstream recalculation:** Any computed values that depend on this data point update live
 5. AI acknowledges: "Updated. That changes your picture a bit — let me recalculate."
 
-**Rationale:** Financial planning is iterative. Users remember things mid-flow, situations change between sessions, and voice recognition errors need easy correction. Edit-in-place treats the assessment as a live profile, not a one-time form (per J01 §5: "No permanent locks").
+**Rationale:** Edit-in-place treats the assessment as a live profile, not a one-time form (per J01 §5: "No permanent locks").
 
 ---
 
@@ -305,8 +288,8 @@ Nudges triggered after the monitoring state activates are **not** a scheduled pi
 | **Momentum nudge** | Auto-transfer scheduled but no growth detected for 30+ days | Active build phase | Specific month amount, next milestone gap |
 | **Recalibration signal** | Life event detected (salary change, new dependent, job change) | Any phase | Dimension that changed + new target estimate |
 | **Inactivity re-engagement** | User hasn't opened app in 14+ days | Any phase | Last milestone reached + personalised hook |
-| **Overshoot alert** | Fund ≥ 100% of target | Funded state | Redirect to wealth creation — this money is now over-working |
-| **Risk environment signal** | Macro signal (e.g., sector layoffs in user's industry) | Any phase | Framed to user's employment type and current fund coverage |
+
+> V2 nudge types (overshoot alert, macro risk signal) to be specced when monitoring surface is designed.
 
 **Key principle:** Nudges should feel like they come from a thoughtful advisor who knows the user's situation — not a notification system. Tone, framing, and timing must adapt to the user's current emotional state (per `behavioral-framework.md`) and journey phase. A user who just lost their job gets a different signal than one who just got a raise.
 
@@ -421,15 +404,7 @@ Per the Behavioral Framework trust architecture, the EF onboarding starts at **T
 | **Monthly income (rough range)** | Beat 2 | Medium | Ask with a range picker — not a blank text field. If withheld, infer from city tier + employment type. |
 | **D9 — Open / contextual factor** | Any beat | Variable | Accept and incorporate if user volunteers it. |
 
-**Design rule — Data collection philosophy (applies to all fields, not just income):**
-
-Users are generally willing to share information when asked sensitively and when they can see why it matters. The default posture is **ask, with care** — not avoid-and-infer.
-
-- **Ask directly, but make it low-friction.** Use range pickers, bracket selectors, and sliders — not blank text fields for sensitive data. *"Roughly what's your monthly income? (Pick a range)"* is fine. *"Enter your exact annual CTC"* is not.
-- **Explain the why, immediately.** Before asking for sensitive data, the AI states the purpose: *"To figure out how much you'd need, I need to know roughly what your monthly expenses are — your income level helps me estimate that."* Justification earns permission.
-- **Graceful degradation if withheld.** If a data point is skipped, the AI uses a conservative estimate and tells the user: *"I'll use a cautious estimate here — you can refine this anytime."* The flow never stalls.
-- **No permanent locks.** Any data point can be revised later. The assessment is a live profile, not a one-time form.
-- **Universally applicable.** This sensitivity-first, ask-directly approach is the CarrotFin-wide data collection philosophy — not specific to income or any single field.
+> **Data collection philosophy:** Ask directly with care — use range pickers, not blank fields; explain the why before asking; degrade gracefully if withheld. See behavioral-framework.md for full principles. Applies universally, not just to the fields listed above.
 
 ---
 
