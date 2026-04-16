@@ -63,4 +63,21 @@ C4 (adaptive UI works) + C5 (integrated conversation + visual works)
 
 ---
 
+---
+
+## Emergency Fund Use Case Assumptions
+
+> Added: 2026-04-16 | Source: Phase 0 research distillation, `research/market/emergency-fund-philosophy.md`
+
+| ID | Assumption | Status | Evidence | Date Added |
+|---|---|---|---|---|
+| EF-11 | The 8-dimension sizing model (income stability, dependency load, insurance quality, fixed obligations, city tier, age/career stage, household income sources, health profile) is the right and complete set for determining a personalized EF target for Indian users | ⬜ Untested | **Core advisory logic assumption.** Derived from first-principles analysis and India-specific research. No validation against live Indian user data yet. Must stress-test in V1 — do users feel the resulting target is credible and personalized? | 2026-04-16 |
+| EF-12 | Medical expenses are the #1 emergency type for Indian users (39.4% out-of-pocket health expenditure; ~17% of households face catastrophic health spending annually) | 🟡 Partially validated | NHA 2021–22 [Tier 1 source]; NIH/ORF Research 2024. Data is robust at population level but not validated against CarrotFin's specific target segment (25–40, metro/Tier-1). | 2026-04-16 |
+| EF-13 | ~87% of India's 634M employed workers are in the informal sector; gig economy will reach 23.5M workers by 2029–30 | 🟡 Partially validated | NITI Aayog 2022 (informal sector); gig economy projection from NITI Aayog 2025. Tier 1 source. CarrotFin's V1 target segment (salaried, metro) skews toward the formal 13% — gig workers are important but a deferred primary segment. | 2026-04-16 |
+| EF-14 | Mental accounting works: labeled sub-funds (\"Medical Shield,\" \"Job Buffer\") are 2–3× less likely to be spent impulsively than fungible savings | 🟡 Partially validated | Behavioral economics literature (Thaler's mental accounting research). Cross-culturally validated but no India-specific app behavioral data. Core to the product's behavioral design — should be A/B tested in V1. | 2026-04-16 |
+| EF-15 | Progressive milestone framing (\"Starter Shield\" → \"3 Months Secure\" → full target) will drive better completion rates than showing the full target upfront | ⬜ Untested | **Design hypothesis** based on prior-learnings (FIRE calculator progressive disclosure worked). No direct EF-specific data. High-priority assumption to validate via V1 user testing — the entire behavioral design strategy depends on this. | 2026-04-16 |
+| EF-16 | Advisory-only model (no embedded transactions) is sufficient for V1 to generate user value without SEBI/RBI licensing complexity | ⬜ Untested | **Scope decision assumption.** INDmoney and Kuvera demonstrate that aggregation/advisory without full transaction embedding can achieve product-market signal. But: users may not act on advice without in-app execution — the \"confidence gap\" (B2) is the risk. Must validate whether advisory alone drives first contributions. | 2026-04-16 |
+
+---
+
 *Run `/feedback` after any strategic session to review and update this tracker.*

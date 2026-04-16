@@ -1,7 +1,7 @@
 # CarrotFin — User Insights
 
 > **Domain:** Users  
-> **Last updated:** 2026-04-14  
+> **Last updated:** 2026-04-16  
 > **Staleness threshold:** 30 days  
 > **Related assumptions:** C1, C2, C3, C6  
 > **Related decisions:** —
@@ -27,6 +27,18 @@ CarrotFin's initial target is digitally native Indians aged 25-35 — salaried p
 | **S5: Gig workers/freelancers** | No employer benefits, need insurance + retirement planning from scratch | 🔴 Deferred | ⬜ Untested |
 
 > **Why S1+S2 first:** Highest AI comfort, most forgiving of early product imperfections, and their financial needs (emergency fund, first SIP, term insurance) are well-understood enough to build strong AI advisory around.
+
+### Archetype Gaps Identified — Emergency Fund Research (Phase 0)
+
+> **Added:** 2026-04-16 | Source: `research/market/emergency-fund-philosophy.md`
+> The EF use case research surfaced archetypes with high emergency fund urgency that are either absent or insufficiently differentiated in the current segment model. Not primary V1 targets, but relevant for advisory accuracy.
+
+| New / Refined Archetype | Why It Matters for EF | Recommended Disposition |
+|---|---|---|
+| **S2 refinement: Split into S2a (pre-kids) and S2b (post-first-child)** | EF sizing jumps meaningfully at the transition to parenthood (childcare costs, parental medical exposure, non-deferrable school fees). Treating them as one segment blunts advisory precision. | Refine S2 when EF journey is in Phase 2 design. The 8-dimension assessment handles this adaptively — but personas for journey documentation need this split. |
+| **Small Business Owner** (30–50, variable business income, may have staff obligations) | EF sizing: 9–12 months. Business and personal finances are often conflated — emergency fund design must address cash-flow cycles, not just personal income. | Lower priority for V1 (complex to serve well). Flag as potential S4-adjacent segment post-PMF. |
+| **Pre-Retiree** (50–60, approaching retirement, corpus protection critical) | EF target: 12–18 months, framed as *runway* not income replacement. Re-employment difficulty at this age makes income disruption disproportionately severe. | Defer from V1 — different mental model, different product framing entirely. Note for future EF v2. |
+| **Tier 2/3 Joint Family** (25–40, lower cost base, family support partially available) | EF target: 4–8 months. Lower absolute costs reduce fund size, but lower income and weaker formal insurance coverage offset this. Informal family safety net is real but unreliable with urbanization. | V1 advisory engine must not assume metro cost structures — city-tier input is critical to accuracy. The 8-dimension model handles this; no separate segment journey needed for V1. |
 
 ---
 

@@ -1,7 +1,7 @@
 # Research — Index & Freshness Tracker
 
 > **Purpose:** Index of deep research artifacts. Each entry includes a freshness date and staleness threshold.  
-> **Last updated:** 2026-04-14  
+> **Last updated:** 2026-04-16  
 > **Staleness threshold:** 30 days (for this index)
 
 ---
@@ -10,7 +10,7 @@
 
 | File | Domain | Topic | Last Updated | Stale After | Status |
 |---|---|---|---|---|---|
-| *(no research artifacts yet)* | | | | | |
+| [emergency-fund-philosophy.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/research/market/emergency-fund-philosophy.md) | Market | Emergency Fund — adaptive sizing philosophy, India-specific structural realities, 3-layer liquidity architecture, behavioral design principles, 9 user archetypes | 2026-04-16 | 2026-07-16 | ✅ Active |
 
 ---
 
