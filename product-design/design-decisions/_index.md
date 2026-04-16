@@ -32,6 +32,9 @@ Design decisions differ from strategic decisions (`decision-log/`): they concern
 | [DD01](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD01-ef-as-onboarding.md) | EF Setup as First-Launch Onboarding | 2026-04-16 | — |
 | [DD02](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD02-advisory-only-model.md) | Advisory-Only Execution Model for V1 | 2026-04-16 | — |
 | [DD03](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD03-v1-scope-boundary.md) | V1 Scope Boundary — Discovery Through Contribution Plan | 2026-04-16 | — |
+| [DD04](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD04-voice-screen-hybrid-modality.md) | Voice + Screen Hybrid Modality | 2026-04-16 | — |
+| [DD05](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD05-multi-stage-re-entry.md) | Multi-Stage Re-Entry — AI-Routed Journey Entry | 2026-04-16 | — |
+| [DD06](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD06-assessment-stream-primary.md) | Assessment Stream-Primary — No Composed Surface in Assessment | 2026-04-16 | — |
 
 ---
 

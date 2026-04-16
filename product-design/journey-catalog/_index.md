@@ -23,7 +23,8 @@ Journeys are NOT wireframes. They define:
 
 | ID | Journey | Priority | Status |
 |---|---|---|---|
-| [J01](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/journey-catalog/J01-emergency-fund-setup.md) | Emergency Fund Setup | P0 — First use case | Phase 1 complete (scope locked) → Phase 2 next |
+| [J01](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/journey-catalog/J01-emergency-fund-setup.md) | Emergency Fund Setup | P0 — First use case | Phase 2 in progress — Steps 2A-2B complete |
+| ↳ [J01 Specs](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/journey-catalog/J01-interaction-specs.md) | Emergency Fund — Phase Interaction Specs | (Part of J01) | Phases 1–2 fully specced; Phases 3–5 skeleton |
 
 ---
 

@@ -24,18 +24,23 @@ The question: should the Emergency Fund setup journey double as CarrotFin's onbo
 | **B: EF assessment IS onboarding (chosen)** | First interaction delivers immediate, personalized value. Data collection is justified by the product output. No "dead" onboarding time — the user is already in the product. The 8-dimension assessment profiles the user completely enough to serve other features too (insurance, retirement, tax). | If user doesn't need an EF (rare: fully funded), the onboarding thesis breaks. EF must be relevant to essentially all users for this to work. | Low — almost universally relevant. 87% informal workforce + urban professionals with no fund = near-universal target. |
 | **C: Adaptive first-run (AI decides which goal to start with)** | Maximum personalization — user could start with any goal. | Extreme complexity for V1. Can't build a multi-goal onboarding before any goal is well-designed. Premature generalization. | High — V1 risk. |
 
+> **Resolution note:** The final design is a hybrid of B + a lightweight version of C's shell. The first-run experience presents a multi-path goal discovery surface ("What would you like to work on first?") — giving users a sense of product breadth — but only the EF path is active in V1. This captures B's core benefit (EF assessment as the user-profiling vehicle) while preserving architectural extensibility from C. See J01 §1B for the full first-run design.
+
 ---
 
 ## Decision
 
-**Option B: EF setup is CarrotFin's onboarding experience.**
+**Option B (with lightweight C shell): Multi-path first-run, EF as the only active path.**
 
-The 8-dimension assessment is structured such that the questions needed to size an emergency fund (income stability, dependents, insurance, obligations, city, age, health) constitute nearly the complete user profile needed for all future CarrotFin features. The EF goal is chosen as the onboarding hook because:
+The first-run experience presents a **goal discovery surface** — the user sees multiple financial paths ("Build my safety net," "Plan for a goal," "Grow my wealth," "Understand my finances"). Only the Emergency Fund path is active in V1; all others show a "Coming soon" state. This is not an EF-only landing — it's a product vision shell with one live path.
+
+The EF path is chosen as the active V1 onboarding because:
 1. It's relevant to virtually every Indian user — few people have a properly sized emergency fund.
-2. It delivers immediate, concrete value (a personalized number with attribution) that justifies the data shared.
-3. The conversational assessment format sidesteps the "form fatigue" problem of traditional onboarding.
+2. The 8-dimension assessment profiles the user comprehensively enough (income stability, dependents, insurance, obligations, city, age, health) to seed all future features.
+3. It delivers immediate, concrete value (a personalized number with attribution) that justifies the data shared.
+4. The conversational assessment format sidesteps the "form fatigue" problem of traditional onboarding.
 
-The app shell must reflect this: other goals (retirement, education, wealth) are visible as placeholder cards from day one — so the user sees the full product vision even though only EF is active.
+The app shell architecture must support multi-goal navigation from day one — the EF-only constraint is a V1 content decision, not an architectural one. Future goal types slot in without restructuring the first-run experience.
 
 ---
 

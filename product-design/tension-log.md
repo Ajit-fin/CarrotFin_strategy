@@ -1,7 +1,7 @@
 # CarrotFin — Design Tension Log
 
 > **Domain:** Design  
-> **Last updated:** 2026-04-15  
+> **Last updated:** 2026-04-16  
 > **Staleness threshold:** 30 days  
 > **Related assumptions:** C4, C5, C6  
 > **Related decisions:** —
@@ -101,6 +101,20 @@ Unresolved design tensions — genuine conflicts between opposing forces where n
 **What would resolve it:** Prototype "Show Your Work" at 3 disclosure depths. Measure: (1) trust scores at each depth, (2) actual tap-through rates on verification, (3) whether the presence of a "see calculation" affordance improves trust even when not used (the "fire extinguisher effect" — you trust the building more knowing it's there, even if you never use it).
 
 > **Related:** [behavioral-framework.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/behavioral-framework.md) Part 5 (Verification Anchors)
+
+---
+
+### T8: Conversational Assessment Pacing vs. User Efficiency
+
+| Force A | Force B |
+|---|---|
+| The conversational assessment format is the product differentiator. Each question followed by a value-after moment builds trust, delivers "Show Your Work" transparency, and earns permission for the next, more sensitive question. Rushing through this collapses the trust ramp and makes CarrotFin feel like every other finance app's onboarding form. | Some users — especially returning users, financially literate users, or those re-entering via Scenario B/C/E — may find 10–12 conversational turns slow. They already know why an EF matters; they want the number. For these users, the conversation is friction, not value. A "quick mode" that collapses the assessment into a single structured input surface would be significantly faster. |
+
+**Why unresolved:** The V1 design (DD06) commits to stream-primary for all users. This is the right default — the trust ramp is essential for first-time users who represent the majority of V1 traffic. But as repeat usage grows and Scenarios B/C/E become more common, the tension will intensify. We don't yet know what proportion of users will find the conversational pacing valuable vs. slow.
+
+**What would resolve it:** Track Assessment completion time and abandonment rate by beat. If completion time >5 minutes AND Beat 2 abandonment exceeds 30%, design a "Quick Assessment" variant that presents all 8 dimensions as a single structured form (with the same data types and confirmation patterns). Offer as opt-in: "Want the quick version? I'll ask everything at once." A/B test against the conversational flow measuring completion rate, trust score, AND downstream contribution plan confirmation rate.
+
+> **Added:** 2026-04-16 (Step 2B). Related: [DD06](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD06-assessment-stream-primary.md)
 
 ---
 

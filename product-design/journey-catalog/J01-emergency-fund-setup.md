@@ -2,11 +2,11 @@
 
 > **Workflow:** `/product` — Phase 1: Product Scoping & Flow Definition
 > **Last updated:** 2026-04-16
-> **Status:** Phase 1 complete — scope locked, journey phases defined. Phase 2 (interaction design) is next.
+> **Status:** Phase 2 in progress — Steps 2A (cross-cutting patterns) and 2B (Discovery + Assessment interaction specs) complete. Steps 2C–2E pending.
 > **Trigger:** First-launch onboarding. New user opens CarrotFin for the first time.
 > **User segments:** All — EF setup IS onboarding. Primary design anchors: New Parent (30–38) and Sandwich Generation (35–45). The Adaptive Engine (see §0 below) handles all 9 archetypes at runtime.
 > **Assumptions depended on:** EF-11 (8 core sizing dimensions + 1 open/contextual dimension — see §2), C5 (conversational+visual integration feasible), C6 (adaptive composition viable in Flutter)
-> **Design decisions:** DD01 (EF as onboarding), DD02 (advisory-only model), DD03 (V1 scope boundary)
+> **Design decisions:** DD01 (EF as onboarding), DD02 (advisory-only model), DD03 (V1 scope boundary), DD04 (voice+screen hybrid), DD05 (multi-stage re-entry), DD06 (assessment stream-primary)
 > **Source philosophy:** `research/market/emergency-fund-philosophy.md`
 
 ---
@@ -36,19 +36,221 @@ In practical terms, it is:
 
 ---
 
+## 0B. Cross-Cutting Interaction Patterns — Voice + Screen, Re-Entry, Confirmation
+
+> **For Phase 2 onwards:** These patterns govern interaction mechanics across ALL journey phases. They are architectural decisions, not phase-specific. Each journey phase's interaction spec (Phases 1–5 in §2) instantiates these patterns in its specific context.
+>
+> **Design decision records:** [DD04](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD04-voice-screen-hybrid-modality.md) (voice+screen hybrid modality), [DD05](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD05-multi-stage-re-entry.md) (multi-stage re-entry)
+
+---
+
+### Voice + Screen Hybrid Modality Model
+
+CarrotFin's EF flow operates in a **voice + mobile screen** hybrid modality — or in **screen-only (text+tap)** mode if the user disables voice. Voice is a first-class input/output channel that overlays the existing conversational stream, not a separate mode.
+
+#### Core Architecture
+
+| Layer | Role | Example |
+|:---|:---|:---|
+| **Screen (visual)** | Source of truth. Renders conversation, components, confirmations, and persistent state. Always present. | The conversational stream, inline cards, progress indicators, summary cards |
+| **Voice input** | Alternative to typing/tapping. User speaks; input is transcribed and rendered in the stream. | "My income is about 80 thousand" → appears as user message + triggers confirm chip |
+| **Voice output (AI narration)** | AI speaks key messages while the screen renders richer content simultaneously. Supplements, doesn't replace, screen. | AI says "Your target is ₹4.2L" while the screen renders the full attribution card |
+
+#### Design Rules
+
+1. **Screen-first, voice-layered.** Every interaction is designed for text+tap as the baseline. Voice affordances are layered on top. No interaction requires voice.
+2. **Screen is the source of truth.** Voice is ephemeral; the screen persists. After any voice input, the captured value appears on screen. The user confirms via screen, not via voice alone.
+3. **Simultaneous, not sequential.** When the AI narrates, the screen renders in parallel — not after. The AI's spoken message is a summary of what the screen shows. The screen always contains equal or richer information.
+4. **Voice does not gate.** Every AI question that can be answered by voice can also be answered by tapping a structured option or typing.
+5. **Privacy-aware activation.** Voice is user-activated (opt-in toggle). The app does not default to voice-on.
+
+#### Voice Input Handling by Data Type
+
+| Input type | Voice UX | Screen UX on capture | Confirmation pattern |
+|:---|:---|:---|:---|
+| **Categorical** (employment type, city tier, age bracket, yes/no) | User speaks: "I'm freelance" / "Bangalore" / "I'm 32" | AI maps to category. Screen highlights the matched option in the structured choice set. | **Light Confirm** (§C1): Matched option highlights. AI echoes verbally. Auto-proceeds unless user corrects. |
+| **Numeric** (income, obligations, insurance amount) | User speaks: "About 80 thousand" / "My rent is 25K" | Number appears as a **confirm chip** — prominent, editable. | **Active Confirm** (§C2): Chip remains until user taps ✓ or edits. AI pauses and echoes: "80 thousand a month — that right?" Flow waits. |
+| **Open-ended narrative** (D9 factors, situation descriptions) | User speaks naturally: "I also support my brother's education" | Transcribed text appears in stream as user message. AI responds conversationally. | **No explicit confirm.** AI responds with its interpretation. User can correct if interpretation is wrong. |
+| **Sensitive data** (health conditions, debts) | AI offers: "You can type this if you'd rather not say it aloud." | Same as above, with explicit text-input fallback affordance. | Per input type. The AI does **not** verbally echo sensitive data — screen-only confirmation. |
+
+#### Voice Output: When the AI Speaks
+
+The AI does NOT narrate everything on screen. It narrates selectively:
+
+| Scenario | AI speaks? | Why |
+|:---|:---|:---|
+| Conversational turns (questions, follow-ups, value-after insights) | ✅ Yes | Natural conversation flow |
+| Visual component materialization (chart, card, attribution strip) | ✅ Brief narration | AI provides a spoken summary ("Here's how your factors add up"). The visual carries the detail. AI does NOT read every label. |
+| Structured input prompts (tappable options) | ✅ Speaks the question | "What's your employment type? You can pick from the options or just tell me." |
+| Summary cards at phase gates | ❌ No narration (unless requested) | Summary cards are visual — user reads/reviews at their own pace. AI says only: "Take a look — does everything check out?" |
+| Error/correction moments | ✅ Yes | "Hmm, let me fix that — did you mean 8 lakh, not 80 thousand?" |
+
+#### Voice-Off Mode
+
+When voice is disabled:
+- All voice input falls back to tap+type. Structured options (inline buttons, sliders, range pickers) are the primary input.
+- All AI narration falls back to on-screen text in the conversational stream. No information is lost.
+- The experience is identical in content and flow — only the input/output modality changes.
+- **Engineering implication:** Voice is an I/O layer, not a branching path. The underlying conversation engine, state machine, and component rendering are modality-agnostic.
+
+---
+
+### Multi-Stage Re-Entry Model
+
+Users arrive at the EF journey at different stages of readiness. The AI must detect where the user is and route them to the appropriate entry point — never forcing redundant steps.
+
+#### Entry Detection: How the AI Determines User Stage
+
+| Signal source | What the AI knows | How it routes |
+|:---|:---|:---|
+| **App state (returning user)** | Serialized journey state from prior session — which beats are complete, which data points captured | Resume from last checkpoint (Scenario D) |
+| **User's first response** | The goal discovery question ("What's on your mind financially?") and the user's answer reveal intent and readiness | Route based on signals in the response |
+| **Probing question** | If readiness is ambiguous, AI asks: "Have you thought about emergency savings before, or is this fresh territory?" | Route based on answer |
+
+#### Five Entry Scenarios
+
+> **Clarification:** "Skip Phase 1" in the scenarios below means skipping the Discovery/Education content within the EF flow (§2, Phase 1). The app's goal selection surface (§1B) is always shown as the app entry point — it is not a journey phase and cannot be skipped. All re-entry routing happens *after* the user selects "Build my safety net" from §1B.
+
+**Scenario A: Fresh User (Zero EF Context)**
+- **Signal:** No prior sessions. No signals of prior EF work.
+- **Entry:** Phase 1 (Discovery). Full flow.
+- **AI opening:** Discovery conversation — establish relevance and urgency.
+
+**Scenario B: User with Existing Savings**
+- **Signal:** User says "I have some savings" / "I've been saving but I'm not sure if it's enough."
+- **Entry:** Skip Phase 1 (Discovery). Enter Phase 2 (Assessment) with "health check" framing.
+- **AI response:** "Let me check if your savings are sized right for your situation. Roughly how much have you set aside?" → Capture existing corpus → Run 8-dimension assessment → Compare existing vs. recommended.
+- **UX nuance:** Frame as validation, not "let me build one from scratch." Respect the user's existing effort.
+
+**Scenario C: User with a Known Target**
+- **Signal:** User says "I've calculated I need about ₹5L" / "I read online that 6 months of expenses."
+- **Entry:** AI offers validation: "That's a solid starting point. Online calculators often miss a few factors — mind if I run a quick check? Takes 2 minutes."
+  - **If user agrees:** Enter Phase 2 (Assessment). At Target Setting, compare AI's number with theirs: "Your estimate of ₹5L was close — I'd suggest ₹5.8L because [attribution]. Want to go with mine or stick with yours?"
+  - **If user declines:** Accept their number. Skip to Phase 4 (Fund Architecture): "Fair enough. ₹5L it is. Let me show you the best way to structure it."
+- **Key principle:** User autonomy first. Never force redundant assessment. Offer value (validation) with low-commitment ask.
+
+**Scenario D: Returning User (Abandoned Previous Session)**
+- **Signal:** App has serialized journey state from a prior session.
+- **Entry:** AI surfaces saved state: "Welcome back. Last time, we figured out your income profile and dependency situation. Want to pick up where we left off, or start fresh?"
+  - **Pick up:** Resume from last completed beat. Show a quick summary card of captured data before continuing.
+  - **Start fresh:** Clear state. Re-enter from Phase 1.
+- **State persistence:** Journey state is saved per-beat (not per-phase). If the user completed Assessment Beat 1 and Beat 2 but abandoned during Beat 3, resume from Beat 3 with Beats 1–2 data intact.
+- **Staleness rule:** If >30 days since last session, AI offers to re-verify key data: "It's been a while — still at [employer]? Still in [city]?" Quick confirmation of key data points before continuing.
+
+**Scenario E: User with Existing EF (Review/Optimization)**
+- **Signal:** User says "I have ₹3L in savings and a ₹2L FD. Is that enough?" / "I want to check if my emergency fund is right."
+- **Entry:** Skip Phase 1 + early Assessment. Pre-fill existing fund data. Run 8-dimension assessment to compute recommended target. Show gap or surplus.
+- **AI response:** "You have ₹5L total — solid foundation. Let me check if it's the right amount for your situation." → Assessment → Gap analysis: "Based on your profile, I'd recommend ₹6.2L. You're at 81% — here's what the gap covers."
+- **UX nuance:** Emphasize validation and optimization, not "you're doing it wrong." These users are proactive — reinforce their behavior.
+
+#### Engineering Implications for Re-Entry
+
+- **Per-beat state serialization:** Journey state includes beat completion status + all captured data points + timestamps. Stored locally + synced.
+- **Each phase is data-dependent, not sequence-dependent.** Phase 3 (Target Setting) needs the 8-dimension data, not Phase 2's "completed" flag. If data is available from any source (re-entry, user-stated, pre-filled), the phase can execute.
+- **The AI is the router.** No hardcoded phase-sequence enforcement. The state machine supports arbitrary entry points.
+- **Phase 1 content must be available on-demand.** Users who skip Discovery (Scenarios B, C, E) may still benefit from myth-busting and emergency framing content. Surface these as contextual cards during Assessment or later phases if relevant.
+
+---
+
+### Confirmation & Validation Patterns
+
+Four patterns used across all phases. Each phase's interaction spec references these by ID (§C1–§C4).
+
+#### §C1: Light Confirm (Categorical Input)
+
+**When:** Voice captures a categorical selection (employment type, city, age bracket, yes/no).
+
+**How it works:**
+1. User speaks → AI maps to category
+2. Screen highlights the matched option in the structured choice set or displays the category as an inline chip
+3. AI verbally echoes: "Freelance — got it."
+4. Flow proceeds to next question. No explicit tap required.
+5. **If wrong:** User says "No, I meant salaried" or taps a different option → AI corrects
+
+**Rationale:** Categorical inputs have low error rates (finite set). Forcing explicit confirmation for every selection turns conversation into a form. Verbal echo + visual display is sufficient.
+
+**In text-only mode:** User taps structured option. Same highlight behavior. No echo needed — tapping IS confirmation.
+
+#### §C2: Active Confirm (Numeric Voice Input)
+
+**When:** Voice captures a numeric value (income, obligations, insurance amount) — data where mis-recognition has material downstream impact.
+
+**How it works:**
+1. User speaks → AI transcribes
+2. Screen renders a **confirm chip**: the number displayed prominently with confirm (✓) and edit (✏️) affordances
+3. AI verbally echoes with interpretive context: "80 thousand a month — that right?"
+4. Flow **pauses** until user acts: tap ✓, tap edit, say "yes", or speak a correction
+5. **If wrong:** User taps edit → inline number editor appears → user corrects → chip updates → flow resumes
+
+**Rationale:** Numeric voice recognition errors compound. ₹80,000 vs. ₹8,00,000 is 10× downstream impact on EF target. One extra tap is worth the accuracy. But it's a single tap — feels like a natural conversation beat, not a verification step.
+
+**In text-only mode:** Range pickers and sliders handle numeric input. Captured value appears inline with edit affordance. Same confirm chip, same pattern.
+
+#### §C3: Summary Confirm (Phase-Gate Transition)
+
+**When:** At the boundary between major journey phases — before the flow uses captured data to produce a significant output (e.g., Assessment → Target Reveal).
+
+**How it works:**
+1. AI announces the transition: "Let me pull together what we've covered."
+2. A **summary card** materializes in the stream showing all key data captured in the current phase, displayed as a scannable list:
+   - Each data row shows label + captured value (e.g., "Income: ₹80,000/mo (salaried, large pvt)")
+   - Two CTAs at the bottom: **Looks right** (primary) / **Let me adjust** (secondary)
+3. Each data row is tappable → triggers Edit-in-Place (§C4)
+4. Flow **waits** for explicit CTA before proceeding
+5. Voice option: User can say "Looks right" or call out a specific correction
+
+**Rationale:** Phase gates are the right place for deliberate friction (per tension T5). The user is about to receive a life-impacting number. Ensuring input data is correct prevents "garbage in" distrust of the output. But it's a single card review, not a 10-field form.
+
+**When summary confirms trigger:**
+
+| Phase transition | Summary content |
+|:---|:---|
+| Assessment → Target Setting | All 8 (+ D9) dimension data points |
+| Target Setting → Fund Architecture | Agreed target (₹ amount + months), social obligation buffer if any |
+| Fund Architecture → Contribution Planning | Target + 3-layer allocation. *(Recommendation confirm: user accepts the AI's allocation advice, not verifying their own input data. Step 2D decides if a full §C3 summary card is needed or a lighter inline confirm suffices.)* |
+
+#### §C4: Edit-in-Place (Retroactive Correction)
+
+**When:** User wants to change a previously given answer — either during the flow or when reviewing a summary card (§C3).
+
+**How it works:**
+1. User taps a data point in the summary card or says "Actually, my income changed — it's 90 thousand now"
+2. The data row transforms into an editable field (text input, range picker, or category selector — matching the original input method)
+3. User enters new value → field collapses back to display mode with updated value
+4. **Downstream recalculation:** Any computed values that depend on this data point update live
+5. AI acknowledges: "Updated. That changes your picture a bit — let me recalculate."
+
+**Rationale:** Financial planning is iterative. Users remember things mid-flow, situations change between sessions, and voice recognition errors need easy correction. Edit-in-place treats the assessment as a live profile, not a one-time form (per J01 §5: "No permanent locks").
+
+---
+
+### Modality Selection Heuristics Per Phase
+
+Directional guidance for how cross-cutting patterns instantiate in each phase. Detailed specs are in Steps 2B–2D.
+
+| Journey Phase | Dominant modality | Voice value-add | Key confirmation moments |
+|:---|:---|:---|:---|
+| **Phase 1: Discovery** | Conversational stream (voice or text) | High — open-ended exploration maps naturally to voice | §C1 for inline option selections |
+| **Phase 2: Assessment** | Stream + inline structured inputs | Voice available in all beats. Confirmation is data-type-level, not beat-level: §C1 for categorical inputs (employment type, dependent types, city, age), §C2 for numeric inputs (income, obligations, insurance amounts — densest in Beat 2). Text fallback offered for sensitive inputs (Beat 3 health). | §C2 for income, obligations, insurance amounts. §C3 at end of Assessment. |
+| **Phase 3: Target Setting** | Conversation → visual pivot | High for AI output — narrates reveal while screen renders attribution card. Low for user input. | §C3 before Target Reveal (assessment data). Post-reveal: "Was this right?" |
+| **Phase 4: Fund Architecture** | Conversation + composed visual | Moderate for AI narration of allocation layers. Low for user input (no numeric capture). | §C3 for target + allocation before proceeding |
+| **Phase 5: Contribution Planning** | Conversational setup → action CTA | Moderate — AI narrates plan. User speaks monthly amount. | §C2 for monthly contribution amount. §C3 at exit (entire plan summary). |
+
+---
+
 ## 1. Product Boundaries
 
 ### Entry Points
 
 | Entry Point | Trigger | User State at Entry | Notes |
 |:---|:---|:---|:---|
-| **First-launch onboarding** | App installed, first open | New, zero context, zero trust | Primary V1 entry. The app presents a multi-path starting point (see §0A below) — but only the EF path is active in V1. All other paths are visible placeholders. |
+| **First-launch onboarding** | App installed, first open | New, zero context, zero trust | Primary V1 entry. The app presents a multi-path starting point (see §1B below) — but only the EF path is active in V1. All other paths are visible placeholders. |
 | **Home surface prompt** | Returning user, EF not set up | Low trust, some context exists | For users who skipped or abandoned onboarding mid-flow. |
 | **Ambient nudge** | App detects no emergency fund data and user has been active for 7+ days | Warm trust, some context | Re-entry via notification: "You haven't set up your safety net yet." |
 
 > The conversational stream (per `interaction-model.md`) is the entry modality for all paths — not a form, not a dashboard. The AI starts the conversation.
 
-#### §0A — First-Run Experience: Multi-Path Shell, EF as the Only Active Path
+#### §1B — First-Run Experience: Multi-Path Shell, EF as the Only Active Path
 
 When a user opens CarrotFin for the first time, they should not land directly into an EF-specific flow. Instead:
 
@@ -81,7 +283,7 @@ When a user opens CarrotFin for the first time, they should not land directly in
 |:---|:---|:---|
 | **Insurance Gap Check** | After 8-dimension assessment: if user has no health insurance, flag as a companion action | Advisory-only flag in V1. Full flow in a later phase. |
 | **Salary Credit Nudge** | After contribution plan: "Your salary hit. Want to move ₹X to your EF?" | Future ambient trigger. Not in V1 scope. |
-| **Goal Tracker** | EF appears as Goal #1 in the goal list on the home surface | Navigation scaffold exists in V1 (D2). |
+| **Goal Tracker** | EF appears as Goal #1 in the goal list on the home surface | Navigation scaffold exists in V1 (Philosophy D2 / DD01). |
 | **Recalibration Flow** | Life event detected → EF target adjusted | Recalibration trigger logic in V1 data model. Active UX in V2. |
 
 #### §1A — Nudge Philosophy: Contextual, Personalised, Evolving
@@ -108,203 +310,32 @@ The EF user journey is structured into 8 phases. **V1 covers Phases 1–5.** Pha
 ### Phase Map
 
 ```
-V1 ────────────────────────────────────────────────┐
-                                                    │
-  [1] Discovery  →  [2] Assessment  →  [3] Target   │
-                                          Setting   │
-                                             ↓      │
-  [5] Contribution  ←─────────────  [4] Fund        │
-      Planning                          Architecture│
-                                             ↓      │
-                                     ✅ V1 EXIT:    │
-                              Plan confirmed,        │
-                              monitoring begins      │
-────────────────────────────────────────────────────┘
+V1 ────────────────────────────────────────────────────┐
+                                                       │
+  [1] Discovery → [2] Assessment → [3] Target Setting  │
+                                         ↓             │
+                                   [4] Fund Architecture│
+                                         ↓             │
+                                   [5] Contribution     │
+                                       Planning        │
+                                         ↓             │
+                                    ✅ V1 EXIT:        │
+                                    Plan confirmed,     │
+                                    monitoring begins   │
+───────────────────────────────────────────────────────┘
 
-V2 ────────────────────────────────────────────────┐
-  [6] Monitoring & Nudging                          │
-  [7] Crisis Mode (Withdraw + Rebuild)              │
-  [8] Recalibration (Life event → target update)   │
-────────────────────────────────────────────────────┘
+V2 ────────────────────────────────────────────────────┐
+  [6] Monitoring & Nudging                              │
+  [7] Crisis Mode (Withdraw + Rebuild)                  │
+  [8] Recalibration (Life event → target update)       │
+───────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### Phase 1: Discovery / Education
 
-> [!IMPORTANT]
-> **All journey phases described below are one possible scenario — not a rigid script.** The GenAI layer must adapt in real time to what the user actually says and does. The phase descriptions capture the design intent and a representative happy path, not a decision tree the AI must execute literally. Phase 2 (UX Journey Design) defines the adaptive variation matrix; Phase 5 (BuildSpec) defines the engineering contract for how real-time adaptation is implemented in Flutter.
->
-> Specific implications:
-> - The AI may collapse or skip phases if the user is clearly already past that point (e.g., a user who says "I already have some savings but I'm not sure if it's enough" enters Phase 2 directly).
-> - The AI may revisit a phase if the user contradicts an earlier answer or asks to adjust.
-> - The sequence within each beat is a guide; the actual conversational path is driven by the user's responses, not a fixed script.
-
-**User question:** "Do I actually need an emergency fund? I thought my savings/investments cover me."
-
-**AI's job:** Establish relevance and urgency without fear-mongering. Use loss framing (cost of NOT having a fund), not abstract definitions.
-
-**Modality:** Conversational stream leads. AI opens the conversation — no form, no dashboard.
-
-**Screen type:** Generative (conversational stream — per `screen-taxonomy.md`)
-
-**What happens:**
-1. AI opens with a direct, opinionated question — not a welcome screen. (Scenario A from `interaction-model.md` — "Let's figure out one thing: do you have an emergency fund?")
-2. User selects from inline structured options: "Yes, I have one" / "Sort of" / "Not really" / "Not sure"
-3. AI responds adaptively to each:
-   - "Yes": "Great. Let me check if it's sized right for your situation — takes 2 minutes."
-   - "Sort of" / "Not really" / "Not sure": Surfaces the cost of the gap — personalizable once income is known.
-4. **Emergency framing** is surfaced here: the What Qualifies / What Doesn't table (§1 of philosophy) is rendered as an inline quick-sort card — NOT a lecture. "Quick check: which of these have happened to you or someone close in the last 2 years?" → surfaces relevance personally.
-5. Myth busting surfaces contextually: if user says "I'll use my credit card," the 36–42% APR cost is shown immediately.
-
-**Trust level at entry:** Zero/New. The AI earns the right to ask for data by delivering value first.
-
-**V1 Adaptive variation note:** Literacy calibration starts here. User's language in their first message (if any free text) + response speed + choices made calibrate initial literacy signal.
-
----
-
-### Phase 2: Assessment
-
-**User question:** "Okay, I need one. How much do I actually need?"
-
-**AI's job:** Walk through the 8 sizing dimensions in a conversational, progressive way — NOT a form. Each question delivers value immediately after. The AI reveals the picture as it builds.
-
-**Modality:** Conversational stream with inline structured inputs. A live "Building Your Picture" progress indicator sits above the stream — shows dimensions covered without numericizing them.
-
-**Screen type:** Hybrid (fixed progress indicator + generative conversation stream below)
-
-**The 8-dimension conversation design:**
-
-The AI does NOT ask 8 sequential questions. It groups them into 3 smart conversation beats. Each beat also leaves space for a **9th open dimension** — factors the user volunteers that don't fit neatly into the 8 (see §D9 below).
-
-> **Beat 1 — Income Profile** (covers Dimensions 1, 7)
-> "What's your primary income source — salaried job, freelance/contract, or running your own business?"
-> → Adaptive follow-up: If salaried → "Government, large private company, or startup?" | If freelance → "Fairly regular projects, or months where income is lumpy?"
-> → Value after: "Got it. Based on [employment type], most people in similar situations need [X–Y] months as a base. Let's see how your other factors adjust this."
-
-> **Beat 2 — Responsibility & Protection** (covers Dimensions 2, 3, 4)
-> "Who depends on your income? Just yourself, or do you have a family / parents relying on you?"
-> → Adaptive follow-up on dependents: Age of parents (insured or not?), children (school-age?), single earner or dual income household?
-> → "And do you have health insurance? Roughly what cover — under ₹5L, ₹5–10L, or ₹10L+?"
-> → "Ballpark: how much of your monthly income goes to non-negotiables — rent/EMI, school fees, insurance premiums, loan EMIs?"
-> → Value after: Shows a preliminary "Your Safety Net So Far" number that adjusts visually as each answer comes in.
-
-> **Beat 3 — Context & Risk** (covers Dimensions 5, 6, 8)
-> "Which city are you in?" (or tier selection: Metro / Tier 2 / Tier 3)
-> → "And your age, roughly? (20s / 30s / 40s / 50s+)"
-> → Health profile: "Any ongoing health conditions in the family that could mean higher medical costs?" (Yes/No/Prefer not to say — respects privacy)
-> → Value after: Final dimension set resolved. "Here's what all of this adds up to…" → bridges to Phase 3.
-
-> **Beat 4 — Open Dimension (D9: User-Surfaced Context)** *(triggered by user behaviour, not a fixed beat)*
-> If at any point in Beats 1–3 the user volunteers information that doesn't map to the 8 dimensions — for example: *"I also support a sibling in another city"* / *"We have a legal matter pending"* / *"I run a small side business"* — the AI acknowledges it, asks a clarifying follow-up, and incorporates it into the target as a contextual adjustment. The attribution strip label reads: **"+ [N] months (your specific situation)"** — honest about what it is without forcing it into an ill-fitting dimension.
-> If the user proactively asks *"What about X?"* where X isn't covered, the AI explains whether it's already captured in another dimension or adds it as a contextual factor.
-
-#### §D9 — The Ninth Dimension: Open / Contextual
-
-The 8-dimension model is the baseline. Real users will surface factors outside it. The AI must:
-1. **Not ignore them.** Dismissing user-surfaced context breaks trust.
-2. **Not over-engineer a response.** Use a conservative adjustment and flag it — no new form field needed.
-3. **Label it honestly** in the attribution: *"+ 1 month (based on your specific situation)"* — not buried in the base calculation.
-4. **Track it.** User-surfaced D9 factors in the first cohort inform whether any should be promoted to a permanent dimension.
-
-> **Assumption EF-11B:** The 8-dimension model covers the majority of Indian users' sizing factors. D9 is the safety valve for the remainder. Track D9 invocation rate — if >20% of users surface a D9 factor of the same type, promote it to a permanent dimension in the next iteration.
-
-**Trust gate:** Beat 2 asks for income-adjacent data (fixed obligations). Per behavioral framework trust architecture — this is asked only after Beat 1 delivers value. The AI earns permission to go deeper.
-
-**Data sparsity handling:**
-- If user declines to answer any dimension: AI uses the conservative side of the range for that dimension and flags it. ("I'll use a cautious estimate here — you can refine this anytime.")
-- If user says "I'm not sure" on health insurance: AI defaults to "no adequate coverage" and adds the buffer — explains the logic.
-
-**Insurance flag:** Per philosophy §3 — if user has no health insurance, the AI flags this explicitly: "Before we finalize your EF target, one thing: having no health insurance significantly increases your emergency risk. I'll flag this separately — but I'd strongly suggest looking into at least a ₹5L cover in parallel." This is an advisory flag, not a blocker.
-
----
-
-### Phase 3: Target Setting ("Why This Number")
-
-**User question:** "What's my number? And why?"
-
-**AI's job:** Reveal the personalized target with full dimension attribution. Make the number feel inevitable and personal — not arbitrary.
-
-**Modality:** Conversation → Visual pivot ( per `interaction-model.md`, "Decide" modality). Stream sets up the reveal. Visual component materializes inline with the number.
-
-**Screen type:** Hybrid (conversational reveal + inline target card with dimension attribution)
-
-**The reveal sequence:**
-1. AI delivers conversational setup: "Here's what all of that adds up to."
-2. **Personalized Target Card** materializes inline:
-   - Headline: "Your emergency fund target: ₹[X]L ([N] months)"
-   - Attribution strip below the number: dimension-by-dimension arrows showing what increased/decreased the base estimate:
-     > "Started at 6 months (salaried baseline) → +2 months (single earner with dependents) → +1 month (parent without health insurance) → −1 month (stable large employer) → **Final: 8 months**"
-   - "Was this calculation right?" / "Adjust an answer" — escape hatch.
-3. **Myth busting surfaces here** if the number differs materially from "the usual advice" (§7 of philosophy): "This is higher than the '3-6 months' you may have heard — here's why that rule doesn't fit your situation."
-4. AI delivers the plain-English "Why This Number" explanation with one key insight highlighted.
-
-**Social Obligation Buffer (D3 — V1 optional step):**
-After the primary target is revealed:
-> "One more thing — many Indian families also set aside a small separate buffer for family obligations: a wedding in the family, a ceremony, community support. This keeps your EF intact for true emergencies. Want to add one?"
-> → **Yes:** Simple input: "How many months of obligations typically hit in a year?" → adds a clearly labeled "Family Buffer" sub-fund target.
-> → **Skip:** Core EF target unchanged.
-
-**"Starter Shield" framing for large targets:**
-If the revealed target is ≥ ₹5L AND the user appears to be early-career or low-income (signal from Beat 1):
-> AI offers: "That's a big goal. The real win is getting to your first month — your 'Starter Shield' of ₹[monthly_expense]. Once you hit that, your most acute risk drops significantly. Let's start there."
-→ Milestone 1 = 1 month. Full target is the horizon, not the first step.
-
----
-
-### Phase 4: Fund Architecture ("Where Should the Money Sit?")
-
-**User question:** "Okay, I know the target. But where do I actually put this money?"
-
-**AI's job:** Recommend the 3-layer allocation split, adapted to income pattern. Explain why this structure — without naming specific products.
-
-**Modality:** Conversation → Visual pivot to composed surface. The 3-layer allocation chart is the dominant visual. Stream provides conversational explanatory layer.
-
-**Screen type:** Hybrid (fixed 3-column/layer structure + AI-generated amounts and explanations per layer)
-
-**What the AI recommends (per philosophy §5):**
-- Layer 1: Instant Access — "sweep-in FD or savings account with instant UPI/ATM access" → amount = 1–2 months essential spend
-- Layer 2: Quick Access — "liquid mutual fund (many allow instant redemption up to ₹50K, rest T+1)" → amount = 2–4 months
-- Layer 3: Stability Reserve — "short-term FD or ultra-short debt fund" → remaining months
-
-**Adaptive income-pattern rule (from philosophy):**
-- Variable income (freelancer/gig): Weight toward Layer 1 — income is lumpy, need more instant access.
-- Dual-income salaried: Weight toward Layer 2/3 — income regularity = natural hedge.
-
-**DICGC note:** If total target exceeds ₹5L, AI surfaces: "If you're putting a significant amount into FDs, keep it spread across 2+ banks — deposit insurance only covers ₹5L per depositor per bank."
-
-**Advisory ceiling (D4):** No specific AMC, fund name, or bank product named. Instrument type only.
-
----
-
-### Phase 5: Contribution Planning ("How Do I Get There?")
-
-**User question:** "How do I actually build this over time?"
-
-**AI's job:** Translate the target into a monthly contribution plan. Frame it as a "self-EMI" — automatic, non-negotiable. Set up the milestone architecture.
-
-**Modality:** Conversational stream → Contribution Plan Card (inline visual). Then a clear CTA to externally set up the auto-debit.
-
-**Screen type:** Hybrid (conversational setup + fixed Contribution Plan Card + single CTA)
-
-**Contribution calculation logic:**
-- Ask: "What's a realistic amount you can set aside each month right now?"
-- AI computes: At ₹[user_input]/month, you'd reach your full target in [Y] months. At ₹[20% more], you'd get there in [Y - 2] months.
-- AI recommends: The faster path — with data showing the "gap months" cost (what your risk exposure is if an emergency hits before you're funded).
-- Frame: "Think of this like an EMI you pay yourself. Set up an auto-transfer on the day your salary arrives — before you can spend it."
-
-**Milestone architecture (per §6 behavioral principles):**
-| Milestone | Label | What It Means |
-|:---|:---|:---|
-| 25% fund | "Starter Shield" | "A 2-week income gap won't derail you" |
-| 1 Month | "First Month Protected" | "A full month of expenses is safe" |
-| 3 Months | "3 Months Secure" | "Most job losses are covered" |
-| 6 Months | "Half-Year Shield" | "You can weather most household crises" |
-| 100% | "Fully Funded" | "Redirect to wealth creation — this job is done" |
-
-**Advisory output (D4):** The plan tells the user: "Set up an auto-transfer of ₹X on your salary date to a [sweep-in FD / savings account]. Do the same for ₹Y to a liquid mutual fund." No specific platform or product named.
-
-**Exit confirmation:** "Your plan is set. I'll check in occasionally to see how it's growing. Whenever you hit a milestone, we'll celebrate." → Monitoring state begins.
+> **Detailed interaction specs for each phase are in [J01-interaction-specs.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/journey-catalog/J01-interaction-specs.md).**
+> Phases 1–2 are fully specced. Phases 3–5 are skeleton only, pending Steps 2C–2D.
 
 ---
 
@@ -314,14 +345,14 @@ If the revealed target is ≥ ₹5L AND the user appears to be early-career or l
 
 | Feature | Phase | Notes |
 |:---|:---|:---|
-| Conversational onboarding (EF as first-run) | Phase 1–5 | D2: EF is CarrotFin's onboarding |
+| Conversational onboarding (EF as first-run) | Phase 1–5 | Philosophy D2 / DD01: EF is CarrotFin's active V1 path |
 | 8-dimension assessment | Phase 2 | Adaptive, not a form |
 | Personalized target with attribution | Phase 3 | "Why This Number" reveal |
 | Social obligation buffer (optional) | Phase 3 | D3: Post-target, skippable |
-| 3-layer allocation recommendation | Phase 4 | Instrument type only (D4) |
+| 3-layer allocation recommendation | Phase 4 | Instrument type only (Philosophy D4 / DD02) |
 | Contribution plan (month, milestone) | Phase 5 | Advisory only. External execution. |
 | Insurance gap flag | Phase 2 | Advisory flag, no dedicated flow |
-| App shell with EF + placeholder goals | Navigation | D2: Home + 2–3 greyed goal cards |
+| App shell with EF + placeholder goals | Navigation | Philosophy D2 / DD01: Home + 2–3 greyed goal cards |
 
 ### Deferred to V2
 
@@ -406,17 +437,5 @@ The app shell (navigation scaffold) must be in place before this journey ships:
 
 ---
 
-## 7. Open Questions for Phase 2 (UX Journey Design)
+*This is the product definition document for J01. Phase-by-phase interaction specifications (step-by-step conversation flows, adaptive variations, component inventories) are in [J01-interaction-specs.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/journey-catalog/J01-interaction-specs.md).*
 
-These are scoped questions — scope is locked, but the UX design of each phase will need to resolve these:
-
-1. **Assessment modality:** Does the AI conduct the assessment purely as a stream, or does one of the beats use a dedicated composed surface (e.g., a dependency/protection map visual) before returning to the stream? (T2: Conversational vs. Visual Primacy)
-2. **"Building Your Picture" progress indicator:** How exactly does the live number update? Animated number change? Progress bar filling? Meter-style? This is a key delight moment.
-3. **Attribution visualization:** For the "Why This Number" reveal card — is the attribution a text list (simple), an arrow diagram (moderate), or a force graph / weighted bubble chart (rich)? Per literacy level: at least 2 designs needed. (T7: Verification Depth vs. Cognitive Load)
-4. **3-layer allocation visual:** Bar chart (familiar), layered area chart, or a conceptual illustration (like stacked safe-deposit boxes)? The visual must communicate liquidity as a spectrum, not three separate buckets. (T1: Simplicity vs. Financial Rigor)
-5. **Social obligation buffer UX:** The optional step after target reveal — how does it animate in? How does it maintain the "this is separate from your core EF" mental model visually?
-6. **Contribution plan CTA:** What happens when the user "confirms the plan"? Do they get a step-by-step external instruction card? A shareable PDF? A calendar reminder? This is the highest-stakes CTA in the flow.
-
----
-
-*This document is the Phase 1 artifact for J01. Phase 2 (UX Journey Design, `/ux-designer`) will expand each phase into detailed step-by-step interaction specifications, adding screen-level component inventories, conversational scenarios, and adaptive variations for New Parent and Sandwich Generation archetypes.*

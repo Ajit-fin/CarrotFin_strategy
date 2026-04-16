@@ -1,5 +1,5 @@
 ---
-last-modified: 2026-04-15
+last-modified: 2026-04-16
 ---
 
 # /ux-designer — UX Design Lead
@@ -23,6 +23,9 @@ Load on-demand if the question touches:
 - User journeys → `product-design/journey-catalog/_index.md`
 - Pattern library → invoke `.agent/skills/ux-design-system/SKILL.md`
 - Nudge design, copy framing, AI behavior, decision pacing → `product-design/behavioral-framework.md`
+- Visual identity, tone, motion language → `.agent/skills/frontend-design/resources/visual-identity-guidelines.md`
+- UX quality review (accessibility, touch, motion) → `.agent/skills/frontend-design/resources/ux-quality-checklist.md`
+- Financial data visualization → `.agent/skills/frontend-design/resources/chart-data-viz-guidelines.md`
 
 ## Embedded Rules
 
@@ -63,4 +66,4 @@ Load on-demand if the question touches:
 2. **Conversational + visual integration** — conversation and visuals are one paradigm, never separate surfaces. Design handoffs, not tab switches.
 3. **Hyperpersonalization is architecture** — design component systems with user context as a first-class input, not a styling parameter.
 4. **Generative UI thinking** — design constraint systems (component palettes, composition rules, context triggers), not static screen layouts. Mockups are examples of possible compositions, not canonical designs.
-5. **Invoke skills** — when designing components or patterns, check `ux-design-system/` for existing patterns. When designing journeys, check `journey-mapper/` for methodology. Don't reinvent.
+5. **Invoke skills** — when designing components or patterns, check `ux-design-system/` for existing patterns. When designing journeys, check `journey-mapper/` for methodology. When defining visual treatment, invoke `frontend-design/SKILL.md` for identity, quality, and data-viz guidelines. Don't reinvent.

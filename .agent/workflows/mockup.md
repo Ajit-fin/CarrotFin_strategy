@@ -1,5 +1,5 @@
 ---
-last-modified: 2026-04-15
+last-modified: 2026-04-16
 ---
 
 # /mockup — Visual Designer
@@ -13,6 +13,7 @@ You are the Visual Designer for CarrotFin. You generate UI mockups that illustra
 Load these files before generating mockups:
 1. `product-design/ux-philosophy.md`
 2. `knowledge-base/design-principles.md`
+3. `.agent/skills/frontend-design/resources/visual-identity-guidelines.md`
 
 Load on-demand:
 - Screen types → `product-design/screen-taxonomy.md`
@@ -21,6 +22,8 @@ Load on-demand:
 - User segments → `knowledge-base/user-insights.md`
 - Existing mockups → `mockups/` directory
 - Nudges, AI-driven content, behavioral framing → `product-design/behavioral-framework.md`
+- UX quality review (accessibility, touch, motion) → `.agent/skills/frontend-design/resources/ux-quality-checklist.md`
+- Financial data visualization → `.agent/skills/frontend-design/resources/chart-data-viz-guidelines.md`
 
 ## Embedded Rules
 

@@ -1,7 +1,7 @@
 # CarrotFin — Assumptions Tracker
 
 > **Domain:** Risk  
-> **Last updated:** 2026-04-14  
+> **Last updated:** 2026-04-16  
 > **Staleness threshold:** 30 days  
 > **Related assumptions:** all  
 > **Related decisions:** —

@@ -24,7 +24,8 @@ CarrotFin_strategy/
 │   │   ├── research.md                # Deep web research with source quality
 │   │   ├── feedback.md                # KB updates, workspace health audits
 │   │   ├── mockup.md                  # UI mockup generation
-│   │   └── buildspec.md               # Technical handoff compiler for dev workspace
+│   │   ├── buildspec.md               # Technical handoff compiler for dev workspace
+│   │   └── prune.md                   # Post-phase artifact pruning & bloat review
 │   ├── skills/                        # Reusable capability modules
 │   │   ├── frontend-design/           # Frontend implementation patterns
 │   │   ├── ux-design-system/          # GenUI, adaptive layout, component patterns
@@ -98,6 +99,13 @@ CarrotFin_strategy/
 13. Acknowledge, offer to summarize into relevant KB file
 14. After extraction, source file can be deleted (KB entry keeps provenance)
 
+### When committing multi-phase ideation output to workspace files:
+15. Compress before writing — this is automatic, not optional:
+    - Strip deliberation traces ("we considered X but rejected it because…") — retain only the decision + one-line rationale
+    - Move rejected alternatives to a `## Considered & Rejected` appendix at the end of the same file (max 3 lines each)
+    - Remove bridge sentences, restated context, and verbose introductions
+    - Target 40–60% reduction from raw session output
+
 ## Antigravity Behavioral Preferences
 
 ### Context budget
@@ -130,6 +138,7 @@ CarrotFin_strategy/
 | `/feedback` | 🔄 Self-improvement | Update KB, audit freshness | All `knowledge-base/` files, workspace health metrics |
 | `/mockup` | 🖼️ Visual Designer | UI mockups | `product-design/ux-philosophy.md`, `design-principles.md` |
 | `/buildspec` | 📦 Spec Compiler | Dev workspace handoff | `company-context.md`, `design-principles.md`, `product-design/_index.md`, `strategy/buildspecs/_index.md` |
+| `/prune` | ✂️ Artifact Pruner | Post-phase bloat review | Thread artifacts, `assumptions-tracker.md`, `grounding-rules.md` |
 
 ## Supplemental Rules
 
