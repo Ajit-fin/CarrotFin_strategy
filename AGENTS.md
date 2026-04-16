@@ -23,12 +23,14 @@ CarrotFin_strategy/
 │   │   ├── growth.md                  # Acquisition and positioning strategy
 │   │   ├── research.md                # Deep web research with source quality
 │   │   ├── feedback.md                # KB updates, workspace health audits
-│   │   └── mockup.md                  # UI mockup generation
+│   │   ├── mockup.md                  # UI mockup generation
+│   │   └── buildspec.md               # Technical handoff compiler for dev workspace
 │   ├── skills/                        # Reusable capability modules
 │   │   ├── frontend-design/           # Frontend implementation patterns
 │   │   ├── ux-design-system/          # GenUI, adaptive layout, component patterns
 │   │   ├── journey-mapper/            # User journey mapping methodology
-│   │   └── competitive-teardown/      # Competitor analysis templates
+│   │   ├── competitive-teardown/      # Competitor analysis templates
+│   │   └── build-spec-compiler/       # BuildSpec compilation for dev handoff
 │   └── rules/
 │       └── grounding-rules.md         # Anti-hallucination protocol
 │
@@ -55,7 +57,9 @@ CarrotFin_strategy/
 │       └── _index.md                  # Design decisions index
 │
 ├── strategy/                          # Strategic documents and analyses
-│   └── README.md                      # Strategy directory guide
+│   ├── README.md                      # Strategy directory guide
+│   └── buildspecs/                    # Compiled BuildSpec handoff artifacts
+│       └── _index.md                  # BuildSpec inventory and status tracker
 ├── decision-log/                      # Immutable strategic decision records
 │   └── README.md                      # Decision log guide
 ├── research/                          # Deep research artifacts
@@ -125,6 +129,7 @@ CarrotFin_strategy/
 | `/research` | 🔬 Researcher | Deep web research | `_index.md`, `research/_index.md` |
 | `/feedback` | 🔄 Self-improvement | Update KB, audit freshness | All `knowledge-base/` files, workspace health metrics |
 | `/mockup` | 🖼️ Visual Designer | UI mockups | `product-design/ux-philosophy.md`, `design-principles.md` |
+| `/buildspec` | 📦 Spec Compiler | Dev workspace handoff | `company-context.md`, `design-principles.md`, `product-design/_index.md`, `strategy/buildspecs/_index.md` |
 
 ## Supplemental Rules
 

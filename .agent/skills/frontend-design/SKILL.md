@@ -2,7 +2,7 @@
 
 > **Skill type:** Implementation patterns  
 > **Invoked by:** `/ux-designer`, `/product`, `/mockup`  
-> **Last updated:** 2026-04-15
+> **Last updated:** 2026-04-16
 
 ---
 
@@ -14,10 +14,13 @@ This skill provides frontend implementation patterns and guidelines for CarrotFi
 
 | Scenario | Action |
 |---|---|
+| Defining visual identity or aesthetic direction | Read `resources/visual-identity-guidelines.md` for typography, color, motion, and anti-generic principles. |
 | Evaluating a frontend technology choice | Check implementation patterns for constraints and recommendations. |
 | Translating a UX design into implementation specs | Cross-reference component patterns from `ux-design-system/` with implementation patterns here. |
 | Building a prototype or proof-of-concept | Use the PoC guidelines below for appropriate scope and fidelity. |
 | Debating architecture (native vs. cross-platform, rendering approach) | Check technology considerations and constraints. |
+| Reviewing UX quality of a design or mockup | Scan `resources/ux-quality-checklist.md` for relevant accessibility, touch, motion, and form rules. |
+| Designing financial data visualizations | Read `resources/chart-data-viz-guidelines.md` for chart selection, adaptive rendering, and Indian formatting. |
 
 ## Directory Navigation
 
@@ -28,8 +31,11 @@ frontend-design/
 │   └── _index.md         ← Pattern inventory
 ├── technology/           ← Technology evaluation and constraints
 │   └── _index.md         ← Technology inventory
-└── resources/            ← Reference materials and guidelines
-    └── _index.md         ← Resource inventory
+└── resources/            ← Design intent resources and guidelines
+    ├── _index.md                        ← Resource inventory
+    ├── visual-identity-guidelines.md    ← Aesthetic direction, typography, color, motion
+    ├── ux-quality-checklist.md          ← Curated UX rules (~40 across 6 categories)
+    └── chart-data-viz-guidelines.md     ← Financial data visualization guidelines
 ```
 
 ## CarrotFin-Specific Implementation Constraints
@@ -61,7 +67,19 @@ The interface weaves conversational elements (AI messages, user responses) with 
 - Streaming support: the AI's response may include visual elements that render progressively
 
 ### 4. Mobile-First, But Not Mobile-Only
+
+> See also: `resources/ux-quality-checklist.md` for detailed mobile-specific UX rules (touch targets, safe areas, gesture conflicts).
 Primary target: mobile (iOS/Android). The architecture should not preclude future web/tablet surfaces, but mobile UX is the design target.
+
+## Design Intent Resources
+
+These resources define *how CarrotFin should look and feel* — visual quality constraints that complement the UX design system's adaptive behavior specs. They are design-intent level: no technology or implementation prescriptions.
+
+| Resource | What It Provides | When to Read |
+|---|---|---|
+| [Visual Identity Guidelines](file:///Users/kshekhaw/Documents/CarrotFin_strategy/.agent/skills/frontend-design/resources/visual-identity-guidelines.md) | Typography intent, color philosophy, motion language, spatial composition, anti-generic mandate, adaptive tone mapping | Creating mockups, defining component visual treatment, compiling BuildSpecs |
+| [UX Quality Checklist](file:///Users/kshekhaw/Documents/CarrotFin_strategy/.agent/skills/frontend-design/resources/ux-quality-checklist.md) | ~40 curated UX rules: accessibility (CRITICAL), touch interaction, motion timing, forms, navigation, performance as experience | Reviewing any design artifact, pre-BuildSpec quality scan |
+| [Chart & Data Viz Guidelines](file:///Users/kshekhaw/Documents/CarrotFin_strategy/.agent/skills/frontend-design/resources/chart-data-viz-guidelines.md) | Chart type selection, adaptive rendering by literacy/emotion, Indian financial formatting, empty/error states | Designing any surface with financial data visualization |
 
 ## PoC Guidelines
 
