@@ -14,9 +14,8 @@ Phase 4 (Fund Architecture) must visually communicate the 3-layer liquidity arch
 | Option | Pros | Cons | Risk |
 |---|---|---|---|
 | **Bar chart (three separate bars)** | Familiar, easy to read | Communicates "buckets" — three distinct, separate containers. Fails the spectrum requirement. | Users think layers are independent, not a continuum. |
-| **Layered area chart** | Shows continuity, visually sophisticated | Abstract, not intuitive for financial novices. Requires axis labels and legend — cognitive overhead. | Fails T1 on the simplicity side. |
-| **Conceptual illustration (stacked boxes)** | Metaphorical, playful | Still feels like separate containers. Vertical stacking implies hierarchy (top = best), which is wrong. | Decorative, not informative. |
-| **Horizontal liquidity gradient strip** | Single visual element. Left-to-right is universal. Gradient communicates spectrum. Zone widths proportional to ₹ amounts. | Novel pattern — no established user mental model. | Mitigated by the AI's "three speeds" framing (Step 4.2) which primes the mental model before the visual appears. |
+| **Other visual forms (area chart, stacked illustration)** | — | Communicate buckets not spectrum, or add cognitive overhead (axes, legends). | Fail either the simplicity or the spectrum requirement. |
+| **Horizontal liquidity gradient strip** | Single visual element. Left-to-right is universal. Gradient communicates spectrum. Zone widths proportional to ₹ amounts. | Novel pattern — no established user mental model. | Mitigated by the AI's "three speeds" framing which primes the mental model before the visual appears. |
 
 ## Decision
 

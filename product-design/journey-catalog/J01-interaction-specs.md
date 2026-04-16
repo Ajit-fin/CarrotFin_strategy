@@ -1274,19 +1274,7 @@ This line is never paraphrased or improvised. It is the CarrotFin monitoring-sta
 
 ---
 
-#### Phase 5 — Re-Entry Adaptations (Scenarios B, C, E)
 
-> These three scenarios require meaningful contribution plan adjustments — the gap between existing savings and the full target changes what the plan looks like.
-
-| Scenario | Adaptation |
-|:---|:---|
-| **Scenario B (existing savings)** | Contribution plan starts from the gap, not the full target. "You have ₹2.5L — your gap is ₹1.7L. At ₹6,000/month, you'll close it in about 28 months." Milestone dates reflect the gap, not full target timeline. Starter Shield: if existing savings already exceed 1 month of expenses, the first active milestone is 3 Months Secure. |
-| **Scenario C (user's own target, accepted)** | If user chose their own ₹5L target: plan is built on ₹5L. Milestone amounts adjust accordingly. AI does not revisit the target discrepancy. |
-| **Scenario E (existing EF, surplus)** | If user is over-funded, Phase 5 framing shifts. "You're fully funded — nothing to build. Your next move is redirecting the ₹80K excess to work harder elsewhere. Want me to show you options?" Phase 5 pivot: from contribution plan to redirection advisory. No contribution plan card — different deliverable. |
-
-The LLM intelligence layer handles Scenario routing — no hardcoded branching. The LLM knows the existing corpus from Assessment and adapts Plan Card content accordingly.
-
----
 
 #### Phase 5 — Component Needs
 
@@ -1297,23 +1285,14 @@ The LLM intelligence layer handles Scenario routing — no hardcoded branching. 
 | **Salary-Day Reminder (DD09)** | Opt-in recurring notification trigger | System (OS notification infrastructure) | Monthly cadence. Deep-links to Action Card. Graceful degradation on denial. |
 | **Milestone Timeline Rows** | 4 rows with label, ₹ amount, target date | Generative (rendered within Contribution Plan Card) | Same milestone labels as §3-SS. Dates computed from contribution amount and gap. ★ on Starter Shield row. |
 | **§C4 Contribution Edit** | Tappable amount field → inline editor → date recalculation | Generative (inline within Contribution Plan Card) | Editing the contribution amount recalculates all milestone dates live. No full summary card needed — amount is the only input at this stage. |
-| **Exit Confirmation Message** | AI message bubble with canonical §1A copy | Generative (inline in stream) | Text is fixed — not generated. The exact phrasing from J01 §1A is the monitored state voice. |
+| **Exit Confirmation Message** | AI message bubble with canonical §1A copy | Generative (inline in stream) | Constraint: exact phrasing from J01 §1A — see Phase 5 LLM prompt. |
 | **EF Goal Card (Home Surface)** | Static goal card showing: target, current amount, next milestone, plan summary | Static (home surface — outside conversational flow) | Updated after Phase 5 confirmation. Shows Action Card entry point. Progress bar reflects current corpus vs. target. |
 
 ---
 
-## 7. Open Questions — Status
+## 7. Open Questions — All Resolved
 
-> All phase-specific open questions are now resolved as of Step 2D.
-
-| # | Question | Status |
-|:---|:---|:---|
-| 1 | Assessment modality | ✅ Resolved — Step 2B → DD06 |
-| 2 | "Building Your Picture" progress indicator | ✅ Resolved — Step 2B → §BYP |
-| 3 | Attribution visualization | ✅ Resolved — Step 2C → DD07 (T7 partially resolved for Phase 3) |
-| 4 | 3-layer allocation visual | ✅ Resolved — Step 2D → DD08 (horizontal liquidity gradient strip; T1 partially resolved for Phase 4) |
-| 5 | Social obligation buffer UX | ✅ Resolved — Step 2C → §3-D3 |
-| 6 | Contribution plan CTA | ✅ Resolved — Step 2D → DD09 (Action Card + salary-day reminder) |
+All 6 phase-specific open questions resolved as of Step 2D. See DD06–DD09 for decision records.
 
 ---
 

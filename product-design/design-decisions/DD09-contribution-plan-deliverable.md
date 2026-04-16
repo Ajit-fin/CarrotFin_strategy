@@ -14,7 +14,6 @@ Phase 5 (Contribution Planning) is the V1 journey's highest-stakes moment. The u
 | Option | Pros | Cons | Risk |
 |---|---|---|---|
 | **Step-by-step instruction card (in-app)** | Most actionable. Persistent — user references it anytime. Structured per their specific plan. | In-app only — not accessible outside the app. | Card sits unused if user doesn't re-open the app. |
-| **Shareable PDF** | Saveable, shareable with partner, printable. Deferred action. | Export complexity. Low clear V1 use case. | Engineering scope for low ROI in V1. |
 | **Calendar reminder (commitment device)** | Fires on salary day — behaviourally optimal timing per §1.2 (Present Bias). | Insufficient alone — reminder without instructions is useless. | Dismissed with no fallback. |
 | **Action Card + Reminder (combination)** | Card provides the "what." Reminder provides the "when." Together they maximise plan → action conversion. | Two features vs. one — slightly more scope. | Acceptable for the V1 journey's most critical output. |
 
@@ -38,4 +37,3 @@ Phase 5 (Contribution Planning) is the V1 journey's highest-stakes moment. The u
 ## Reversal Trigger
 
 - If <20% of users who confirm the plan set up auto-transfer within 7 days, the Action Card is insufficient. Consider: deep-linking to partner bank apps, in-app execution (requires DD02 reversal), or WhatsApp-based instruction delivery.
-- If salary-day reminder opt-in <50%, consider default-on with opt-out (behavioural §1.4 — Status Quo Bias working in user's favour).
