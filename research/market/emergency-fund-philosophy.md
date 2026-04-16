@@ -2,7 +2,7 @@
 
 > **Domain:** Market Research — Goal-Based Investing  
 > **Topic:** Emergency Fund — Guiding philosophy for adaptive, hyperpersonalized advisory  
-> **Last updated:** 2026-04-16  
+> **Last updated:** 2026-04-16 (scoping decisions resolved)  
 > **Staleness threshold:** 90 days (update when macro conditions shift or new India-specific data becomes available)  
 > **Source:** Distilled from raw research session [Conversation 3e343af4] with date annotations verified  
 > **Provenance:** `emergency_fund_research.md` → `/Users/kshekhaw/.gemini/antigravity/brain/3e343af4-b1c6-4ded-873b-d48d77041029/`  
@@ -66,7 +66,7 @@ These factors fundamentally differentiate Indian EF advisory from Western framew
 | **Joint family dynamics** | ~60–67% of income may go to "needs" in joint households vs. standard 50% assumption. Intergenerational financial obligations are cultural norm. | Ask about parents' health, insurance, whether they are financial dependents — not just "number of dependents." Consider a separate, labeled "Parent Care Fund" sub-account. |
 | **Informal economy** | ~87% of India's 634M workers are informally employed [NITI Aayog, 2025]. 10M+ gig workers [as of 2025], growing to 23.5M by 2029–30. No employer benefits, no severance. | Freelancers and gig workers should default to 8–12 month targets. Income gaps between projects/gigs can be multi-week. EF-13 tracks whether our gig-economy sizing is calibrated correctly. |
 | **Inflation erosion** | CPI: ~3.4% [March 2026]; medical: ~14%; education: 8–12%; rent (metros): 5–8%. | EF target must be recalibrated annually. App should auto-suggest inflation-adjusted upward revisions. |
-| **Social & cultural obligations** | Weddings, ceremonies, community expectations can consume 1–3 months of income. Unpredictable timing. | Optional "Social Obligation Buffer" sub-fund — does not replace core EF but reduces likelihood of raiding it. V1 scoping decision required. |
+| **Social & cultural obligations** | Weddings, ceremonies, community expectations can consume 1–3 months of income. Unpredictable timing. | **✅ Decided:** Include as an optional "Social Obligation Buffer" sub-fund in V1. Surfaced post-target-reveal as an add-on step — not part of the core EF assessment flow. Does not inflate the core EF target. |
 
 ---
 
@@ -181,17 +181,16 @@ Intentionally left out — requires separate, dynamic data layers or legal revie
 
 ---
 
-## 10. Open Questions for Phase 1 Scoping
+## 10. Resolved Scoping Decisions
 
-These deliberation points from the plan must be resolved before journey design begins:
+> **Decided:** 2026-04-16 | These are locked founder decisions. Phase 1 journey design must treat these as fixed constraints, not open questions.
 
-1. **V1 archetype target:** Which archetypes does V1 EF serve? All 9 is broad; but the adaptive system handles variance. Recommended starting position: serve all but *design* the assessment conversation around S1 + S2 (Metro Single Professional + Young Families) — the adaptive logic handles other archetypes naturally.
-
-2. **Onboarding integration:** Does the EF setup double as CarrotFin's primary onboarding? The 8-dimension assessment maps perfectly to first-run profiling. High-conviction recommendation: yes — EF IS the onboarding for V1.
-
-3. **Social obligation buffer inclusion:** Include in V1 as an optional sub-fund, or defer? Recommendation: Defer from V1 assessment (keeps it simpler), but include a post-target "Add buffers" optional step.
-
-4. **Fund execution model:** Advisory-only (user acts externally) vs. embedded transactions (in-app fund setup)? This is the biggest V1 scope decision. CarrotFin V1 should be advisory-only — avoids SEBI/RBI licensing complexity and lets us focus on the intelligence layer.
+| # | Decision | Resolution | Engineering Implication |
+|:---|:---|:---|:---|
+| **D1** | **V1 archetype target** | The assessment conversation is *designed* around two primary personas: **New Parent** (30–38, infant/toddler, partially dependent parents) and **Sandwich Generation** (35–45, children in school, aging parents, single earner or variable income). These two represent the highest EF urgency and the widest spread of complexity. The adaptive engine handles all 9 archetypes — these two anchor the UX design work. | Journey design (Phase 2) must walk through both archetypes end-to-end. Component specs (Phase 3) must cover information density for both. |
+| **D2** | **Onboarding integration** | EF setup **is** CarrotFin's first-launch onboarding. The 8-dimension assessment IS the user profiling flow. The app should be built as if it has many features — other goal types (retirement, education, wealth building) exist as visible but dummy/placeholder entries in the navigation. Users see where the product is going; they can only interact with EF for now. | App shell must include bottom nav or home surface with EF as primary active feature + 2–3 placeholder goal cards (greyed out, "Coming soon"). No dead ends — users see the full product vision from day one. |
+| **D3** | **Social obligation buffer** | **Include in V1** as an optional post-assessment step — not part of the core EF sizing flow. After the primary target is set and revealed, the app asks: "Many Indian families also set aside a small buffer for family obligations like weddings or ceremonies. Want to add one?" User can skip. This keeps the core flow clean while acknowledging Indian financial reality. | Implement as a distinct, skippable module after "Why This Number" reveal. Sub-fund is labeled separately (e.g., "Family Buffer"). Does not affect the core EF target calculation. |
+| **D4** | **Advisory depth / fund execution model** | **Advisory-only, instrument-type level.** CarrotFin recommends *how to allocate* across instrument types (savings/sweep-in FD, liquid MF, short-term FD/debt fund) but does **not** recommend specific AMCs, fund names, or bank products. User executes externally. This is the advisory ceiling for V1 — no embedded transactions, no product-level recommendations, no SEBI/RBI distribution licensing required. | Advisory output is: "Put ₹1L in a sweep-in FD for instant access, ₹2L in liquid mutual funds, ₹1.5L in a short-term FD or ultra-short debt fund." No fund name, no AMC, no bank named. User directs execution themselves or via their existing platforms. |
 
 ---
 
