@@ -2,7 +2,7 @@
 
 > **Workflow:** `/product` — Phase 1: Product Scoping & Flow Definition
 > **Last updated:** 2026-04-16
-> **Status:** Product definition locked. §0 updated for multi-agentic LLM architecture. Interaction specs (`J01-interaction-specs.md`) pending fresh rewrite with LLM-first architecture.
+> **Status:** Product definition locked. Interaction specs rewritten with LLM-first architecture (see J01-interaction-specs.md).
 > **Trigger:** First-launch onboarding. New user opens CarrotFin for the first time.
 > **User segments:** All — EF setup IS onboarding. Primary design anchors: New Parent (30–38) and Sandwich Generation (35–45). The Adaptive Engine (see §0 below) handles all 9 archetypes at runtime.
 > **Assumptions depended on:** EF-11 (8 core sizing dimensions + 1 open/contextual dimension — see §2), C5 (conversational+visual integration feasible), C6 (adaptive composition viable in Flutter)
@@ -344,7 +344,7 @@ V2 ─────────────────────────�
 
 
 > **Detailed interaction specs for each phase are in [J01-interaction-specs.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/journey-catalog/J01-interaction-specs.md).**
-> Phases 1–2 are fully specced. Phases 3–5 are skeleton only, pending Steps 2C–2D.
+> All phases (1–5) fully specced with LLM-first architecture.
 
 ---
 
