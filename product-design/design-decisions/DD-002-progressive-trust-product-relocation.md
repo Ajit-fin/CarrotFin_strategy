@@ -31,7 +31,7 @@ The pattern follows DD-001's scope clarification principle: design axioms govern
 1. **Removed axiom #4** (Progressive Trust Architecture) from `design-principles.md`. Design axioms reduced from 4 to 3.
 
 2. **Added Part 6 (Trust Architecture)** to `behavioral-framework.md`, containing:
-   - Trust ramp with 5 levels (New → Curious → Warming → Trusting → Dependent)
+   - Trust ramp with 4 levels (New → Warming → Trusting → Dependent)
    - Value-before-ask principle (hard constraint)
    - Trust level → AI behavior gating matrix
    - Trust regression mechanics

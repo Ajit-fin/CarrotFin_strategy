@@ -43,7 +43,7 @@ The Adaptive Engine (J01 §0) coordinates four agent concerns. This section defi
 | Agent | Receives | Produces | Downstream consumer |
 |:---|:---|:---|:---|
 | **Conversational** | User utterance + dialogue history + current user state | Response text + extracted data signals (0–N dimensions per turn) | State agent (batch update); Composition agent (conversational context) |
-| **Computation** | Captured dimension values (all 8 + D9) | ₹ target, allocation splits, milestone dates, contribution amounts | Composition agent (structured computed values). Deterministic — no LLM reasoning |
+| **Computation** | Captured dimension values (all 8 + D9) | ₹ target, allocation splits, milestone dates, contribution amounts | Composition agent (structured computed values). Semi-deterministic — formulaic core with LLM-calibrated range resolution for base EF target (see BS-001 §1.5 note) |
 | **Composition** | User state (4 adaptive dimensions + confidence) + journey state (phase, beat) + computed values + conversational context | Component selection + configuration: which component, which state, which adaptive variant | Rendering layer. Decisions bounded by §2 guardrails |
 | **State** | Dimension updates from conversational agent + session signals (modality, pacing, vocabulary) | Current user-state snapshot: 4 adaptive dimensions with confidence bands + all captured journey data | All other agents (read-only). Persistent across turns |
 

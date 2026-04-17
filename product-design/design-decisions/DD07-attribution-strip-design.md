@@ -32,7 +32,7 @@ The attribution strip renders as a **vertical stacked arrow diagram** (not horiz
 - Negative adjustments are cool-tinted (blue-green text)
 - The baseline row has no +/− — it anchors
 - A separator line (═) precedes the final total
-- The entire strip is collapsible — default state is **expanded** for first-time users at New/Curious trust level; collapsed (headline only) for returning users at Warming+ trust level
+- The entire strip is collapsible — default state is **expanded** for first-time users at New trust level; collapsed (headline only) for returning users at Warming+ trust level
 - Each factor row is tappable → expands a one-sentence plain-English explanation (§5.2 Level 2: "Reasoning")
 - Second-level tap reveals the data source (§5.2 Level 3: "Formula")
 

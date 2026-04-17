@@ -423,8 +423,7 @@ Users progress through trust levels based on value delivered, not time elapsed. 
 
 | Trust Level | User Behavior Signals | AI Data Rights | AI Behavior |
 |---|---|---|---|
-| **New** (0 interactions) | Just arrived. No history. | Zero user data. AI uses public information only (age cohort from device signals, city from IP, generic financial context). | Provide value with no data: "Here are 3 things every 28-year-old in Bangalore should know about tax-saving." No data requests. |
-| **Curious** (1-3 value-delivering interactions) | Returned after first value. Engaged with at least one insight. | One data point per interaction, max. Each request must follow delivered value. | "What's your approximate monthly income?" → immediately show what that data point unlocked: "For your income, here's how your tax savings break down." |
+| **New** (0–3 value-delivering interactions) | Just arrived or recently returned. Minimal history. May have engaged with 1–2 insights. | Zero to minimal user data. AI uses public information and any voluntarily shared data points. Each data request must follow delivered value (§6.2). | Provide value with no or minimal data: "Here are 3 things every 28-year-old in Bangalore should know about tax-saving." One data point per interaction, max — each request must follow delivered value. |
 | **Warming** (3-10 interactions, shared 3+ data points) | Voluntarily shared data. Acted on at least one suggestion. | Can request related data clusters (income → expenses → savings rate). Can suggest account linking. | Active recommendations with reasoning. "I'd suggest X because Y." Verification anchors available but not forced. |
 | **Trusting** (10+ interactions, acted on recommendations) | Regular user. Has acted on AI advice. Returns proactively. | Can request sensitive data (debts, insurance details, investment portfolio). Can propose automated actions. | Full advisory mode. Nudge levels 1-4 available. Proactive alerts. Confidence projection without excessive caveats. |
 | **Dependent** (50+ interactions, high engagement) | Deep reliance on AI. Rarely questions. | Full data access (user has granted it). | AI should periodically surface verification anchors to prevent blind dependence. "I want to make sure you understand how this works." Maintain user agency. |
@@ -452,7 +451,7 @@ Trust level gates not just data requests but the AI's entire behavioral repertoi
 | AI Capability | Minimum Trust Level | Why |
 |---|---|---|
 | Passive insights (spending trends, market context) | New | Low-stakes, high-value. Builds initial trust. |
-| Contextual suggestions ("this idle cash could earn more") | Curious | Requires user to believe AI understands their situation |
+| Contextual suggestions ("this idle cash could earn more") | New (late-stage) | Requires user to believe AI understands their situation |
 | Active recommendations ("I'd move ₹50K to ELSS") | Warming | User must trust AI judgment, not just AI information |
 | Friction interventions ("Sleep on this redemption") | Trusting | Deeply personal. AI is overriding user intent — requires earned authority. |
 | Automated actions (auto-SIP increase, auto-rebalance) | Trusting+ | AI acting on user's behalf. Highest trust requirement. |
@@ -515,6 +514,7 @@ This file is explicitly a **living document**. It evolves with research, user da
 |---|---|---|
 | 2026-04-15 | Initial creation | Fills the AI Reasoning Layer gap in the product design pipeline |
 | 2026-04-15 | Added Part 6: Trust Architecture | Progressive Trust relocated from design axioms (DD-002) — product-level decision logic, not a UX structural constraint |
+| 2026-04-17 | Trust ramp consolidated to 4 levels | Merged "Curious" into "New" — functionally indistinct under the value-before-ask cadence. Aligns with CG01 §5.1 and ux-philosophy.md which already used 4 levels |
 
 ---
 
