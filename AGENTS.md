@@ -25,7 +25,8 @@ CarrotFin_strategy/
 │   │   ├── feedback.md                # KB updates, workspace health audits
 │   │   ├── mockup.md                  # UI mockup generation
 │   │   ├── buildspec.md               # Technical handoff compiler for dev workspace
-│   │   └── prune.md                   # Post-phase artifact pruning & bloat review
+│   │   ├── prune.md                   # Post-phase artifact pruning & bloat review
+│   │   └── sweep.md                   # Thread artifact cleanup & deletion
 │   ├── skills/                        # Reusable capability modules
 │   │   ├── frontend-design/           # Frontend implementation patterns
 │   │   ├── ux-design-system/          # GenUI, adaptive layout, component patterns
@@ -139,6 +140,7 @@ CarrotFin_strategy/
 | `/mockup` | 🖼️ Visual Designer | UI mockups | `product-design/ux-philosophy.md`, `design-principles.md` |
 | `/buildspec` | 📦 Spec Compiler | Dev workspace handoff | `company-context.md`, `design-principles.md`, `product-design/_index.md`, `strategy/buildspecs/_index.md` |
 | `/prune` | ✂️ Artifact Pruner | Post-phase bloat review | Thread artifacts, `assumptions-tracker.md`, `grounding-rules.md` |
+| `/sweep` | 🧹 Thread Cleanup | Delete spent thread artifacts | Brain directory for current thread, referenced workspace files |
 
 ## Supplemental Rules
 
