@@ -1,7 +1,7 @@
 # BuildSpec Inventory
 
 > **Domain:** Handoff  
-> **Last updated:** 2026-04-15  
+> **Last updated:** 2026-04-17  
 > **Staleness threshold:** N/A (event-driven updates)
 
 ---
@@ -18,7 +18,7 @@ BuildSpecs are consumed by an external Antigravity agent with zero CarrotFin con
 
 | Spec ID | Flow Name | Status | Date | Supersedes |
 |---|---|---|---|---|
-| — | *No BuildSpecs compiled yet* | — | — | — |
+| BS-001 | Emergency Fund Setup (J01) | Draft — Compilation Complete | 2026-04-17 | — |
 
 ---
 
@@ -31,6 +31,14 @@ BuildSpecs are consumed by an external Antigravity agent with zero CarrotFin con
 | **In Dev** | Handed off and actively being built |
 | **Built** | Dev agent completed the build |
 | **Superseded** | Replaced by a newer BuildSpec (link to successor in the spec) |
+
+---
+
+## Related Strategy Artifacts
+
+| Artifact | Relationship |
+|:---|:---|
+| [agent-invocation-contracts.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/agent-invocation-contracts.md) | Defines the inter-agent wiring diagram referenced by BS-001 §1.5. Specifies input/output schemas, invocation flow, error taxonomy, and prompt architecture for all 4 agents. |
 
 ---
 
