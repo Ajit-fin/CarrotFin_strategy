@@ -1,0 +1,92 @@
+/* ============================================================
+   CarrotFin Design Tokens — v1 (2026-04-30)
+   Dark-dominant · Glassmorphism · Carrot Navy + Energetic Orange
+   Source of truth: product-design/website-design-system.md
+   ============================================================ */
+
+:root {
+  /* --- Core palette --- */
+  --color-primary:            #FF6B35;
+  --color-secondary:          #D8E3FB;
+  --color-tertiary:           #8C9BB0;
+  --color-neutral:            #081425;
+
+  /* --- Dark theme (default) --- */
+  --color-bg:                 #081425;
+  --color-surface-0:          rgba(216, 227, 251, 0.03);
+  --color-surface-1:          rgba(216, 227, 251, 0.06);
+  --color-surface-2:          rgba(216, 227, 251, 0.10);
+  --color-surface-3:          rgba(216, 227, 251, 0.14);
+  --color-on-surface:         #FFFFFF;
+  --color-on-surface-variant:  #D8E3FB;
+  --color-on-surface-muted:   #8C9BB0;
+  --color-on-primary:         #FFFFFF;
+  --color-primary-glow:       rgba(255, 107, 53, 0.25);
+  --color-border:             rgba(216, 227, 251, 0.12);
+  --color-border-hover:       rgba(216, 227, 251, 0.24);
+  --color-border-glow:        rgba(255, 107, 53, 0.30);
+  --color-error:              #FF6B6B;
+  --color-positive:           #4ADE80;
+
+  /* --- Light variant (downloadable cards, shared embeds) --- */
+  --color-light-bg:           #F8FAFF;
+  --color-light-surface:      #FFFFFF;
+  --color-light-on-surface:   #081425;
+  --color-light-on-surface-variant: #4A5568;
+
+  /* --- Typography --- */
+  --font-display:             'Newsreader', serif;
+  --font-body:                'Inter', sans-serif;
+
+  /* --- Shape (corner radii) --- */
+  --shape-none:  0px;
+  --shape-xs:    4px;
+  --shape-sm:    8px;
+  --shape-md:    12px;
+  --shape-lg:    16px;
+  --shape-xl:    24px;
+  --shape-2xl:   28px;
+  --shape-full:  9999px;
+
+  /* --- Spacing (4px base) --- */
+  --spacing-xs:   4px;
+  --spacing-sm:   8px;
+  --spacing-md:   16px;
+  --spacing-lg:   24px;
+  --spacing-xl:   32px;
+  --spacing-2xl:  48px;
+  --spacing-3xl:  64px;
+  --spacing-4xl:  96px;
+
+  /* --- Glassmorphism presets --- */
+  --glass-blur-1:  blur(12px);
+  --glass-blur-2:  blur(20px);
+  --glass-blur-3:  blur(32px);
+
+  /* --- Glow presets --- */
+  --glow-orange:   0 0 20px var(--color-primary-glow), 0 0 60px rgba(255, 107, 53, 0.10);
+  --glow-cool:     0 0 20px rgba(216, 227, 251, 0.08);
+  --glow-progress: 0 0 8px var(--color-primary-glow);
+
+  /* --- Motion --- */
+  --ease-emphasized:           cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized-decel:     cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-emphasized-accel:     cubic-bezier(0.3, 0, 0.8, 0.15);
+  --ease-standard:             cubic-bezier(0.2, 0, 0, 1);
+  --duration-short:   150ms;
+  --duration-medium:  300ms;
+  --duration-long:    500ms;
+
+  /* --- Breakpoints (for reference — use in @media queries) --- */
+  /* Compact:  < 600px   (4-col, 16px margins, 8px gutter)  */
+  /* Medium:   600-904px  (8-col, 24px margins, 12px gutter) */
+  /* Expanded: 905-1240px (12-col, 24px margins, 16px gutter) */
+  /* Large:    > 1240px   (12-col, auto margins, 16px gutter) */
+
+  /* --- Content widths --- */
+  --width-page:      1240px;
+  --width-content:   1080px;
+  --width-reading:   680px;
+  --width-tool:      580px;
+  --width-form:      480px;
+}

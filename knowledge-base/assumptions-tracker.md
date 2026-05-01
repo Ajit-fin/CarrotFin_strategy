@@ -80,4 +80,15 @@ C4 (adaptive UI works) + C5 (integrated conversation + visual works)
 
 ---
 
+## Pre-Launch Strategy Assumptions
+
+> Added: 2026-05-01 | Source: Pre-launch website strategy
+
+| ID | Assumption | Status | Evidence | Date Added |
+|---|---|---|---|---|
+| W1 | Interactive pre-launch tools (Pulse Check) convert better than static "coming soon" pages | ⬜ Untested | The entire pre-launch acquisition strategy relies on this "value-before-ask" mechanism. | 2026-05-01 |
+| W2 | WhatsApp (even from a personal number) outperforms email for Indian millennial waitlist engagement | ⬜ Untested | The pre-launch drip campaign will use WhatsApp for weekly personalized insights. Need to compare open/reply rates vs standard email. | 2026-05-01 |
+
+---
+
 *Run `/feedback` after any strategic session to review and update this tracker.*
