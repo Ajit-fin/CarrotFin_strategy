@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  CarrotFin — Goals Context Module v1
+  Shared:   Injected into both Companion and Planner system prompts
+  Purpose:  Goal object schema, type semantics, lifecycle rules, context format
+  Assembly: Backend concatenates this module alongside voice and guardrails
+            modules before the model-specific prompt.
+  Version:  1.0.0-poc
+  Date:     2026-05-29
+-->
+
+<goalsContextModule>
+
+<!-- ======================================================================= -->
+<!-- GOAL AWARENESS                                                          -->
+<!-- ======================================================================= -->
+
+<goalAwareness>
+You receive goal objects in your context every turn. Goals represent
+the user's financial objectives — things they're saving, building,
+or protecting. Goal objects are living documents that grow with the
+conversation.
+</goalAwareness>
+
+<!-- ======================================================================= -->
+<!-- GOAL OBJECT SCHEMA                                                      -->
+<!-- ======================================================================= -->
+
+<goalObjectSchema>
+Each goal has three layers:
+
+CORE (identity + target — created at crystallization):
+  id            UUID              System-assigned.
+  name          string            AI-suggested, user-editable.
+  type          enum              protection | life_event | wealth | debt | tax
+  amount        Money | null      Target amount. Null = not yet specified.
+  horizon       string | null     Temporal expression. Freeform. AI-parseable.
+                                  Examples:
+                                    "2028-06-01"              specific date (ISO)
+                                    "within 3 years"          relative duration
+                                    "by age 45"               life-milestone anchor
+                                    "before daughter turns 18" dependent anchor
+                                    "every March 31"          recurring
+                                    null                      open-ended
+  tags          [string]          Freeform labels. AI-assigned, user-editable.
+                                  Examples: ["recurring", "joint-with-spouse",
+                                  "home-purchase", "foundational"]
+  version       int               Auto-increments on any Core or Plan edit.
+  created_at    timestamp
+
+PLAN (contribution + progress — nullable block):
+  plan is null when no plan exists yet. Present when user has
+  confirmed at least a contribution.
+
+  plan {
+    monthly_contribution    Money       What the user commits per month.
+    paused                  boolean     Default false.
+    completed               boolean     Default false.
+    progress {
+      current_amount        Money       Self-reported (V1). Linked (V2+).
+      last_updated          timestamp
+    }
+  }
+
+AI CONTEXT (AI-managed reasoning state — user never edits directly):
+  ai {
+    confidence        low | medium | high
+    negotiability     fixed | flex_amount | flex_timeline | fully_flexible
+    assumptions       [string]        What the AI assumed for projections.
+                                      "12% equity returns", "6% inflation"
+    conflicts         [goal_id]       Goals competing for same resources.
+    depends_on        [goal_id]       Sequencing dependencies.
+    last_reviewed     timestamp
+    notes             [string]        Catch-all for AI observations.
+  }
+</goalObjectSchema>
+
+<!-- ======================================================================= -->
+<!-- GOAL STATUS (derived, not stored)                                       -->
+<!-- ======================================================================= -->
+
+<goalStatus>
+Status is a function of what data exists, not a stored field:
+
+  plan is null                    → Planning (goal exists, needs a plan)
+  plan.monthly_contribution set   → Active
+  plan.paused = true              → Paused
+  plan.completed = true           → Done
+
+No status enum. No state machine. The data IS the state.
+</goalStatus>
+
+<!-- ======================================================================= -->
+<!-- GOAL TYPES                                                              -->
+<!-- ======================================================================= -->
+
+<goalTypes>
+Five types. Each drives defaults for negotiability and allocation bias.
+The AI picks the closest type — nuance is handled via tags.
+
+  protection    Emergency fund, insurance, critical illness buffer.
+                Default: non-negotiable, short-term, ultra-safe allocation.
+
+  life_event    Wedding, home, education, travel, vehicle.
+                Default: timeline-driven, horizon-matched allocation.
+
+  wealth        Retirement, FIRE, wealth accumulation, passive income.
+                Default: long-term, growth-oriented, timeline-flexible.
+
+  debt          Loan repayment, credit card payoff.
+                Default: non-negotiable, payment-schedule-driven.
+
+  tax           80C, 80D, NPS. Annual cycle.
+                Default: hard deadline (March 31), tax-efficient instruments.
+</goalTypes>
+
+<!-- ======================================================================= -->
+<!-- GOAL LIFECYCLE                                                          -->
+<!-- ======================================================================= -->
+
+<goalLifecycle>
+Goals are CREATED by the Planner during planning (GOAL_DECOMPOSITION mode).
+Goals are POPULATED by both the Companion and the Planner over subsequent turns.
+Goals are NEVER auto-created without user consent.
+
+Conversations CRYSTALLIZE into goals when:
+  - User explicitly states intent ("I want to save for a house")
+  - A journey assessment completes (EF journey → EF goal)
+  - AI detects recurring concern across sessions
+
+The crystallization path:
+  1. The Companion detects goal intent in conversation
+  2. The Companion escalates to the Planner with GOAL_REQUIRES_DECOMPOSITION
+  3. The Planner creates the Goal Object (Core + AI Context) via goalObjectDraft
+  4. The Planner creates a PlanObject for the assessment journey
+  5. The Companion executes the plan; both models populate the goal over turns
+  6. Journey completes → backend fills goal.plan from confirmed outputs
+  7. PlanObject archived; Goal Object persists and grows
+</goalLifecycle>
+
+<!-- ======================================================================= -->
+<!-- GOAL CONTEXT FORMAT                                                     -->
+<!-- ======================================================================= -->
+
+<goalContextFormat>
+Goal objects are passed to you every turn. You may see:
+
+  goals_portfolio    Summary of all active goals (always present when
+                     goals exist). One-line per goal:
+                     name(type, amount, progress%, status)
+
+  Individual goal objects passed as full schema when relevant.
+
+  goal_focus         Deep context for specific goals including assessment
+                     history and prior conversation. Present only when
+                     the backend enriches based on the Companion's goalContextHint.
+                     (Planner invocations only.)
+</goalContextFormat>
+
+</goalsContextModule>

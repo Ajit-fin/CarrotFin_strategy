@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  CarrotFin — Journey Template: Emergency Fund Setup (BS-001)
+  Injected into Planner prompt when the Companion identifies an EF goal.
+  System pairs this with the financialKnowledgeBase for the EF domain.
+  Version:  1.0.0-poc
+  Date:     2026-05-22
+  Source:   Extracted from pro_planning_v1.xml §3 (v1.1) + BS-001
+-->
+
+<journeyTemplate>
+
+  <journeyId>ef-setup</journeyId>
+  <name>Emergency Fund Setup</name>
+  <purpose>
+    New user → personalised EF target with attribution → 3-layer
+    liquidity allocation → monthly contribution plan with milestones.
+    The 8 sizing dimensions seed the user profile for all future features.
+  </purpose>
+  <advisoryConstraint>
+    Recommend instrument TYPES (savings account, liquid fund, short-term
+    FD) — NEVER name specific banks, funds, or products.
+  </advisoryConstraint>
+
+  <!-- PHASES -->
+  <phases>
+    <phase phaseId="DISCOVERY"
+           purpose="The Companion's territory. The Planner's plan covers subsequent phases."
+           trustLevel="NEW"
+           proRole="NONE — the Companion handles Discovery conversationally." />
+
+    <phase phaseId="ASSESSMENT"
+           purpose="Capture 8 sizing dimensions through adaptive conversation. Deliver value-after insights at cluster boundaries."
+           trustLevel="NEW → WARMING"
+           proRole="Plan dimension capture sequence, group related dimensions, schedule value-after moments."
+           keyMechanic="Building Your Picture progress indicator — 8 pills filling with running target estimate." />
+
+    <phase phaseId="TARGET_SETTING"
+           purpose="Reveal personalised EF target with full attribution."
+           trustLevel="WARMING"
+           proRole="Plan target computation, attribution display, D3 social obligation prompt (OPTIONAL), Starter Shield trigger."
+           keyComponents="Target Card, Attribution Strip, D3 Prompt Card, Starter Shield overlay" />
+
+    <phase phaseId="FUND_ARCHITECTURE"
+           purpose="Explain 3-layer liquidity allocation strategy."
+           trustLevel="WARMING → TRUSTING"
+           proRole="Plan allocation computation and explanation."
+           keyComponents="Allocation Card, Liquidity Gradient Strip"
+           layers="Instant Access (savings account) / Quick Access (liquid fund) / Stable Reserve (short-term FD)" />
+
+    <phase phaseId="CONTRIBUTION_PLANNING"
+           purpose="Propose monthly contribution plan with milestone timeline."
+           trustLevel="TRUSTING"
+           proRole="Plan contribution calculation, milestone projection, action card, exit experience."
+           keyComponents="Contribution Plan Card, Milestone Rows, Action Card, Salary-Day Reminder, Exit Message" />
+  </phases>
+
+  <!-- DIMENSIONS -->
+  <dimensions>
+    <dimension id="D1" name="Income Stability" optional="false" sensitive="false">
+      <what>Employment type + employer stability / income pattern</what>
+      <impact>Govt/PSU → 3-4mo. Large private → 4-6mo. Startup → 6-8mo. Freelancer → 8-12mo. Gig → 6-10mo.</impact>
+      <followUps>If salaried → employer type. If business → tenure.</followUps>
+    </dimension>
+
+    <dimension id="D2" name="Dependency Load" optional="false" sensitive="false">
+      <what>Who depends on user's income — nature matters, not just count</what>
+      <impact>Aging parents with no insurance ≠ working adult sibling.</impact>
+      <followUps>Aging parents → health insurance. Children → age bracket.</followUps>
+    </dimension>
+
+    <dimension id="D3" name="Insurance Coverage Quality" optional="false" sensitive="false">
+      <what>Health insurance level; term insurance flag</what>
+      <impact>Adequate health (₹10L+) + term → reduce 1-2mo. No health insurance → add ₹2-5L buffer.</impact>
+    </dimension>
+
+    <dimension id="D4" name="Fixed Obligations" optional="false" sensitive="false">
+      <what>Rent/EMI, school fees, premiums — as ₹ or % of income</what>
+      <impact>High fixed-to-variable ratio = larger fund.</impact>
+    </dimension>
+
+    <dimension id="D5" name="City Tier / Cost of Living" optional="false" sensitive="false">
+      <what>Metro vs Tier 2 vs Tier 3</what>
+      <impact>Metro → ₹60K-1.2L/mo essential spend. Tier 2 → ₹25-50K. Tier 3 → ₹15-35K.</impact>
+    </dimension>
+
+    <dimension id="D6" name="Age Bracket" optional="false" sensitive="false">
+      <what>Career stage, not exact year</what>
+      <impact>22-27 → 3-4mo. 28-35 → 6-8mo. 35-45 → 8-12mo.</impact>
+    </dimension>
+
+    <dimension id="D7" name="Household Income Sources" optional="false" sensitive="false">
+      <what>Sole earner vs dual/multiple</what>
+      <impact>Dual-income salaried = lowest risk. Single + variable = highest risk.</impact>
+    </dimension>
+
+    <dimension id="D8" name="Health Profile" optional="false" sensitive="true">
+      <what>Pre-existing conditions, family history</what>
+      <impact>Chronic conditions → increase buffer.</impact>
+      <privacyNote>"Prefer not to say" is always valid → use conservative estimate. The Companion offers text-input fallback and does not echo verbally.</privacyNote>
+    </dimension>
+
+    <dimension id="D9" name="Open / Contextual" optional="true" sensitive="false">
+      <what>User-volunteered factors outside D1-D8</what>
+      <impact>+0.5 to +2 months buffer. Judge conservatively.</impact>
+      <mechanic>Not a structured question. A 9th BYP pill appears dynamically.</mechanic>
+      <examples>Supporting brother's education, pending legal case</examples>
+    </dimension>
+  </dimensions>
+
+  <!-- DIMENSION GROUPING -->
+  <dimensionGrouping>
+    <cluster id="1" name="Income Profile" dimensions="D1,D7">
+      <valueAfter>First range estimate. "Based on your income profile, your baseline is X-Y months."</valueAfter>
+    </cluster>
+    <cluster id="2" name="Responsibility" dimensions="D2,D3,D4">
+      <valueAfter>"Safety Net So Far" card showing each factor's impact.</valueAfter>
+    </cluster>
+    <cluster id="3" name="Context" dimensions="D5,D6,D8">
+      <valueAfter>Range collapses to final number.</valueAfter>
+    </cluster>
+  </dimensionGrouping>
+
+  <!-- CONFIRMATION PATTERNS -->
+  <confirmationPatterns>
+    <pattern id="C1_LIGHT_CONFIRM" description="Categorical inputs. Auto-proceeds. No tap needed." />
+    <pattern id="C2_ACTIVE_CONFIRM" description="Numeric inputs. Flow pauses until confirmed." />
+    <pattern id="C3_SUMMARY_CONFIRM" description="Phase-gate. All data shown as scannable rows. Two CTAs: Looks right / Let me adjust." />
+    <pattern id="C4_EDIT_IN_PLACE" description="User-initiated edit of a prior answer." />
+  </confirmationPatterns>
+
+  <!-- RE-ENTRY SCENARIOS -->
+  <reEntryScenarios>
+    <scenario id="A" name="Fresh User" behavior="Full flow from Phase 2 (ASSESSMENT)." />
+    <scenario id="B" name="Has Existing Savings" behavior="Assessment in health-check framing. Respect existing effort." />
+    <scenario id="C" name="Has Known Target" behavior="Offer validation, then skip to FUND_ARCHITECTURE with user's number." />
+    <scenario id="D" name="Returning Mid-Flow" behavior="Resume from last step. If >30 days, re-verify." />
+    <scenario id="E" name="Has Existing EF" behavior="Gap-check framing. Pre-fill existing data." />
+  </reEntryScenarios>
+
+  <!-- JOURNEY-SPECIFIC GUARDRAILS -->
+  <journeyGuardrails>
+    <guardrail>Conservative defaults for withheld data. If a dimension is skipped, use the higher (more conservative) estimate.</guardrail>
+    <guardrail>D3 social obligation buffer is OPTIONAL. Never mandatory.</guardrail>
+    <guardrail>Starter Shield fires DETERMINISTICALLY when target ≤ existing savings. This is a backend rule, not a Planner judgment call.</guardrail>
+  </journeyGuardrails>
+
+  <!-- SUGGESTED JIT FIELDS -->
+  <suggestedJitFields>
+    <field name="socialSupportAmountRange" type="CURRENCY" scope="PLAN" note="For D3 social obligation buffer" />
+    <field name="socialSupportFrequency" type="CHOICE" scope="PLAN" note="For D3 social obligation buffer" />
+    <field name="openContextFactor" type="CURRENCY" scope="PLAN" note="For D9 — define dynamically based on what user volunteers (e.g., brotherEducationCost)" />
+  </suggestedJitFields>
+
+</journeyTemplate>

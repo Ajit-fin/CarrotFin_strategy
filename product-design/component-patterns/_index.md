@@ -1,7 +1,7 @@
 # Component Patterns — Index
 
 > **Domain:** Design  
-> **Last updated:** 2026-04-16  
+> **Last updated:** 2026-06-18  
 > **Staleness threshold:** 30 days
 
 ---
@@ -50,6 +50,7 @@ Same component. Three renderings. The AI selects the rendering based on user con
 | CP03 | Target Card + Attribution Strip (phase-gate reveal, DD07 attribution, D3 Prompt, Starter Shield) | Yes | Complete |
 | CP04 | Allocation Card + Liquidity Gradient Strip (DD08 3-zone proportional strip, layer detail rows, DICGC footnote, light phase gate) | Yes | Complete |
 | CP05 | Contribution Plan Card + Action Card (DD09 milestone timeline, §C4 contribution edit, Action Card with per-layer steps, salary-day reminder, §1A exit copy, D3 Confirmed Card appendix) | Yes | Complete |
+| CP06 | Input Component Palette (optionSelector, valueInput, tieredSelector, reviewCard, fieldEditor) — generic input components for Flash §4. Cross-journey. Supersedes CP01 as the Flash-facing input layer. | Yes | Complete |
 
 ---
 
