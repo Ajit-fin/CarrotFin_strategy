@@ -1,0 +1,888 @@
+{
+  "preferredName": {
+    "fieldId": "preferredName",
+    "type": "string",
+    "userFacingLabel": "Preferred Name",
+    "facet": "PERSONAL",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE",
+      "PARENT",
+      "CHILD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "TEXT",
+    "minLength": 1,
+    "maxLength": 50
+  },
+  "dateOfBirth": {
+    "fieldId": "dateOfBirth",
+    "type": "string",
+    "format": "date",
+    "userFacingLabel": "Date of Birth",
+    "facet": "PERSONAL",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE",
+      "PARENT",
+      "CHILD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "DATE",
+    "maxDate": "today"
+  },
+  "gender": {
+    "fieldId": "gender",
+    "type": "string",
+    "userFacingLabel": "Gender",
+    "facet": "PERSONAL",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE",
+      "PARENT",
+      "CHILD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "enumValues": [
+      "MALE",
+      "FEMALE",
+      "OTHER",
+      "PREFER_NOT_TO_SAY"
+    ],
+    "enumLabels": [
+      "Male",
+      "Female",
+      "Other",
+      "Prefer Not To Say"
+    ],
+    "inputType": "CHOICE_SIMPLE"
+  },
+  "maritalStatus": {
+    "fieldId": "maritalStatus",
+    "type": "string",
+    "userFacingLabel": "Marital Status",
+    "facet": "PERSONAL",
+    "relationshipToUser": [
+      "SELF"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "enumValues": [
+      "SINGLE",
+      "MARRIED",
+      "DIVORCED",
+      "WIDOWED",
+      "SEPARATED"
+    ],
+    "enumLabels": [
+      "Single",
+      "Married",
+      "Divorced",
+      "Widowed",
+      "Separated"
+    ],
+    "inputType": "CHOICE_SIMPLE"
+  },
+  "employmentType": {
+    "fieldId": "employmentType",
+    "type": "string",
+    "userFacingLabel": "Employment Type",
+    "facet": "INCOME",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "enumValues": [
+      "SALARIED_GOVT",
+      "SALARIED_PSU",
+      "SALARIED_LARGE_PRIVATE",
+      "SALARIED_MID_PRIVATE",
+      "SALARIED_STARTUP",
+      "SELF_EMPLOYED_ESTABLISHED",
+      "SELF_EMPLOYED_NEW",
+      "FREELANCER",
+      "GIG_WORKER",
+      "CONTRACTUAL",
+      "COMMISSION_BASED",
+      "SEASONAL",
+      "RETIRED",
+      "HOMEMAKER",
+      "STUDENT",
+      "UNEMPLOYED"
+    ],
+    "enumLabels": [
+      "Salaried Govt",
+      "Salaried Psu",
+      "Salaried Large Private",
+      "Salaried Mid Private",
+      "Salaried Startup",
+      "Self Employed Established",
+      "Self Employed New",
+      "Freelancer",
+      "Gig Worker",
+      "Contractual",
+      "Commission Based",
+      "Seasonal",
+      "Retired",
+      "Homemaker",
+      "Student",
+      "Unemployed"
+    ],
+    "inputType": "CHOICE_SIMPLE"
+  },
+  "employerStabilityTier": {
+    "fieldId": "employerStabilityTier",
+    "type": "string",
+    "userFacingLabel": "Employer Stability",
+    "facet": "INCOME",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "enumValues": [
+      "VERY_STABLE",
+      "STABLE",
+      "MODERATE",
+      "VOLATILE",
+      "NOT_APPLICABLE"
+    ],
+    "enumLabels": [
+      "Very Stable",
+      "Stable",
+      "Moderate",
+      "Volatile",
+      "Not Applicable"
+    ],
+    "inputType": "CHOICE_TIERED"
+  },
+  "monthlyNetIncome": {
+    "fieldId": "monthlyNetIncome",
+    "type": "integer",
+    "userFacingLabel": "Monthly In-Hand Income",
+    "facet": "INCOME",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE",
+      "PARENT"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 50000000,
+    "step": 1000
+  },
+  "incomePattern": {
+    "fieldId": "incomePattern",
+    "type": "string",
+    "userFacingLabel": "Income Pattern",
+    "facet": "INCOME",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "enumValues": [
+      "FIXED_MONTHLY",
+      "VARIABLE_MONTHLY",
+      "SEASONAL",
+      "PROJECT_BASED",
+      "MIXED"
+    ],
+    "enumLabels": [
+      "Fixed Monthly",
+      "Variable Monthly",
+      "Seasonal",
+      "Project Based",
+      "Mixed"
+    ],
+    "inputType": "CHOICE_SIMPLE"
+  },
+  "annualGrossIncome": {
+    "fieldId": "annualGrossIncome",
+    "type": "integer",
+    "userFacingLabel": "Annual Gross Income",
+    "facet": "INCOME",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE"
+    ],
+    "journeyTags": [
+      "TAX",
+      "INVESTMENT"
+    ],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 600000000,
+    "step": 10000
+  },
+  "dependencyStatus": {
+    "fieldId": "dependencyStatus",
+    "type": "string",
+    "userFacingLabel": "Financial Dependency Status",
+    "facet": "INCOME",
+    "relationshipToUser": [
+      "SPOUSE",
+      "PARENT",
+      "CHILD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "enumValues": [
+      "FULLY_DEPENDENT",
+      "PARTIALLY_DEPENDENT",
+      "FINANCIALLY_INDEPENDENT"
+    ],
+    "enumLabels": [
+      "Fully Dependent",
+      "Partially Dependent",
+      "Financially Independent"
+    ],
+    "inputType": "CHOICE_SIMPLE"
+  },
+  "primaryEarner": {
+    "fieldId": "primaryEarner",
+    "type": "boolean",
+    "userFacingLabel": "Is Primary Earner",
+    "facet": "INCOME",
+    "relationshipToUser": [
+      "SELF"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "BOOLEAN"
+  },
+  "incomeTaxRegime": {
+    "fieldId": "incomeTaxRegime",
+    "type": "string",
+    "userFacingLabel": "Income Tax Regime",
+    "facet": "TAX",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "enumValues": [
+      "OLD_REGIME",
+      "NEW_REGIME",
+      "UNKNOWN"
+    ],
+    "enumLabels": [
+      "Old Regime",
+      "New Regime",
+      "Unknown"
+    ],
+    "inputType": "CHOICE_TIERED"
+  },
+  "section80cUtilized": {
+    "fieldId": "section80cUtilized",
+    "type": "integer",
+    "userFacingLabel": "Section 80C Utilized (Current FY)",
+    "facet": "TAX",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE"
+    ],
+    "journeyTags": [
+      "TAX",
+      "INVESTMENT"
+    ],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 150000,
+    "step": 1000
+  },
+  "tobaccoStatus": {
+    "fieldId": "tobaccoStatus",
+    "type": "string",
+    "userFacingLabel": "Tobacco or Smoking Usage",
+    "facet": "HEALTH",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE"
+    ],
+    "journeyTags": [
+      "INSURANCE",
+      "EMERGENCY_FUND"
+    ],
+    "enumValues": [
+      "NEVER",
+      "CURRENT_USER",
+      "FORMER_USER"
+    ],
+    "enumLabels": [
+      "Never",
+      "Current User",
+      "Former User"
+    ],
+    "inputType": "CHOICE_SIMPLE"
+  },
+  "preExistingConditions": {
+    "fieldId": "preExistingConditions",
+    "type": "string",
+    "userFacingLabel": "Pre-Existing Medical Conditions",
+    "facet": "HEALTH",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE",
+      "PARENT"
+    ],
+    "journeyTags": [
+      "INSURANCE",
+      "EMERGENCY_FUND"
+    ],
+    "enumValues": [
+      "NONE_KNOWN",
+      "MINOR_MANAGED",
+      "CHRONIC_CONDITION",
+      "CRITICAL_HISTORY",
+      "PREFER_NOT_TO_SAY"
+    ],
+    "enumLabels": [
+      "None Known",
+      "Minor Managed",
+      "Chronic Condition",
+      "Critical History",
+      "Prefer Not To Say"
+    ],
+    "inputType": "CHOICE_TIERED"
+  },
+  "healthInsuranceCoverAmount": {
+    "fieldId": "healthInsuranceCoverAmount",
+    "type": "integer",
+    "userFacingLabel": "Health Insurance Cover Amount",
+    "facet": "INSURANCE",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE",
+      "PARENT"
+    ],
+    "journeyTags": [
+      "EMERGENCY_FUND",
+      "INSURANCE"
+    ],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 100000000,
+    "step": 50000
+  },
+  "healthInsuranceSource": {
+    "fieldId": "healthInsuranceSource",
+    "type": "string",
+    "userFacingLabel": "Health Insurance Source",
+    "facet": "INSURANCE",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE",
+      "PARENT"
+    ],
+    "journeyTags": [
+      "EMERGENCY_FUND",
+      "INSURANCE"
+    ],
+    "enumValues": [
+      "EMPLOYER_GROUP",
+      "RETAIL_INDIVIDUAL",
+      "RETAIL_FAMILY_FLOATER",
+      "GOVERNMENT_SCHEME",
+      "NONE"
+    ],
+    "enumLabels": [
+      "Employer Group",
+      "Retail Individual",
+      "Retail Family Floater",
+      "Government Scheme",
+      "None"
+    ],
+    "inputType": "CHOICE_SIMPLE"
+  },
+  "termLifeCoverAmount": {
+    "fieldId": "termLifeCoverAmount",
+    "type": "integer",
+    "userFacingLabel": "Term Life Cover Amount",
+    "facet": "INSURANCE",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE"
+    ],
+    "journeyTags": [
+      "EMERGENCY_FUND",
+      "INSURANCE"
+    ],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 1000000000,
+    "step": 100000
+  },
+  "dependentHealthInsuranceStatus": {
+    "fieldId": "dependentHealthInsuranceStatus",
+    "type": "string",
+    "userFacingLabel": "Dependent's Health Insurance Status",
+    "facet": "INSURANCE",
+    "relationshipToUser": [
+      "SPOUSE",
+      "PARENT",
+      "CHILD"
+    ],
+    "journeyTags": [
+      "EMERGENCY_FUND",
+      "INSURANCE"
+    ],
+    "enumValues": [
+      "ADEQUATELY_INSURED",
+      "UNDERINSURED",
+      "UNINSURED",
+      "UNKNOWN"
+    ],
+    "enumLabels": [
+      "Adequately Insured",
+      "Underinsured",
+      "Uninsured",
+      "Unknown"
+    ],
+    "inputType": "CHOICE_TIERED"
+  },
+  "riskTolerance": {
+    "fieldId": "riskTolerance",
+    "type": "string",
+    "userFacingLabel": "Investment Risk Tolerance",
+    "facet": "BEHAVIORAL",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "enumValues": [
+      "CONSERVATIVE",
+      "MODERATE",
+      "AGGRESSIVE",
+      "UNKNOWN"
+    ],
+    "enumLabels": [
+      "Conservative",
+      "Moderate",
+      "Aggressive",
+      "Unknown"
+    ],
+    "inputType": "CHOICE_TIERED"
+  },
+  "financialLiteracyLevel": {
+    "fieldId": "financialLiteracyLevel",
+    "type": "string",
+    "userFacingLabel": "Financial Literacy Level",
+    "facet": "BEHAVIORAL",
+    "relationshipToUser": [
+      "SELF"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "enumValues": [
+      "LEVEL_1",
+      "LEVEL_2",
+      "LEVEL_3",
+      "LEVEL_4",
+      "UNKNOWN"
+    ],
+    "enumLabels": [
+      "Level 1",
+      "Level 2",
+      "Level 3",
+      "Level 4",
+      "Unknown"
+    ],
+    "inputType": "CHOICE_TIERED"
+  },
+  "targetRetirementAge": {
+    "fieldId": "targetRetirementAge",
+    "type": "integer",
+    "userFacingLabel": "Target Retirement Age",
+    "facet": "BEHAVIORAL",
+    "relationshipToUser": [
+      "SELF",
+      "SPOUSE"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "NUMBER",
+    "min": 35,
+    "max": 80,
+    "step": 1
+  },
+  "decisionMakingStyle": {
+    "fieldId": "decisionMakingStyle",
+    "type": "string",
+    "userFacingLabel": "Decision Making Style",
+    "facet": "BEHAVIORAL",
+    "relationshipToUser": [
+      "SELF"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "enumValues": [
+      "SOLO",
+      "JOINT_WITH_SPOUSE",
+      "DELEGATOR",
+      "FAMILY_CONSENSUS"
+    ],
+    "enumLabels": [
+      "Solo",
+      "Joint With Spouse",
+      "Delegator",
+      "Family Consensus"
+    ],
+    "inputType": "CHOICE_SIMPLE"
+  },
+  "residenceStatus": {
+    "fieldId": "residenceStatus",
+    "type": "string",
+    "userFacingLabel": "Residence Status",
+    "facet": "EXPENSE",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "enumValues": [
+      "RENTED",
+      "OWNED_WITH_LOAN",
+      "OWNED_OUTRIGHT",
+      "COMPANY_PROVIDED",
+      "LIVING_WITH_FAMILY",
+      "OTHER"
+    ],
+    "enumLabels": [
+      "Rented",
+      "Owned With Loan",
+      "Owned Outright",
+      "Company Provided",
+      "Living With Family",
+      "Other"
+    ],
+    "inputType": "CHOICE_SIMPLE"
+  },
+  "monthlyRent": {
+    "fieldId": "monthlyRent",
+    "type": "integer",
+    "userFacingLabel": "Monthly Rent",
+    "facet": "EXPENSE",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 500000,
+    "step": 500
+  },
+  "monthlyNonDiscretionaryExpenses": {
+    "fieldId": "monthlyNonDiscretionaryExpenses",
+    "type": "integer",
+    "userFacingLabel": "Monthly Essential Expenses",
+    "facet": "EXPENSE",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "CURRENCY",
+    "min": 5000,
+    "max": 10000000,
+    "step": 1000
+  },
+  "totalMonthlyEmi": {
+    "fieldId": "totalMonthlyEmi",
+    "type": "integer",
+    "userFacingLabel": "Total Monthly EMI",
+    "facet": "DEBT",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 10000000,
+    "step": 1000
+  },
+  "totalOutstandingDebt": {
+    "fieldId": "totalOutstandingDebt",
+    "type": "integer",
+    "userFacingLabel": "Total Outstanding Debt",
+    "facet": "DEBT",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 5000000000,
+    "step": 10000
+  },
+  "monthlySipCommitment": {
+    "fieldId": "monthlySipCommitment",
+    "type": "integer",
+    "userFacingLabel": "Monthly SIP/Investment Commitment",
+    "facet": "ASSET",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 50000000,
+    "step": 500
+  },
+  "totalLiquidSavings": {
+    "fieldId": "totalLiquidSavings",
+    "type": "integer",
+    "userFacingLabel": "Total Liquid Savings",
+    "facet": "ASSET",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "EMERGENCY_FUND",
+      "GOALS"
+    ],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 1000000000,
+    "step": 10000
+  },
+  "totalEquityInvestments": {
+    "fieldId": "totalEquityInvestments",
+    "type": "integer",
+    "userFacingLabel": "Total Equity/Market Investments",
+    "facet": "ASSET",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 5000000000,
+    "step": 10000
+  },
+  "totalFixedIncome": {
+    "fieldId": "totalFixedIncome",
+    "type": "integer",
+    "userFacingLabel": "Total Fixed Income Investments",
+    "facet": "ASSET",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 5000000000,
+    "step": 10000
+  },
+  "householdIncomeType": {
+    "fieldId": "householdIncomeType",
+    "type": "string",
+    "userFacingLabel": "Household Income Profile",
+    "facet": "INCOME",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "enumValues": [
+      "DUAL_INCOME_SALARIED",
+      "DUAL_INCOME_MIXED",
+      "SINGLE_INCOME_SALARIED",
+      "SINGLE_INCOME_VARIABLE"
+    ],
+    "enumLabels": [
+      "Dual Income Salaried",
+      "Dual Income Mixed",
+      "Single Income Salaried",
+      "Single Income Variable"
+    ],
+    "inputType": "CHOICE_SIMPLE"
+  },
+  "cityName": {
+    "fieldId": "cityName",
+    "type": "string",
+    "userFacingLabel": "City of Residence",
+    "facet": "DEMOGRAPHICS",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "TEXT",
+    "maxLength": 100
+  },
+  "cityTier": {
+    "fieldId": "cityTier",
+    "type": "string",
+    "userFacingLabel": "City Tier",
+    "facet": "DEMOGRAPHICS",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "enumValues": [
+      "METRO",
+      "TIER_1",
+      "TIER_2",
+      "TIER_3"
+    ],
+    "enumLabels": [
+      "Metro",
+      "Tier 1",
+      "Tier 2",
+      "Tier 3"
+    ],
+    "inputType": "CHOICE_SIMPLE"
+  },
+  "numberOfDependents": {
+    "fieldId": "numberOfDependents",
+    "type": "integer",
+    "userFacingLabel": "Number of Dependents",
+    "facet": "DEMOGRAPHICS",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "deprecated": true,
+    "deprecationNote": "Superseded by granular count fields. Use the fields listed in supersededBy for EF and insurance journeys.",
+    "supersededBy": [
+      "childrenUnder5Count",
+      "childrenSchoolAgeCount",
+      "agingParentInsuredCount",
+      "agingParentUninsuredCount",
+      "otherDependentCount"
+    ],
+    "journeyTags": [
+      "INSURANCE",
+      "BUDGET"
+    ],
+    "inputType": "NUMBER",
+    "min": 0,
+    "max": 15,
+    "step": 1
+  },
+  "childrenUnder5Count": {
+    "fieldId": "childrenUnder5Count",
+    "type": "integer",
+    "userFacingLabel": "Children Under 5",
+    "facet": "DEMOGRAPHICS",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "NUMBER",
+    "min": 0,
+    "max": 10,
+    "step": 1
+  },
+  "childrenSchoolAgeCount": {
+    "fieldId": "childrenSchoolAgeCount",
+    "type": "integer",
+    "userFacingLabel": "School-Age Children",
+    "facet": "DEMOGRAPHICS",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "NUMBER",
+    "min": 0,
+    "max": 10,
+    "step": 1
+  },
+  "agingParentInsuredCount": {
+    "fieldId": "agingParentInsuredCount",
+    "type": "integer",
+    "userFacingLabel": "Aging Parents (Insured)",
+    "facet": "DEMOGRAPHICS",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "NUMBER",
+    "min": 0,
+    "max": 4,
+    "step": 1
+  },
+  "agingParentUninsuredCount": {
+    "fieldId": "agingParentUninsuredCount",
+    "type": "integer",
+    "userFacingLabel": "Aging Parents (Uninsured)",
+    "facet": "DEMOGRAPHICS",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "NUMBER",
+    "min": 0,
+    "max": 4,
+    "step": 1
+  },
+  "otherDependentCount": {
+    "fieldId": "otherDependentCount",
+    "type": "integer",
+    "userFacingLabel": "Other Dependents",
+    "facet": "DEMOGRAPHICS",
+    "relationshipToUser": [
+      "HOUSEHOLD"
+    ],
+    "journeyTags": [
+      "ALL"
+    ],
+    "inputType": "NUMBER",
+    "min": 0,
+    "max": 10,
+    "step": 1
+  }
+}
