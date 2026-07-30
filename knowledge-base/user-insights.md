@@ -1,10 +1,10 @@
 # CarrotFin — User Insights
 
 > **Domain:** Users  
-> **Last updated:** 2026-04-16  
+> **Last updated:** 2026-07-29  
 > **Staleness threshold:** 30 days  
-> **Related assumptions:** C1, C2, C3, C6  
-> **Related decisions:** —
+> **Related assumptions:** C1, C2, C3, C6, GP-01  
+> **Related decisions:** V1-Product-Scope, Data-Model
 
 ---
 
@@ -39,6 +39,26 @@ CarrotFin's initial target is digitally native Indians aged 25-35 — salaried p
 | **Small Business Owner** (30–50, variable business income, may have staff obligations) | EF sizing: 9–12 months. Business and personal finances are often conflated — emergency fund design must address cash-flow cycles, not just personal income. | Lower priority for V1 (complex to serve well). Flag as potential S4-adjacent segment post-PMF. |
 | **Pre-Retiree** (50–60, approaching retirement, corpus protection critical) | EF target: 12–18 months, framed as *runway* not income replacement. Re-employment difficulty at this age makes income disruption disproportionately severe. | Defer from V1 — different mental model, different product framing entirely. Note for future EF v2. |
 | **Tier 2/3 Joint Family** (25–40, lower cost base, family support partially available) | EF target: 4–8 months. Lower absolute costs reduce fund size, but lower income and weaker formal insurance coverage offset this. Informal family safety net is real but unreliable with urbanization. | V1 advisory engine must not assume metro cost structures — city-tier input is critical to accuracy. The 8-dimension model handles this; no separate segment journey needed for V1. |
+
+## Household/Family User Model
+
+> **Added:** 2026-07-29 | Source: Workspace audit — Data-Model, GP-01
+
+The product has evolved from individual-centric profiling to a **multi-entity household/family model** (Data-Model). Financial decisions in India are inherently household-level: income pooling, shared obligations, cross-entity insurance, and joint decision-making are the norm for V1 target segments (S1-S2).
+
+### How This Affects User Insights
+
+| Aspect | Individual Model (Old) | Household Model (Current) |
+|---|---|---|
+| **Data unit** | Single person's income, expenses, goals | Person + Household + Relationships between them |
+| **Decision-making** | "What should I do?" | "What should our household do?" — `decisionMakingStyle` field captures SOLO vs. JOINT_WITH_SPOUSE vs. FAMILY_CONSENSUS |
+| **Insurance assessment** | "Do you have health insurance?" | "Who in your family is covered, and by whom?" — cross-entity coverage mapping |
+| **Dependency load** | Flat count: numberOfDependents | Granular: children under 5, school-age children, insured aging parents, uninsured aging parents, other dependents |
+| **Income risk** | Individual income stability | Household income profile: DUAL_INCOME_SALARIED (natural hedge) vs. SINGLE_INCOME_VARIABLE (highest risk) |
+
+### V1 Entry Point: Emergency Fund
+
+The Emergency Fund setup doubles as CarrotFin's onboarding experience ([V1-Product-Scope.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/V1-Product-Scope.md)). The 9-dimension EF sizing model profiles the user's household comprehensively enough to serve future journeys (insurance, retirement, tax) without re-asking core questions.
 
 ---
 

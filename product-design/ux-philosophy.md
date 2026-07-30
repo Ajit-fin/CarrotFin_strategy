@@ -1,10 +1,10 @@
 # CarrotFin — UX Philosophy
 
 > **Domain:** Design  
-> **Last updated:** 2026-04-15  
+> **Last updated:** 2026-07-30  
 > **Staleness threshold:** 90 days (foundational)  
-> **Related assumptions:** C4, C5, C6  
-> **Related decisions:** —
+> **Related assumptions:** C4, C6, GP-01  
+> **Related decisions:** Data-Model
 
 ---
 
@@ -47,8 +47,8 @@ Adaptive is the most overused word in product design. Here's what it means in Ca
 
 | Dimension | Category Norm (CRED, ET Money, INDmoney, Groww) | CarrotFin |
 |---|---|---|
-| **Home screen** | Fixed layout: net worth widget, recent transactions, portfolio chart. Same for everyone. | AI-composed surface: different components for different users. A first-timer sees "Let's set up your emergency fund." A power user sees "Your SIP returns are underperforming — here's a rebalancing option." |
-| **Navigation** | Bottom tab bar: Home, Invest, Budget, Profile, More | Emergent. The AI surfaces what matters. Users CAN deep-link to specific areas, but the default experience is guided, not menu-driven. |
+| **Home screen** | Fixed layout: net worth widget, recent transactions, portfolio chart. Same for everyone. | AI-composed content: different components for different users. A first-timer sees "Let's set up your emergency fund." A power user sees "Your SIP returns are underperforming — here's a rebalancing option." The specific surface structure is a design decision that evolves with user data. |
+| **Navigation** | Bottom tab bar: Home, Invest, Budget, Profile, More | Driven by what the AI surfaces as important. Navigation structure is a design decision — the key difference is that CarrotFin's AI determines *what matters* and surfaces it, rather than presenting a static menu of features to browse. |
 | **Onboarding** | 8-12 screen wizard: name, email, PAN, bank link, goals | Conversational. "Hi. How old are you?" → one answer → immediate value → "Want to know how much you'd need to retire?" → progressive profiling over time, not upfront interrogation. |
 | **Recommendations** | Generic: "Top SIPs this month" (same for every user) | Contextual: "You spent ₹14K on dining last month — that's 2× your usual. Want me to show how this affects your travel fund timeline?" |
 | **Insights** | Passive: "Your portfolio is up 12% YTD" | Active + prescriptive: "Your portfolio is up 12%, but you're over-allocated to large-cap. I'd move ₹50K into mid-cap to improve diversification for your 15-year horizon." |
@@ -93,6 +93,26 @@ Each layer in this pipeline is adaptive. Data informs the model. The model infor
 **The AI Reasoning Layer** is operationalized by the [Behavioral Intelligence Framework](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/behavioral-framework.md) — the decision intelligence layer that translates user state into behaviorally informed decisions about what to show, when, and how to frame it. It defines the cognitive biases the AI leverages, the financial guardrails it cannot violate, and the trust-building mechanisms that earn the right to advise.
 
 **This is not a template system.** Template systems have pre-defined layouts that get populated with data. CarrotFin's system has a component palette and composition rules — the AI writes the layout at render time.
+
+**Surface architecture** — how many surfaces, their roles, and how users navigate — is a separate design decision that sits above this pipeline. The pipeline outputs to whatever surface architecture is chosen; the composition principles apply regardless of surface count.
+
+---
+
+## Household-Level Personalization (Data-Model)
+
+> **Added:** 2026-07-29 | Source: Data-Model (Group Profile Model), GP-01
+
+The hyperpersonalization thesis extends beyond the individual to the **household/family unit**. With the group profile model (Data-Model), the User State Model operates at two levels:
+
+1. **Individual dimensions** — literacy, risk tolerance, emotional state, trust level remain per-person.
+2. **Household dimensions** — income structure (dual vs. single income), dependency load (granular dependent categories), housing status, decision-making style (solo vs. joint vs. family consensus).
+
+The AI must personalize differently based on household structure:
+- A **single earner** household gets income disruption scenarios centered on the sole earner.
+- A **dual-income salaried** household gets natural hedging explanations and joint contribution planning.
+- A household with **uninsured aging parents** triggers a medical buffer advisory that doesn't appear for fully-insured families.
+
+The User State Model table above captures individual dimensions. Household-level context comes from the GroupProfile entity model (Person, Household, Relationship) and is injected alongside individual context.
 
 ---
 

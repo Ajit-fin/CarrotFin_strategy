@@ -4,7 +4,8 @@
 > **Used on:** Hybrid (Phase 4 only)  
 > **M3 base:** `Card` (elevated), `ListTile` (layer detail rows), `FilledButton` / `OutlinedButton` (CTAs)  
 > **Date:** 2026-04-16  
-> **Status:** Complete
+> **Status:** Complete  
+> **Design rationale (from DD08):** Horizontal gradient strip chosen over pie chart (false precision, doesn't show liquidity hierarchy) and stacked bar (no spatial metaphor). Gradient conveys liquidity continuum — left = instant access, right = locked. DICGC footnote required for FD layer.
 
 ---
 

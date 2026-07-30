@@ -132,13 +132,15 @@ This is the primary source artifact. The journey definition IS the flow being co
 
 ---
 
-### `product-design/design-decisions/DD-*.md`
+### `product-design/design-decisions/*.md` (consolidated)
 **Maps to:** BuildSpec §3 (referenced inline) and §4 (Constraints)
+
+5 thematic consolidated files: V1-Product-Scope.md, Interaction-Modality.md, Data-Model.md, Agent-Architecture.md, Visual-Identity.md. Each contains multiple related decisions.
 
 | Extract | Skip |
 |---|---|
-| Decision and rationale relevant to this flow | Full options evaluation |
-| Reversal trigger (what would change this decision) | Historical context |
+| Decision and rationale relevant to this flow | Considered & Rejected appendix |
+| Reversal trigger (what would change this decision) | Decisions unrelated to the specific journey |
 
 **Distillation target:** Brief statement of the decision and its rationale, inline where applicable.
 

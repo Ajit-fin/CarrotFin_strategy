@@ -1,7 +1,7 @@
 # Product Design — Reading Guide
 
 > **Domain:** Design  
-> **Last updated:** 2026-04-15  
+> **Last updated:** 2026-07-29  
 > **Staleness threshold:** 30 days
 
 ---
@@ -23,6 +23,7 @@ These are not wireframes or pixel specs. They are the design decisions, constrai
 | [interaction-model.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/interaction-model.md) | How conversational AI and visual surfaces integrate — surface types, flow modes, modality handoffs | Designing any screen or interaction flow |
 | [screen-taxonomy.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/screen-taxonomy.md) | Generative, Static, and Hybrid screen types — when each applies, constraints, examples | Deciding how to implement a specific screen |
 | [tension-log.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/tension-log.md) | Unresolved design tensions — forces in opposition, why they can't be resolved yet | Before making design tradeoffs |
+| [profile-fields-schema.json](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/profile-fields-schema.json) | Canonical Profile Fields schema — Person, Household, Relationship entities. The persistent "Client File" data model ([Data-Model.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/Data-Model.md)) | Buildspec work, extraction agent design, field inventory |
 
 ## Subdirectories
 
@@ -30,13 +31,13 @@ These are not wireframes or pixel specs. They are the design decisions, constrai
 |---|---|---|
 | [journey-catalog/](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/journey-catalog/) | End-to-end user journey definitions with adaptive behaviors | Scaffold only — journeys to be designed |
 | [component-patterns/](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/component-patterns/) | Adaptive component specifications with context-dependent rendering | Scaffold only — patterns to be defined |
-| [design-decisions/](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/) | Immutable design decision records | Scaffold only — decisions logged as made |
+| [design-decisions/](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/) | Consolidated design decision records | Active — 5 consolidated decision documents (V1 Product Scope, Interaction Modality, Data Model, Agent Architecture, Visual Identity) |
 
 ---
 
 ## Reading Order for New Contributors
 
-1. **Start with** [design-principles.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/design-principles.md) in `knowledge-base/` — the three governing axioms
+1. **Start with** [design-principles.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/knowledge-base/design-principles.md) in `knowledge-base/` — the **two** governing axioms
 2. **Then** `ux-philosophy.md` — the thesis that drives everything
 3. **Then** `behavioral-framework.md` — the AI decision intelligence layer that fills the "AI Reasoning Layer" gap in the pipeline
 4. **Then** `interaction-model.md` — how the thesis manifests in the interaction paradigm

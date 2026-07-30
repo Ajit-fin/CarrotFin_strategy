@@ -1,24 +1,24 @@
 # CarrotFin — Interaction Model
 
 > **Domain:** Design  
-> **Last updated:** 2026-04-15  
+> **Last updated:** 2026-07-30  
 > **Staleness threshold:** 90 days (foundational)  
-> **Related assumptions:** C5, C6  
-> **Related decisions:** —
+> **Related assumptions:** C6  
+> **Related decisions:** interaction-model (absorbed DD06)
 
 ---
 
 ## The Core Problem This Solves
 
-Every existing finance app separates conversation from visualization. If a chat feature exists, it's behind a support icon — a separate surface where you ask questions and get text responses. The dashboard, portfolio view, and insights live elsewhere. You're constantly switching contexts.
+Every existing finance app separates conversation from visualization in a way that breaks context. If a chat feature exists, it's behind a support icon — a separate surface where you ask questions and get text responses, completely disconnected from the dashboard, portfolio view, and insights that live elsewhere. You're constantly switching contexts with no shared state between them.
 
-CarrotFin rejects this separation. Conversation and visualization are not two features — they're one interaction paradigm. The AI speaks through both words AND visual elements simultaneously. A chart IS part of the conversation. A recommendation card IS the AI's advice rendered visually. The user doesn't navigate between "chat" and "dashboard." They experience one continuous, intelligent surface.
+CarrotFin rejects this *disconnection*. Conversation and visualization are not two isolated features — they're one interaction paradigm sharing context, state, and intent. A chart IS part of the conversation. A recommendation card IS the AI's advice rendered visually. **The anti-pattern:** Surfaces — regardless of count — that don't share context, state, or intent. Two surfaces that know nothing about each other are two products glued together. Two surfaces with shared context and integrated state are one product.
 
 ---
 
 ## Surface Types
 
-The interaction model defines three surface types that coexist, not compete.
+The interaction model defines three surface types as **interaction modalities** — they describe *how* the AI communicates and the user responds, not *how many* screens the product has. These modalities may manifest on one or multiple surfaces depending on the chosen UX architecture. Importantly, these modalities are surface-agnostic: a composed surface could exist as a dashboard or as a temporary view within a conversational stream.
 
 ### 1. The Conversational Stream
 
@@ -90,6 +90,8 @@ The AI is not a search engine. It doesn't return options and ask the user to dec
 The AI never overwhelms. It focuses on one financial topic per conversational thread. If the user asks about spending while discussing investments, the AI acknowledges and returns to the original thread with an offer to switch.
 
 ### Inline Data Collection
+
+> **Design rationale (from DD06):** Assessment is conducted stream-primary with no composed surface during data collection. A form-like surface during assessment breaks the conversational trust ramp and cognitive flow. Inline components (option chips, range pickers) handle structured data capture within the stream.
 
 The AI doesn't front-load questions. It asks for data when it needs it, explaining why.
 

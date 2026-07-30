@@ -1,0 +1,478 @@
+{
+  "_meta": {
+    "purpose": "Available UI components reference. Select componentId and populate data payload.",
+    "ctaArchitecture": "Each component declares named action slots in its data payload. LLM fills each slot as a ComponentAction. Backend maps guidanceMarker to routing.",
+    "componentActionShape": "${COMPONENT_ACTION_SHAPE}",
+    "componentActionVariants": {
+      "_note": "Discriminated on actionType. LLM must fill all 4 fields.",
+      "GUIDED_COMPLETION": {
+        "guidanceMarker": "str: REQUIRED — from availableGuidanceMarkers. Drives backend routing and conversation state.",
+        "label": "str: button label shown to user",
+        "actionType": "GUIDED_COMPLETION",
+        "uiAction": {
+          "uiActionType": "str: from availableUiActionTypes",
+          "hintText": "str?: supplementary hint for the UI"
+        }
+      },
+      "STANDARD_COMPLETION": {
+        "guidanceMarker": "str?: OPTIONAL — from availableGuidanceMarkers, or null. No guided routing.",
+        "label": "str: button label shown to user",
+        "actionType": "STANDARD_COMPLETION",
+        "uiAction": {
+          "uiActionType": "str: from availableUiActionTypes",
+          "hintText": "str?: supplementary hint for the UI"
+        }
+      }
+    },
+    "availableGuidanceMarkers": "${AVAILABLE_GUIDANCE_MARKERS}",
+    "availableActionTypes": "${AVAILABLE_ACTION_TYPES}",
+    "availableUiActionTypes": "${AVAILABLE_UI_ACTION_TYPES}"
+  },
+  "howToUse": {
+    "principle": "Non-escalation: uiDirective starts with RESPONSE_TEXT. Append visual components for structure/data. Escalation: uiDirective=null, emit thinkingText.",
+    "emitWhen": [
+      "Input is faster than typing",
+      "Visualizing computed structure",
+      "Phase-gate required"
+    ],
+    "doNotEmitWhen": [
+      "Text suffices",
+      "Mid-conversation, no structure needed",
+      "Visual adds no value"
+    ]
+  },
+  "fieldTypeMapping": {
+    "_note": "Maps requiredInputs.type to input componentId.",
+    "CURRENCY": {
+      "componentId": "VALUE_INPUT",
+      "defaultInputType": "SLIDER",
+      "fallbackInputType": "TEXT",
+      "rule": "SLIDER if bounded, TEXT if open."
+    },
+    "PERCENTAGE": {
+      "componentId": "VALUE_INPUT",
+      "inputType": "SLIDER",
+      "rule": "Always slider (0-100)."
+    },
+    "DURATION": {
+      "componentId": "VALUE_INPUT",
+      "defaultInputType": "TEXT",
+      "upgradeRule": "OPTION_SELECTOR if valid set small."
+    },
+    "NUMBER": {
+      "componentId": "VALUE_INPUT",
+      "defaultInputType": "SLIDER",
+      "fallbackInputType": "TEXT",
+      "rule": "SLIDER if bounded, TEXT if open."
+    },
+    "BOOLEAN": {
+      "componentId": "OPTION_SELECTOR",
+      "fixedOptions": [
+        {
+          "label": "Yes",
+          "value": "true"
+        },
+        {
+          "label": "No",
+          "value": "false"
+        }
+      ]
+    },
+    "CHOICE_SIMPLE": {
+      "componentId": "OPTION_SELECTOR",
+      "rule": "Self-explanatory labels (2-6 options)."
+    },
+    "CHOICE_TIERED": {
+      "componentId": "TIERED_SELECTOR",
+      "rule": "Options need title+desc or sensitive topic."
+    },
+    "MULTIPLE_FIELDS": {
+      "componentId": "FORM_GROUP",
+      "rule": "Group 2+ related inputs. One submitAction for all."
+    },
+    "PHASE_GATE": {
+      "componentId": "REVIEW_CARD",
+      "rule": "At CONFIRM_ACTION. Shows collected fields for review."
+    },
+    "CLASSIFICATION": {
+      "componentId": "INTERACTIVE_SORTER",
+      "rule": "Categorise items into buckets (2-4 categories, 4-10 items)."
+    }
+  },
+  "inputComponents": [
+    {
+      "componentId": "OPTION_SELECTOR",
+      "use": "Pick 1 of 2–6 self-explanatory labels (no explanation needed), or BOOLEAN (Yes/No).",
+      "limits": {
+        "options": "2–6"
+      },
+      "data": {
+        "title": "str?: component title - 2-4 words user facing text",
+        "description": "str?: context explaining why this is asked or what it includes",
+        "fieldKey": "str: maps to requiredInputs.fieldName",
+        "options": [
+          {
+            "label": "str: display text",
+            "value": "str: stored value",
+            "icon": "str?: optional emoji"
+          }
+        ],
+        "submitAction": "ComponentAction — fires automatically on option tap. UI handles trigger."
+      }
+    },
+    {
+      "componentId": "VALUE_INPUT",
+      "use": "Single numeric or currency value (CURRENCY, PERCENTAGE, NUMBER, DURATION) via slider or text field.",
+      "data": {
+        "title": "str?: component title",
+        "description": "str?: context explaining why this is asked or what it includes",
+        "exclusions": "str?: Explicitly state what NOT to include, referencing past or future fields that might be asked later",
+        "fieldKey": "str",
+        "inputType": "SLIDER | TEXT",
+        "config": {
+          "unit": "str?: e.g., Rs, %",
+          "period": "str?: e.g., MONTHLY, YEARLY",
+          "min": "num?: slider only",
+          "max": "num?: slider only",
+          "step": "num?: slider only",
+          "smartDefault": "num?: pre-positions slider. Derive from userContext profile (income, city, household). Null = centered.",
+          "placeholder": "str?: text mode only, e.g., 'e.g., 120000'"
+        },
+        "submitAction": "ComponentAction — explicit button to confirm entered value."
+      }
+    },
+    {
+      "componentId": "TIERED_SELECTOR",
+      "use": "Pick 1 from levels that each need a title + description, or when topic is sensitive (health, debt distress — abstract to tiers for privacy).",
+      "limits": {
+        "tiers": "2–5"
+      },
+      "data": {
+        "fieldKey": "str",
+        "tiers": [
+          {
+            "label": "str: tier title",
+            "description": "str: one-line explanation",
+            "value": "str",
+            "icon": "str?"
+          }
+        ],
+        "skipOption": "nullable — { label, description, value } — only include when skipping is genuinely valid",
+        "submitAction": "ComponentAction — fires automatically on tier tap. UI handles trigger.",
+        "skipAction": "ComponentAction? — populate only when skipOption is present, else null."
+      }
+    },
+    {
+      "componentId": "INTERACTIVE_SORTER",
+      "use": "CLASSIFICATION — user categorises, prioritises, or sorts a set of items into labelled buckets.",
+      "limits": {
+        "categories": "2–4",
+        "items": "4–10"
+      },
+      "notes": [
+        "Result map: {categoryValue: [itemLabels]}."
+      ],
+      "data": {
+        "fieldKey": "str: maps to requiredInputs.fieldName",
+        "instruction": "str: task framing, e.g., 'Tap each scenario to sort it'",
+        "categories": [
+          {
+            "label": "str: bucket label",
+            "value": "str: stored value",
+            "icon": "str?: optional emoji"
+          }
+        ],
+        "items": [
+          {
+            "label": "str: item text",
+            "icon": "str?: optional emoji"
+          }
+        ],
+        "submitAction": "ComponentAction — fires when all items are sorted."
+      }
+    },
+    {
+      "componentId": "FORM_GROUP",
+      "use": "Collect 2+ related inputs presented one at a time within a single form. Submit is at form level, not per-component.",
+      "notes": [
+        "All input component types are valid children.",
+        "FORM_GROUP cannot be nested inside another FORM_GROUP.",
+        "Each child component must have its action slot set to null — the form owns the single submit."
+      ],
+      "data": {
+        "title": "str: card header, e.g., 'Monthly Expenses'",
+        "showTotal": "bool?: show live-calculated sum row",
+        "totalLabel": "str?: label for total row",
+        "components": [
+          {
+            "_note": "Fully defined input component (VALUE_INPUT, OPTION_SELECTOR, TIERED_SELECTOR, or INTERACTIVE_SORTER). Action slot (submitAction / skipAction) MUST be null.",
+            "componentId": "str: input component id",
+            "data": {
+              "...(all normal fields for that componentId)...": null,
+              "submitAction": null
+            }
+          }
+        ],
+        "submitAction": "ComponentAction — single submit for the entire form."
+      }
+    },
+    {
+      "componentId": "REVIEW_CARD",
+      "use": "Phase-gate summary at CONFIRM_ACTION steps.",
+      "data": {
+        "title": "str: card header, e.g., 'Your Profile'",
+        "rows": [
+          {
+            "fieldKey": "str",
+            "label": "str: display label",
+            "displayValue": "str: formatted value from collectedFields",
+            "fieldType": "CATEGORICAL | NUMERIC | TIERED"
+          }
+        ],
+        "confirmAction": "ComponentAction — confirms all reviewed values are correct.",
+        "editAction": "ComponentAction — signals intent to change a reviewed field. Opens conversational flow."
+      }
+    }
+  ],
+  "displayComponents": [
+    {
+      "componentId": "RESPONSE_TEXT",
+      "use": "Conversational message to the user.",
+      "data": {
+        "text": "str: user facing message in valid markdown format only, as per MODE"
+      }
+    },
+    {
+      "componentId": "RESULT_REVEAL",
+      "use": "SHOW_RESULT: computed target, score, or recommendation with headline value + factor breakdown.",
+      "data": {
+        "icon": "str?: emoji representing the result domain",
+        "title": "str: card header, conversational and specific",
+        "headline": {
+          "value": "str: formatted primary value, e.g., '₹2,40,000' or '82/100'",
+          "subtitle": "str: contextual subtitle, e.g., '~6 months of essential expenses'"
+        },
+        "attribution": {
+          "header": "str: section header, e.g., 'How we got here'",
+          "factors": [
+            {
+              "label": "str: factor name",
+              "impact": "str: quantified impact, e.g., '+2 months'",
+              "direction": "UP | DOWN | NEUTRAL",
+              "detail": "str?: one-line explanation"
+            }
+          ]
+        },
+        "acknowledgeAction": "ComponentAction — signals user has absorbed the result. Non-committal.",
+        "secondaryAction": "ComponentAction? — pick adjust (revise a prior input) or detail (deeper breakdown) based on context. Omit if neither adds value."
+      }
+    },
+    {
+      "componentId": "INLINE_INSIGHT",
+      "use": "Mid-flow read-only insight card.",
+      "data": {
+        "icon": "str?: emoji representing the insight domain",
+        "title": "str: card header, conversational and specific",
+        "subtitle": "str?: one-line summary or timing context",
+        "rows": [
+          {
+            "label": "str",
+            "impact": "str?: quantified effect",
+            "direction": "UP | DOWN | NEUTRAL | null",
+            "detail": "str?: expandable explanation",
+            "rowAction": "ComponentAction? — optional per-row tap for expand-on-demand. Omit if row is not tappable."
+          }
+        ]
+      }
+    },
+    {
+      "componentId": "ALLOCATION_BAR",
+      "use": "SHOW_RESULT: proportional split or allocation breakdown across 2–5 categories.",
+      "data": {
+        "icon": "str?: emoji representing the allocation domain",
+        "title": "str: card header",
+        "layers": [
+          {
+            "label": "str: segment name",
+            "amount": "str: formatted value, e.g., '₹80,000'",
+            "displayLabel": "str?: short label for bar segment",
+            "color": "str?: design token reference or hex",
+            "icon": "str?: emoji for segment",
+            "vehicle": "str?: instrument or category, e.g., 'Savings Account', 'Equity MF'",
+            "description": "str?: one-line explanation",
+            "detail": "str?: expandable detail text"
+          }
+        ],
+        "footnote": "str?: disclaimer or explanatory note",
+        "primaryAction": "ComponentAction — pick acknowledge (informational) or confirm (decision point) based on context.",
+        "secondaryAction": "ComponentAction? — pick adjust or explore_scenario based on context. Omit if neither adds value."
+      }
+    },
+    {
+      "componentId": "MILESTONE_PLAN",
+      "use": "SHOW_RESULT: savings/contribution plan with an editable commitment headline + milestone timeline with dates.",
+      "data": {
+        "icon": "str?: emoji representing the plan domain",
+        "title": "str: card header",
+        "headline": {
+          "fieldKey": "str: maps to the editable field",
+          "value": "str: formatted value, e.g., '₹8,000/month'",
+          "rawValue": "num: unformatted numeric value",
+          "cadence": "str: e.g., 'MONTHLY', 'WEEKLY'",
+          "editable": "bool: whether user can inline-edit this value",
+          "editConfig": "obj?: config for inline editor (slider range, step, etc.)",
+          "inlineEditAction": "ComponentAction — triggered by headline value edit event, not a button. UI handles trigger."
+        },
+        "milestoneHeader": "str: section header, e.g., 'Your milestones'",
+        "milestones": [
+          {
+            "label": "str: milestone name",
+            "date": "str: projected date",
+            "amount": "str?: target amount at this milestone",
+            "status": "UPCOMING | REACHED"
+          }
+        ],
+        "primaryAction": "ComponentAction — pick acknowledge (seen the plan) or confirm (commits to the plan) based on context."
+      }
+    },
+    {
+      "componentId": "ACTION_CHECKLIST",
+      "use": "RECOMMEND: numbered action steps for the user to execute.",
+      "notes": [
+        "Optional per-step action. Not every step needs one. No component-level action."
+      ],
+      "data": {
+        "icon": "str?: emoji representing the action domain",
+        "title": "str: card header",
+        "subtitle": "str?: timing context, e.g., 'This week'",
+        "steps": [
+          {
+            "number": "num: step order",
+            "action": "str: what to do",
+            "detail": "str?: how or why",
+            "dueDate": "str?: when to complete",
+            "urgency": "HIGH | MEDIUM | LOW | null",
+            "stepAction": "ComponentAction? — optional per-step. Pick start_journey, explain, or save based on context."
+          }
+        ]
+      }
+    },
+    {
+      "componentId": "CONTEXTUAL_FOOTNOTE",
+      "use": "Non-blocking explanatory prose below the preceding component — for factual disclosures, regulatory notes, or 'good to know' context.",
+      "data": {
+        "text": "str: 1–3 sentences of plain explanatory prose",
+        "icon": "str?: optional emoji prefix"
+      }
+    },
+    {
+      "componentId": "CONDITIONAL_PROMPT",
+      "use": "Optional enhancement or rider the user can accept or skip.",
+      "notes": [
+        "resolvedState is null on initial emit. Populate on the follow-up turn after user accepts and any computation completes."
+      ],
+      "data": {
+        "icon": "str?: emoji representing the add-on",
+        "title": "str: include '(Optional)' suffix",
+        "description": "str: what the add-on is, 1–3 sentences",
+        "acceptAction": "ComponentAction — conveys opting in to the add-on.",
+        "declineAction": "ComponentAction — conveys skipping without negativity. Lower visual weight.",
+        "inputConfig": "obj?: if accepting needs user input: { componentId, data } from input palette",
+        "resolvedState": {
+          "_note": "Null on initial emit. Populated on follow-up turn after user accepts.",
+          "title": "str: confirmed add-on title",
+          "details": [
+            "str: confirmed detail lines"
+          ],
+          "keepAction": "ComponentAction — confirms keeping the processed add-on.",
+          "removeAction": "ComponentAction — removes the add-on. Lower visual weight."
+        }
+      }
+    }
+  ],
+  "compositeComponents": [
+    {
+      "componentId": "PLAN_PREVIEW_CARD",
+      "use": "Emitted when generating or updating a planOverview.",
+      "data": {
+        "overviewId": "str: descriptive slug, e.g., 'ef-overview-v1'",
+        "status": "DRAFT | APPROVED",
+        "goal": "str: what we're planning for",
+        "scopeNote": "str: what the plan covers and what the user gets at the end. 1–2 sentences.",
+        "phases": [
+          {
+            "title": "str: phase title",
+            "description": "str: 1–2 sentences: what happens in this phase and why it matters for the goal."
+          }
+        ],
+        "approvalAction": "ComponentAction — approves the plan to begin execution.",
+        "editAction": "ComponentAction — signals intent to modify the plan structure."
+      }
+    },
+    {
+      "componentId": "GOAL_PORTFOLIO_VIEW",
+      "use": "All active goals with health indicators.",
+      "data": {
+        "title": "str: card header, e.g., 'Your Goals'",
+        "goals": [
+          {
+            "goalRef": "str: goal identifier",
+            "name": "str: goal name",
+            "status": "ON_TRACK | AT_RISK | OFF_TRACK | COMPLETED",
+            "progress": "num?: 0–100 percentage",
+            "headline": "str?: one-line summary",
+            "goalTapAction": "ComponentAction — per-goal tap to view detail."
+          }
+        ],
+        "addGoalAction": "ComponentAction — initiates a new goal journey."
+      }
+    },
+    {
+      "componentId": "GOAL_DETAIL_CARD",
+      "use": "Single goal deep-dive with projection and what-if.",
+      "data": {
+        "goalRef": "str: goal identifier",
+        "name": "str: goal name",
+        "status": "ON_TRACK | AT_RISK | OFF_TRACK | COMPLETED",
+        "progress": "num?: 0–100 percentage",
+        "projection": {
+          "targetDate": "str?: projected completion date",
+          "targetAmount": "str?: formatted target amount",
+          "currentAmount": "str?: formatted current amount",
+          "gap": "str?: formatted shortfall or surplus"
+        },
+        "insights": [
+          {
+            "label": "str: insight name",
+            "value": "str: insight value or description"
+          }
+        ],
+        "primaryAction": "ComponentAction — requests AI recommendation for this goal.",
+        "secondaryAction": "ComponentAction? — pick adjust (update goal parameters) or explore_scenario (what-if). Omit if neither adds value."
+      }
+    },
+    {
+      "componentId": "SCENARIO_COMPARISON",
+      "use": "SHOW_RESULT from scenario planning — side-by-side comparison of two options.",
+      "data": {
+        "title": "str: card header",
+        "scenarios": [
+          {
+            "label": "str: scenario name",
+            "description": "str: one-line summary",
+            "metrics": [
+              {
+                "label": "str: metric name",
+                "value": "str: metric value",
+                "direction": "UP | DOWN | NEUTRAL | null"
+              }
+            ],
+            "selectAction": "ComponentAction — selects this scenario as the chosen path."
+          }
+        ],
+        "exploreAction": "ComponentAction — triggers exploration of another scenario variation.",
+        "adviseAction": "ComponentAction — requests AI recommendation on which scenario to choose."
+      }
+    }
+  ]
+}

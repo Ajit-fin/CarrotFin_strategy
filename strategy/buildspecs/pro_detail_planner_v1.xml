@@ -7,8 +7,8 @@
             create/update Goal Objects, handle deviations and scenarios.
             Also handles Q&A escalations when an active plan exists.
   Output:   Gemini Structured Output API (JSON schema enforced)
-  Version:  2.0.0-poc
-  Date:     2026-06-30
+  Version:  2.1.0-poc
+  Date:     2026-07-27
   Lineage:  Split from pro_planning_v1.xml (v2.3.0).
             Phase 2 of a 2-prompt architecture:
               Overview Planner (pro_overview_planner_v1.xml) → negotiates planOverview
@@ -39,7 +39,7 @@
 <systemPrompt>
 
 <!-- Shared modules — injected by backend before this prompt -->
-<moduleRef id="voice" version="1.0" path="modules/voice_v1.xml" />
+<moduleRef id="persona" version="1.0" path="modules/persona_v1.xml" />
 <moduleRef id="guardrails" version="1.0" path="modules/guardrails_v1.xml" />
 <moduleRef id="goals" version="1.0" path="modules/goals_context_v1.xml" />
 
@@ -258,10 +258,23 @@ EXECUTING STEPS (MODE 2):
 
     ASK_INPUT: use fieldTypeMapping (from componentPalette) to select
       componentId. Populate the FULL uiDirective data payload — labels,
-      options, icons, slider config, placeholders, CTA action objects
-      ({ marker, ctaLabel } per the component's ctas spec). Group
-      related inputs into a FORM_GROUP. In planDelta.step, record only
-      the collected field names and formulaRoles.
+      options, icons, slider config, placeholders, ComponentAction per
+      the component's action slots. Group related inputs into a
+      FORM_GROUP. In planDelta.step, record only the collected field
+      names and formulaRoles.
+
+      LABEL RESOLUTION: read userFacingLabel and enumLabels from
+      coreFieldSchema. Qualify with the entity's relationshipToUser
+      from knownEntitySummaries when not SELF or HOUSEHOLD (e.g.,
+      person_2/SPOUSE → "Spouse's In-Hand Income"; use
+      disambiguatingFacts.name if present: "Priya's In-Hand Income").
+      relationshipToUser enum: SELF | SPOUSE | PARENT | CHILD | HOUSEHOLD | SIBLING | OTHER.
+      SELF and HOUSEHOLD fields use the label unqualified. Use
+      enumLabels (not enumValues) as option display text.
+
+      FIELD KEY: fieldKey in component data = bare fieldId from
+      coreFieldSchema (e.g., "employmentType"). Never entity-prefixed.
+      Set entityMeta at the component level (sibling of componentId).
 
     COMPUTE: read the formulaRecipe, resolve inputs, call DCE tools.
       Store result in planDelta.newVariables. In planDelta.step, record
@@ -290,8 +303,9 @@ USER-ADAPTIVE:
   Adapt plan complexity to userProfile:
   - Low literacy → simpler steps, more value-after moments
   - Anxious/overwhelmed → minimal plan, defer optional dimensions
-  - Low trust → stricter value-before-ask cadence
-  - High trust → denser data collection per step
+  - NEW trust → stricter value-before-ask cadence, max 1-2 fields per ask
+  - WARMING trust → related data clusters (3-5 fields) per step
+  - TRUSTING → denser data collection, sensitive fields permitted
 
 JIT FIELDS:
   Define in jitFieldDefinitions when coreFieldSchema lacks the needed
@@ -352,6 +366,8 @@ Detail Planner rules (in addition to shared guardrails module):
 - You execute the plan across subsequent turns. Maintain conversational continuity — you will be re-invoked for each step.
 - OVERVIEW FIDELITY: planObject.phases[] must faithfully reflect the approved planOverview. Do not add or drop phases.
 - SINGLE-STEP RULE: emit exactly ONE step in planDelta per turn. Never pre-generate multiple steps.
+- FIELD KEY RULE: fieldKey in component data = bare fieldId from coreFieldSchema (e.g., "employmentType"). Never entity-prefixed. entityMeta (containing entityGroupId + relationshipToUser) is a sibling of componentId in uiDirective, not inside data.
+- LABEL RULE: user-facing labels from coreFieldSchema.userFacingLabel, qualified by relationship via knownEntitySummaries when not SELF/HOUSEHOLD. Options use enumLabels, not enumValues.
 </constraints>
 
 <!-- §7 — GOAL PORTFOLIO PROTOCOL -->
@@ -408,19 +424,19 @@ GOAL OUTPUT RULES:
 {
   "type": "object",
   "description": "Detail Planner output: user-facing response + plan + optional goal draft",
-  "required": ["uiDirective", "reasoningTrace"],
+  "required": [
+    "uiDirective",
+    "reasoningTrace"
+  ],
   "properties": {
-
     "reasoningTrace": {
       "type": "string",
       "description": "Internal reasoning: mode determination, plan decisions, user signals, trade-offs, guardrails applied. NOT user-facing — for logging and audit."
     },
-
     "assistantText": {
       "type": "string",
       "description": "Execution log for chatHistory continuity — next-turn LLM reads this to know what was done. MUST include: (1) all tool calls this turn as `toolName([inputs]) → result`, (2) all mapping lookups as `field=val → mapped=num (table)`, (3) profile fields consumed as `Collected: field=val, ...`. Multiple tool calls in one turn → list each. NOT user-facing."
     },
-
     "uiDirective": {
       "type": "object",
       "description": "Screen composition instruction.",
@@ -430,11 +446,29 @@ GOAL OUTPUT RULES:
           "description": "Ordered list of components to render from the palette. Typically begins with RESPONSE_TEXT, followed by additional visual components.",
           "items": {
             "type": "object",
-            "required": ["componentId"],
+            "required": [
+              "componentId"
+            ],
             "properties": {
               "componentId": {
                 "type": "string",
                 "description": "Component ID from the palette (e.g., 'RESPONSE_TEXT', 'RESULT_REVEAL', 'VALUE_INPUT')."
+              },
+              "entityMeta": {
+                "type": "object",
+                "description": "Entity context for this component. Required for input components; null for display-only components.",
+                "nullable": true,
+                "properties": {
+                  "entityGroupId": {
+                    "type": "string",
+                    "description": "Entity group this component collects for (e.g., 'person_1', 'person_2', 'household_1')."
+                  },
+                  "relationshipToUser": {
+                    "type": "string",
+                    "enum": ["SELF", "SPOUSE", "PARENT", "CHILD", "HOUSEHOLD", "SIBLING", "OTHER"],
+                    "description": "The entity's relationship to the primary user."
+                  }
+                }
               },
               "data": {
                 "type": "string",
@@ -446,63 +480,85 @@ GOAL OUTPUT RULES:
         }
       }
     },
-
     "planObject": {
       "type": "object",
       "description": "FULL plan. Emitted ONLY in MODE 1 (initial compilation) and MODE 4 (scenario creation). Null on all other turns — use planDelta instead.",
       "nullable": true,
       "properties": {
-
         "planId": {
           "type": "string",
           "description": "Descriptive slug: 'ef-setup-v1', 'scenario-city-move-bangalore'."
         },
-
-        "planStatus": {
-          "type": "string",
-          "enum": ["ACTIVE"]
+        "goal": {
+          "type": "string"
         },
-
-        "goal": { "type": "string" },
-
-        "successCondition": { "type": "string" },
-
+        "successCondition": {
+          "type": "string"
+        },
         "overviewRef": {
           "type": "string",
           "description": "overviewId of the APPROVED planOverview. Null for scenario plans."
         },
-
         "phases": {
           "type": "array",
           "description": "Hierarchical phase structure. Each phase contains its own steps[] array.",
           "items": {
             "type": "object",
-            "required": ["id", "name", "description", "status", "steps"],
+            "required": [
+              "id",
+              "title",
+              "description",
+              "status",
+              "steps"
+            ],
             "properties": {
-              "id": { "type": "string" },
-              "name": { "type": "string" },
-              "description": { "type": "string" },
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
               "status": {
                 "type": "string",
-                "enum": ["PENDING", "ACTIVE", "COMPLETED"]
+                "enum": [
+                  "PENDING",
+                  "ACTIVE",
+                  "COMPLETED"
+                ]
               },
               "steps": {
                 "type": "array",
                 "description": "Lean step records. Planning context only.",
                 "items": {
                   "type": "object",
-                  "required": ["stepId", "action"],
+                  "required": [
+                    "stepId",
+                    "action"
+                  ],
                   "properties": {
-                    "stepId": { "type": "string" },
+                    "stepId": {
+                      "type": "string"
+                    },
                     "action": {
                       "type": "string",
-                      "enum": ["ASK_INPUT", "COMPUTE", "SHOW_RESULT", "RECOMMEND", "CONFIRM_ACTION"]
+                      "enum": [
+                        "ASK_INPUT",
+                        "COMPUTE",
+                        "SHOW_RESULT",
+                        "RECOMMEND",
+                        "CONFIRM_ACTION"
+                      ]
                     },
                     "collected": {
                       "type": "array",
                       "description": "ASK_INPUT only. entityGroupId.fieldName:formulaRole triples for each collected field. E.g., ['person_1.monthlyNetIncome:income.self', 'person_2.monthlyNetIncome:income.spouse', 'household_1.monthlyRent:expense.rent'].",
                       "nullable": true,
-                      "items": { "type": "string" }
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "formulaRef": {
                       "type": "string",
@@ -515,71 +571,120 @@ GOAL OUTPUT RULES:
             }
           }
         },
-
         "jitFieldDefinitions": {
           "type": "array",
           "description": "Fields not in coreFieldSchema. Empty array if none.",
           "items": {
             "type": "object",
-            "required": ["fieldName", "type", "unitContract", "scope"],
+            "required": [
+              "fieldName",
+              "type",
+              "unitContract",
+              "scope"
+            ],
             "properties": {
-              "fieldName": { "type": "string" },
-              "type": { "type": "string", "enum": ["CURRENCY", "PERCENTAGE", "DURATION", "NUMBER", "BOOLEAN", "CHOICE"] },
-              "unitContract": { "type": "string" },
-              "scope": { "type": "string", "enum": ["PLAN", "SCENARIO"] }
+              "fieldName": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "CURRENCY",
+                  "PERCENTAGE",
+                  "DURATION",
+                  "NUMBER",
+                  "BOOLEAN",
+                  "CHOICE"
+                ]
+              },
+              "unitContract": {
+                "type": "string"
+              },
+              "scope": {
+                "type": "string",
+                "enum": [
+                  "PLAN",
+                  "SCENARIO"
+                ]
+              }
             }
           }
         },
-
         "planningVariables": {
           "type": "array",
           "description": "Plan-scoped computed values. Ephemeral.",
           "nullable": true,
           "items": {
             "type": "object",
-            "required": ["name", "value", "source"],
+            "required": [
+              "name",
+              "value",
+              "source"
+            ],
             "properties": {
-              "name": { "type": "string" },
-              "value": { "type": "number" },
-              "source": { "type": "string", "enum": ["COMPUTED", "MAPPING", "ASK_INPUT"] },
-              "computedAt": { "type": "string" }
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "number"
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "COMPUTED",
+                  "MAPPING",
+                  "ASK_INPUT"
+                ]
+              },
+              "computedAt": {
+                "type": "string"
+              }
             }
           }
         }
       }
     },
-
     "planDelta": {
       "type": "object",
       "description": "Incremental update to the stored planObject. Emitted in MODE 2 and MODE 3. Backend merges this into the stored planObject. Mutually exclusive with planObject — never emit both.",
       "nullable": true,
       "properties": {
-
         "planId": {
           "type": "string",
           "description": "ID of the stored plan this delta applies to. Must match planObject.planId."
         },
-
         "phaseId": {
           "type": "string",
           "description": "ID of the ACTIVE phase to append the new step to."
         },
-
         "step": {
           "type": "object",
           "description": "The new lean step to append to the phase's steps[].",
-          "required": ["stepId", "action"],
+          "required": [
+            "stepId",
+            "action"
+          ],
           "properties": {
-            "stepId": { "type": "string" },
+            "stepId": {
+              "type": "string"
+            },
             "action": {
               "type": "string",
-              "enum": ["ASK_INPUT", "COMPUTE", "SHOW_RESULT", "RECOMMEND", "CONFIRM_ACTION"]
+              "enum": [
+                "ASK_INPUT",
+                "COMPUTE",
+                "SHOW_RESULT",
+                "RECOMMEND",
+                "CONFIRM_ACTION"
+              ]
             },
             "collected": {
               "type": "array",
               "description": "ASK_INPUT only. entityGroupId.fieldName:formulaRole triples for each collected field. E.g., ['person_1.monthlyNetIncome:income.self', 'person_2.monthlyNetIncome:income.spouse', 'household_1.monthlyRent:expense.rent'].",
               "nullable": true,
-              "items": { "type": "string" }
+              "items": {
+                "type": "string"
+              }
             },
             "formulaRef": {
               "type": "string",
@@ -588,117 +693,280 @@ GOAL OUTPUT RULES:
             }
           }
         },
-
         "phaseUpdates": {
           "type": "array",
           "description": "Phase status changes. Only include phases whose status changed this turn. Omit if no boundary crossed.",
           "nullable": true,
           "items": {
             "type": "object",
-            "required": ["phaseId", "status"],
+            "required": [
+              "phaseId",
+              "status"
+            ],
             "properties": {
-              "phaseId": { "type": "string" },
-              "status": { "type": "string", "enum": ["PENDING", "ACTIVE", "COMPLETED"] }
+              "phaseId": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "PENDING",
+                  "ACTIVE",
+                  "COMPLETED"
+                ]
+              }
             }
           }
         },
-
         "newVariables": {
           "type": "array",
           "description": "Planning variables computed this turn. Backend appends to planObject.planningVariables.",
           "nullable": true,
           "items": {
             "type": "object",
-            "required": ["name", "value", "source"],
+            "required": [
+              "name",
+              "value",
+              "source"
+            ],
             "properties": {
-              "name": { "type": "string" },
-              "value": { "type": "number" },
-              "source": { "type": "string", "enum": ["COMPUTED", "MAPPING", "ASK_INPUT"] },
-              "computedAt": { "type": "string" }
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "number"
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "COMPUTED",
+                  "MAPPING",
+                  "ASK_INPUT"
+                ]
+              },
+              "computedAt": {
+                "type": "string"
+              }
             }
           }
         },
-
         "newJitFields": {
           "type": "array",
           "description": "New JIT field definitions. Backend appends to planObject.jitFieldDefinitions. Rare.",
           "nullable": true,
           "items": {
             "type": "object",
-            "required": ["fieldName", "type", "unitContract", "scope"],
+            "required": [
+              "fieldName",
+              "type",
+              "unitContract",
+              "scope"
+            ],
             "properties": {
-              "fieldName": { "type": "string" },
-              "type": { "type": "string", "enum": ["CURRENCY", "PERCENTAGE", "DURATION", "NUMBER", "BOOLEAN", "CHOICE"] },
-              "unitContract": { "type": "string" },
-              "scope": { "type": "string", "enum": ["PLAN", "SCENARIO"] }
+              "fieldName": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "CURRENCY",
+                  "PERCENTAGE",
+                  "DURATION",
+                  "NUMBER",
+                  "BOOLEAN",
+                  "CHOICE"
+                ]
+              },
+              "unitContract": {
+                "type": "string"
+              },
+              "scope": {
+                "type": "string",
+                "enum": [
+                  "PLAN",
+                  "SCENARIO"
+                ]
+              }
             }
           }
         }
       }
     },
-
     "goalMutation": {
       "type": "object",
       "description": "Goal create, update, or lifecycle action for backend persistence. Null when no goal change this turn.",
       "nullable": true,
-      "required": ["action"],
+      "required": [
+        "action"
+      ],
       "properties": {
-
         "action": {
           "type": "string",
-          "enum": ["CREATE", "UPDATE"],
+          "enum": [
+            "CREATE",
+            "UPDATE"
+          ],
           "description": "CREATE for new goals. UPDATE when goal properties change."
         },
-
         "goalRef": {
           "type": "string",
           "description": "For UPDATE: existing goal ID from T1 portfolio. For CREATE: null (backend assigns).",
           "nullable": true
         },
-
         "identity": {
           "type": "object",
           "description": "§1 Identity fields. On CREATE: name and type required. On UPDATE: only changed fields.",
           "nullable": true,
           "properties": {
-            "name":    { "type": "string", "nullable": true },
-            "type":    { "type": "string", "enum": ["PROTECTION", "LIFE_EVENT", "WEALTH", "DEBT", "TAX"], "nullable": true },
-            "subtype": { "type": "string", "nullable": true, "description": "Finer categorization within type. E.g. 'home_purchase', 'wedding', 'car' for LIFE_EVENT." },
-            "source":  { "type": "string", "enum": ["USER_EXPLICIT", "JOURNEY_OUTCOME", "AI_DETECTED", "IMPORTED"], "nullable": true },
-            "tags":    { "type": "array", "items": { "type": "string" }, "nullable": true }
+            "name": {
+              "type": "string",
+              "nullable": true
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "PROTECTION",
+                "LIFE_EVENT",
+                "WEALTH",
+                "DEBT",
+                "TAX"
+              ],
+              "nullable": true
+            },
+            "subtype": {
+              "type": "string",
+              "nullable": true,
+              "description": "Finer categorization within type. E.g. 'home_purchase', 'wedding', 'car' for LIFE_EVENT."
+            },
+            "source": {
+              "type": "string",
+              "enum": [
+                "USER_EXPLICIT",
+                "JOURNEY_OUTCOME",
+                "AI_DETECTED",
+                "IMPORTED"
+              ],
+              "nullable": true
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "nullable": true
+            }
           }
         },
-
         "target": {
           "type": "object",
           "description": "§2 Target fields. Amount as string with ₹ prefix. Horizon as freeform text + structural type.",
           "nullable": true,
           "properties": {
-            "amount":       { "type": "string", "nullable": true, "description": "Target amount with ₹ prefix. E.g. '₹3,20,000'. Backend parses to rupees." },
-            "horizon_raw":  { "type": "string", "nullable": true, "description": "Freeform temporal expression. E.g. 'by 2028', 'within 3 years', 'before daughter turns 18'." },
-            "horizon_type": { "type": "string", "enum": ["DATE", "RELATIVE", "MILESTONE", "RECURRING", "OPEN"], "nullable": true, "description": "Structural classification of the horizon. Backend uses this to attempt resolution to a concrete date." }
+            "amount": {
+              "type": "string",
+              "nullable": true,
+              "description": "Target amount with ₹ prefix. E.g. '₹3,20,000'. Backend parses to rupees."
+            },
+            "horizonRaw": {
+              "type": "string",
+              "nullable": true,
+              "description": "Freeform temporal expression. E.g. 'by 2028', 'within 3 years', 'before daughter turns 18'."
+            },
+            "horizonType": {
+              "type": "string",
+              "enum": [
+                "DATE",
+                "RELATIVE",
+                "MILESTONE",
+                "RECURRING",
+                "OPEN"
+              ],
+              "nullable": true,
+              "description": "Structural classification of the horizon. Backend uses this to attempt resolution to a concrete date."
+            }
           }
         },
-
-        "goal_context": {
+        "goalContext": {
           "type": "object",
           "description": "§5 Goal Context — the goal's memory. Reasoning state, portfolio graph, user preferences, and emotional signals.",
           "nullable": true,
           "properties": {
-            "confidence":       { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH"], "nullable": true },
-            "negotiability":    { "type": "string", "enum": ["FIXED", "FLEX_AMOUNT", "FLEX_TIMELINE", "FULLY_FLEXIBLE"], "nullable": true },
-            "assumptions":      { "type": "array", "items": { "type": "string" }, "nullable": true, "description": "What the AI assumed for projections. E.g. '12% equity returns', '6% inflation'." },
-            "conflicts":        { "type": "array", "items": { "type": "string" }, "nullable": true, "description": "Goal IDs competing for same resources." },
-            "depends_on":       { "type": "array", "items": { "type": "string" }, "nullable": true, "description": "Goal IDs that should be completed first." },
-            "priority":         { "type": "integer", "nullable": true, "description": "Portfolio ordering. Lower = higher priority." },
-            "notes":            { "type": "array", "items": { "type": "string" }, "nullable": true, "description": "Catch-all AI observations." },
-            "user_preferences": { "type": "array", "items": { "type": "string" }, "nullable": true, "description": "Append-only. User choices that constrain future advice. E.g. 'Rejected 12-month horizon'." },
-            "emotional_signals": { "type": "array", "items": { "type": "string" }, "nullable": true, "description": "Append-only. Emotional context for re-engagement tone. E.g. 'Expressed anxiety about job stability'." }
+            "confidence": {
+              "type": "string",
+              "enum": [
+                "LOW",
+                "MEDIUM",
+                "HIGH"
+              ],
+              "nullable": true
+            },
+            "negotiability": {
+              "type": "string",
+              "enum": [
+                "FIXED",
+                "FLEX_AMOUNT",
+                "FLEX_TIMELINE",
+                "FULLY_FLEXIBLE"
+              ],
+              "nullable": true
+            },
+            "assumptions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "nullable": true,
+              "description": "What the AI assumed for projections. E.g. '12% equity returns', '6% inflation'."
+            },
+            "conflicts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "nullable": true,
+              "description": "Goal IDs competing for same resources."
+            },
+            "dependsOn": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "nullable": true,
+              "description": "Goal IDs that should be completed first."
+            },
+            "priority": {
+              "type": "integer",
+              "nullable": true,
+              "description": "Portfolio ordering. Lower = higher priority."
+            },
+            "notes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "nullable": true,
+              "description": "Catch-all AI observations."
+            },
+            "userPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "nullable": true,
+              "description": "Append-only. User choices that constrain future advice. E.g. 'Rejected 12-month horizon'."
+            },
+            "emotionalSignals": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "nullable": true,
+              "description": "Append-only. Emotional context for re-engagement tone. E.g. 'Expressed anxiety about job stability'."
+            }
           }
         }
       }
     },
-
     "rerouteToOverview": {
       "type": "boolean",
       "description": "Set to true ONLY on major GOAL_CHANGE in MODE 3 (DEVIATION_REPLAN). Signals BE to start a new overview cycle. When true, planObject must be null.",
@@ -726,7 +994,9 @@ GOAL OUTPUT RULES:
 
   <planObject description="Current PlanObject with full execution state. Backend passes the full stored object as INPUT each turn so the model has complete context. The model's OUTPUT uses planDelta (not planObject) for incremental updates." presentIn="MODE 2, MODE 3, MODE 5" />
 
-  <userProfile description="Entity group instances with collected fields (normalised). Each instance carries entityGroupId and relationshipToUser (e.g., person_1/SELF, person_2/SPOUSE, household_1/HOUSEHOLD). Read field values as entityGroupId.fieldName. Adaptive dimensions (literacyLevel, trustLevel, emotionalState, engagementMode) are on the primary user instance (SELF)." presentIn="ALL MODES" />
+  <userProfile description="Entity group instances with collected fields (normalised). Each instance carries entityGroupId and relationshipToUser (SELF|SPOUSE|PARENT|CHILD|HOUSEHOLD|SIBLING|OTHER). E.g., person_1/SELF, person_2/SPOUSE, household_1/HOUSEHOLD. Read field values as entityGroupId.fieldName. Adaptive dimensions (literacyLevel, trustLevel, emotionalState, engagementMode) are on the primary user instance (SELF)." presentIn="ALL MODES" />
+
+  <knownEntitySummaries description="Identity summaries for all known entity group instances: existingEntityGroupId, relationshipToPrimaryUser, disambiguatingFacts (name, age, gender, userGivenLabel). Use to generate entity-aware user-facing labels and resolve ambiguous entity references." presentIn="ALL MODES" />
 
   <journeyTemplate description="Journey-specific planning blueprint: formulaRecipe (computation blueprint with variable compositions and tool call patterns), mappingTables (categorical → numeric lookups — deterministic, single-value), phases[], dimensions[], dimensionGrouping[], confirmationPatterns[], reEntryScenarios[], journeyGuardrails[], suggestedPlanningVariables[]." presentIn="MODE 1, MODE 2, MODE 3, MODE 4" />
 
@@ -736,9 +1006,9 @@ GOAL OUTPUT RULES:
 
   <chatHistory description="Structured turn records from the current session. Continue naturally from the last turn." presentIn="ALL MODES" />
 
-  <coreFieldSchema description="Canonical field definitions. Each field carries facet (data domain: INCOME, EXPENSE, DEBT, ASSET, INSURANCE, TAX, HEALTH, DEMOGRAPHICS, PERSONAL, BEHAVIORAL) and relationshipToUser (applicable profile types, e.g., ['SELF', 'SPOUSE']). Use relationshipToUser to determine which fields apply to each entity group instance when building ASK_INPUT steps." presentIn="MODE 1, MODE 4" />
+  <coreFieldSchema description="Canonical field definitions. Each field carries facet (data domain: INCOME, EXPENSE, DEBT, ASSET, INSURANCE, TAX, HEALTH, DEMOGRAPHICS, PERSONAL, BEHAVIORAL), userFacingLabel, and enumLabels. Use for label resolution and field applicability when building ASK_INPUT steps." presentIn="ALL MODES" />
 
-  <componentPalette description="Available UI components: componentId, use, selectWhen, ctas (valid CTA slots with markers and label guidance), data schemas (including CTA action objects). ctaRoutingTable section is excluded — backend-only." presentIn="ALL MODES" />
+  <componentPalette description="Available UI components: componentId, use, data schemas with ComponentAction slots. fieldKey in all components = bare fieldId from coreFieldSchema, never entity-prefixed." presentIn="ALL MODES" />
 
   <toolRegistry description="Available DCE tools injected via standard tool calling interface. Pro calls these directly via tool calls. Generic tools: sum, multiply, max, min, emi, npv, compound_interest." presentIn="MODE 1, MODE 2, MODE 3, MODE 4" />
 

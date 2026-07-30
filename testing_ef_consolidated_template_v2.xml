@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  CarrotFin — TESTING ARTIFACT: Consolidated EF Journey Template
+  Purpose:  Unit testing the fields-to-formula architecture.
+            Merges journey_template_ef_v1.xml + emergency-fund-philosophy.md
+            into a single prompt-injectable document.
+  Source:   journey_template_ef_v1.xml (v1.0.0-poc) + emergency-fund-philosophy.md
+  Date:     2026-07-08
+  WARNING:  This is a TESTING artifact. Not the canonical source for either document.
+-->
+
+<journeyTemplate>
+
+  <journeyId>ef-setup</journeyId>
+  <name>Emergency Fund Setup</name>
+  <purpose>
+    New user → personalised EF target with attribution → 3-layer
+    liquidity allocation → monthly contribution plan with milestones.
+    The 8 sizing dimensions seed the user profile for all future features.
+  </purpose>
+  <advisoryConstraint>
+    Recommend instrument TYPES (savings account, liquid fund, short-term FD) — NEVER name specific banks, funds, or products.
+  </advisoryConstraint>
+
+  <!-- ================================================================== -->
+  <!-- §1 — FORMULA RECIPE                                                -->
+  <!-- The computation recipe Pro follows to construct COMPUTE steps.      -->
+  <!-- All arithmetic is done by generic tools (sum, multiply, max, min). -->
+  <!-- Pro reads this recipe, matches semantic terms to profile fields,    -->
+  <!-- picks values from mapping tables below, and calls tools.           -->
+  <!-- ================================================================== -->
+
+  <formulaRecipe>
+
+    <overview>
+      The Emergency Fund Target (EFT) in INR:
+      EFT = max(0, (B × H_target) + Ω − L)
+
+      B = Crisis-Mode Burn Rate (monthly)
+      H_target = Recommended Time Horizon (months)
+      Ω = Absolute Contingency Add-ons (one-time lump sum)
+      L = Liquidity Offset (existing earmarked liquid savings)
+    </overview>
+
+    <!-- B: Crisis-Mode Burn Rate -->
+    <variable name="B" label="Crisis-Mode Burn Rate" unit="INR/month">
+      <definition>
+        The minimum monthly family spend if income stopped tomorrow.
+        This is essential survival cost — NOT standard monthly expenses.
+      </definition>
+      <composition>
+        B = essential monthly expenses (non-discretionary household spend, EXCLUDING housing and EMIs)
+          + housing costs (rent or owned-home maintenance)
+          + secured debt obligations (home loan EMI, car loan EMI — obligations that cannot be paused)
+
+        EXCLUDES:
+        - SIP/investment commitments (would be paused in crisis)
+        - Discretionary spending (entertainment, dining out, shopping)
+        - Insurance premiums (included in fixed obligations for H calculation, but not in crisis burn rate)
+      </composition>
+      <toolCall>sum([essential monthly expenses, housing costs, secured debt obligations])</toolCall>
+    </variable>
+
+    <!-- H_target: Time Horizon -->
+    <variable name="H_target" label="Recommended Time Horizon" unit="months">
+      <definition>
+        Total runway needed in months. Computed from a base horizon adjusted by a cumulative risk multiplier, clamped to [3, 24].
+      </definition>
+      <composition>
+        H_target = max(3, min(24, H_base × (1 + M_risk)))
+
+        H_base: Determined by employment type. Pick value from mappingTable "h_base_by_employment".
+        M_risk: Cumulative risk adjustment. Sum of individual adjustments picked from
+                risk_adj_by_age, risk_adj_by_income_sources, risk_adj_by_dependency,
+                risk_adj_by_insurance, risk_adj_by_health mapping tables.
+      </composition>
+      <toolCall>
+        Step 1: H_base = pick value from h_base_by_employment for user's employmentType
+        Step 2: M_risk = sum of all risk adjustments picked from mapping tables
+        Step 3: H_raw = multiply(H_base, sum([1, M_risk]))
+        Step 4: H_target = max(3, min(24, H_raw))
+      </toolCall>
+    </variable>
+
+    <!-- H UI Bands -->
+    <variable name="H_ui_bands" label="3-Band UI Display">
+      <composition>
+        H_ui_min (Minimum Safe) = H_target × 0.75
+        H_ui_max (Strong Buffer) = H_target × 1.25
+        These are for UI display only — the recommended target is H_target.
+      </composition>
+    </variable>
+
+    <!-- Ω: Absolute Contingency Add-ons -->
+    <variable name="Ω" label="Absolute Contingency Add-ons" unit="INR">
+      <definition>
+        One-time lump sum buffers for known shortfalls that cannot be absorbed by the monthly horizon.
+      </definition>
+      <composition>
+        Ω = medical_buffer + contextual_buffer
+
+        medical_buffer: Triggered when user has NO health insurance.
+                       Pick value from mappingTable "medical_buffer_no_insurance" using cityTier.
+                       If user HAS adequate health insurance (≥₹10L cover), medical_buffer = 0.
+
+        contextual_buffer: From D9 (open/contextual factors user volunteers).
+                          Converted to a one-time INR amount by Pro's judgment.
+                          Bounded by [0.5 × B, 2 × B] when B is already computed.
+                          If B is not yet available, use [₹10,000, ₹2,00,000] as absolute INR bounds.
+      </composition>
+      <toolCall>sum([medical_buffer, contextual_buffer])</toolCall>
+    </variable>
+
+    <!-- L: Liquidity Offset -->
+    <variable name="L" label="Liquidity Offset" unit="INR">
+      <definition>
+        Earmarked liquid assets the user already has set aside for emergencies.
+      </definition>
+      <composition>
+        L = existing earmarked liquid savings (from profile)
+
+        This is the amount the user has ALREADY earmarked for emergencies —
+        not total savings, not investment portfolio.
+      </composition>
+      <toolCall>Direct read from profile. No computation needed.</toolCall>
+    </variable>
+
+    <!-- Starter Shield -->
+    <starterShield>
+      DETERMINISTIC RULE (not Pro judgment):
+      If EFT ≤ existing savings (L ≥ EFT), user already has a sufficient fund.
+      Transition to health-check framing instead of build-from-scratch.
+    </starterShield>
+
+    <!-- 3-Layer Liquidity Allocation -->
+    <liquidityAllocation>
+      After EFT is computed, allocate across three layers:
+      Layer 1 (Instant Access): 1-2 months of B → savings account / sweep-in FD
+      Layer 2 (Quick Access):   2-4 months of B → liquid mutual fund
+      Layer 3 (Stable Reserve):  remaining months → short-term FD / ultra-short debt fund
+
+      Adaptive rule: Freelancers/gig workers → weight toward Layer 1 (income is lumpy).
+                    Dual-income salaried → weight toward Layer 2/3 (natural income hedge).
+    </liquidityAllocation>
+
+  </formulaRecipe>
+
+  <!-- ================================================================== -->
+  <!-- §2 — MAPPING TABLES                                                -->
+  <!-- Structured, deterministic lookups. Pro reads these and picks        -->
+  <!-- the value directly when calling tools.                             -->
+  <!-- NO ranges. Each key maps to exactly one value.                     -->
+  <!-- ================================================================== -->
+
+  <mappingTables>
+
+    <!-- H_base: Employment type → base horizon in months -->
+    <table name="h_base_by_employment" inputField="employmentType" outputType="NUMBER" unit="months"
+           description="Base time horizon before risk adjustments. Higher = more months needed.">
+      <entry key="SALARIED_GOVT" value="3.5" />
+      <entry key="SALARIED_PSU" value="4.0" />
+      <entry key="SALARIED_LARGE_PRIVATE" value="5.0" />
+      <entry key="SALARIED_MID_PRIVATE" value="6.0" />
+      <entry key="SALARIED_STARTUP" value="7.0" />
+      <entry key="SELF_EMPLOYED_ESTABLISHED" value="7.0" note="Business running 3+ years" />
+      <entry key="SELF_EMPLOYED_NEW" value="9.0" note="Business under 3 years" />
+      <entry key="FREELANCER" value="10.0" />
+      <entry key="GIG_WORKER" value="8.0" />
+      <entry key="CONTRACTUAL" value="8.0" />
+      <entry key="COMMISSION_BASED" value="10.0" />
+      <entry key="SEASONAL" value="11.0" />
+      <entry key="RETIRED" value="4.0" note="Pension-backed; adjust if no pension" />
+      <entry key="HOMEMAKER" value="6.0" note="Uses household primary earner's risk" />
+      <entry key="STUDENT" value="4.0" />
+      <entry key="UNEMPLOYED" value="12.0" />
+    </table>
+
+    <!-- M_risk adjustment: Age bracket → risk multiplier adjustment -->
+    <table name="risk_adj_by_age" inputField="ageBracket" outputType="NUMBER" unit="multiplier"
+           description="Risk multiplier adjustment based on career stage. Added to other risk adjustments.">
+      <entry key="AGE_22_27" value="0.00" note="High re-employability, low obligations" />
+      <entry key="AGE_28_35" value="0.10" note="Growing obligations" />
+      <entry key="AGE_35_45" value="0.20" note="Peak responsibility" />
+      <entry key="AGE_45_55" value="0.15" note="High obligations but often senior/stable" />
+      <entry key="AGE_55_PLUS" value="0.25" note="Lower re-employability, corpus protection" />
+    </table>
+
+    <!-- M_risk adjustment: Income sources → risk multiplier adjustment -->
+    <table name="risk_adj_by_income_sources" inputField="householdIncomeType" outputType="NUMBER" unit="multiplier"
+           description="Risk multiplier adjustment based on household income diversity.">
+      <entry key="DUAL_INCOME_SALARIED" value="-0.15" note="Lowest risk — natural hedge" />
+      <entry key="DUAL_INCOME_MIXED" value="-0.05" note="Some hedge but one variable income" />
+      <entry key="SINGLE_INCOME_SALARIED" value="0.10" note="Single point of failure but stable" />
+      <entry key="SINGLE_INCOME_VARIABLE" value="0.20" note="Highest risk" />
+    </table>
+
+    <!-- M_risk adjustment: Dependency load → risk multiplier adjustment -->
+    <!-- Split into 6 single-field lookup tables. Pro sums the 6 lookup results for total dep adjustment. -->
+    <!-- Each table: direct lookup from a single profile field. No arithmetic required.                   -->
+
+    <table name="dep_adj_spouse" inputField="spouseEmploymentStatus" outputType="NUMBER" unit="multiplier"
+           description="Adjustment for non-working spouse. Direct lookup from spouseEmploymentStatus.">
+      <entry key="NOT_WORKING" value="0.05" />
+      <entry key="WORKING_SALARIED" value="0.00" />
+      <entry key="WORKING_VARIABLE" value="0.00" />
+      <entry key="NOT_APPLICABLE" value="0.00" note="Single / unmarried user" />
+    </table>
+
+    <table name="dep_adj_children_under5" inputField="childrenUnder5Count" outputType="NUMBER" unit="multiplier"
+           defaultAbove="3plus"
+           description="Adjustment for children under 5. Pre-computed total by count (capped at 0.15). For count &gt; 2, use defaultAbove key.">
+      <entry key="0" value="0.00" />
+      <entry key="1" value="0.05" />
+      <entry key="2" value="0.10" />
+      <entry key="3plus" value="0.15" />
+    </table>
+
+    <table name="dep_adj_children_school" inputField="childrenSchoolAgeCount" outputType="NUMBER" unit="multiplier"
+           defaultAbove="3plus"
+           description="Adjustment for school-age children. Pre-computed total by count (capped at 0.20). School fees are fixed obligations. For count &gt; 2, use defaultAbove key.">
+      <entry key="0" value="0.00" />
+      <entry key="1" value="0.08" />
+      <entry key="2" value="0.16" />
+      <entry key="3plus" value="0.20" />
+    </table>
+
+    <table name="dep_adj_aging_parent_insured" inputField="agingParentInsuredCount" outputType="NUMBER" unit="multiplier"
+           defaultAbove="3plus"
+           description="Adjustment for insured aging parents. 0.05 per parent. For count &gt; 2, use defaultAbove key.">
+      <entry key="0" value="0.00" />
+      <entry key="1" value="0.05" />
+      <entry key="2" value="0.10" />
+      <entry key="3plus" value="0.15" />
+    </table>
+
+    <table name="dep_adj_aging_parent_uninsured" inputField="agingParentUninsuredCount" outputType="NUMBER" unit="multiplier"
+           defaultAbove="3plus"
+           description="Adjustment for uninsured aging parents. 0.15 per parent — significant medical risk. For count &gt; 2, use defaultAbove key.">
+      <entry key="0" value="0.00" />
+      <entry key="1" value="0.15" />
+      <entry key="2" value="0.30" />
+      <entry key="3plus" value="0.45" />
+    </table>
+
+    <table name="dep_adj_other" inputField="otherDependentCount" outputType="NUMBER" unit="multiplier"
+           defaultAbove="3plus"
+           description="Adjustment for other dependents (sibling, relative, etc.). 0.05 per dependent. For count &gt; 2, use defaultAbove key.">
+      <entry key="0" value="0.00" />
+      <entry key="1" value="0.05" />
+      <entry key="2" value="0.10" />
+      <entry key="3plus" value="0.15" />
+    </table>
+
+    <!-- M_risk adjustment: Insurance coverage → risk multiplier adjustment -->
+    <!-- Classification is explicit in classificationLogic. Pro derives the key, then does direct lookup. -->
+    <table name="risk_adj_by_insurance" outputType="NUMBER" unit="multiplier"
+           description="Risk multiplier for insurance coverage quality. Use classificationLogic to derive key, then pick entry value.">
+      <classificationLogic>
+        Read three profile fields: healthInsuranceCoverAmount, termLifeCoverAmount, healthInsuranceSource.
+        Apply rules in priority order (first matching rule wins):
+        Rule 1: healthInsuranceCoverAmount &gt;= 1000000 AND termLifeCoverAmount &gt; 0  →  key = HEALTH_ADEQUATE_WITH_TERM
+        Rule 2: healthInsuranceCoverAmount &gt;= 1000000 AND termLifeCoverAmount = 0    →  key = HEALTH_ADEQUATE_NO_TERM
+        Rule 3: healthInsuranceCoverAmount &gt; 0 AND healthInsuranceCoverAmount &lt; 1000000  →  key = HEALTH_BASIC
+        Rule 4: healthInsuranceCoverAmount = 0 OR healthInsuranceSource = NONE         →  key = HEALTH_NONE
+      </classificationLogic>
+      <entry key="HEALTH_ADEQUATE_WITH_TERM" value="-0.15" note="≥₹10L health + term life = best case" />
+      <entry key="HEALTH_ADEQUATE_NO_TERM" value="-0.05" note="Health covered but no life cover" />
+      <entry key="HEALTH_BASIC" value="0.05" note="₹3-5L cover — partial protection" />
+      <entry key="HEALTH_NONE" value="0.20" note="No health insurance — also triggers Ω medical buffer" />
+    </table>
+
+    <!-- M_risk adjustment: Health profile → risk multiplier adjustment -->
+    <!-- Keys aligned with preExistingConditions profile field enums -->
+    <table name="risk_adj_by_health" inputField="preExistingConditions" outputType="NUMBER" unit="multiplier"
+           description="Risk adjustment for pre-existing conditions. Conservative default if user declines to share.">
+      <entry key="NONE_KNOWN" value="0.00" />
+      <entry key="MINOR_MANAGED" value="0.05" note="Managed conditions, low hospitalization risk" />
+      <entry key="CHRONIC_CONDITION" value="0.15" note="Diabetes, hypertension, etc." />
+      <entry key="CRITICAL_HISTORY" value="0.20" note="Cancer history, heart disease, etc." />
+      <entry key="PREFER_NOT_TO_SAY" value="0.10" note="Conservative default" />
+    </table>
+
+    <!-- Ω: Medical buffer for uninsured → one-time add-on by city tier -->
+    <table name="medical_buffer_no_insurance" inputField="cityTier" outputType="CURRENCY" unit="INR"
+           description="One-time medical emergency buffer when user has NO health insurance. Added to Ω.">
+      <entry key="METRO" value="200000" note="₹2L — high hospital costs" />
+      <entry key="TIER_1" value="150000" note="₹1.5L" />
+      <entry key="TIER_2" value="100000" note="₹1L" />
+      <entry key="TIER_3" value="50000" note="₹50K — lower hospital costs" />
+    </table>
+
+  </mappingTables>
+
+  <!-- ================================================================== -->
+  <!-- §3 — PHASES                                                        -->
+  <!-- ================================================================== -->
+
+  <phases>
+    <phase phaseId="DISCOVERY" purpose="Conversational — establish why EF matters before asking for data." trustLevel="NEW" proRole="Handle conversationally. Value-before-ask. Loss framing for myth-busting (factual, not fear). Bridge to ASSESSMENT when user is willing." />
+
+    <phase phaseId="ASSESSMENT" purpose="Capture 8 sizing dimensions through adaptive conversation. Deliver value-after insights at cluster boundaries."
+           trustLevel="NEW → WARMING" proRole="Plan dimension capture sequence, group related dimensions, schedule value-after moments." keyMechanic="Building Your Picture progress indicator — 8 pills filling with running target estimate." />
+
+    <phase phaseId="TARGET_SETTING" purpose="Reveal personalised EF target with full attribution."
+           trustLevel="WARMING" proRole="Compute final target using formula recipe + mapping tables. Display attribution showing each dimension's impact. Offer D3 social obligation prompt (OPTIONAL). Trigger Starter Shield if applicable." />
+
+    <phase phaseId="FUND_ARCHITECTURE" purpose="Explain 3-layer liquidity allocation strategy."
+           trustLevel="WARMING → TRUSTING" proRole="Compute allocation across three layers based on computed B and employment profile." />
+
+    <phase phaseId="CONTRIBUTION_PLANNING" purpose="Propose monthly contribution plan with milestone timeline."
+           trustLevel="TRUSTING" proRole="Compute monthly contribution, project milestones, present action steps." />
+  </phases>
+
+  <!-- ================================================================== -->
+  <!-- §4 — DIMENSIONS                                                    -->
+  <!-- ================================================================== -->
+
+  <dimensions>
+    <dimension id="D1" name="Income Stability" optional="false" sensitive="false">
+      <what>Employment type + employer stability / income pattern</what>
+      <sizing>Determines H_base via h_base_by_employment mapping table.</sizing>
+      <followUps>If salaried → employer type (govt/PSU, large private, startup, mid-size). If business → tenure (3+ years vs newer).</followUps>
+    </dimension>
+
+    <dimension id="D2" name="Dependency Load" optional="false" sensitive="false">
+      <what>Who depends on user's income — nature matters, not just count</what>
+      <sizing>Adjusts M_risk via risk_adj_by_dependency mapping table. Each dependent type adds a specific increment.</sizing>
+      <followUps>Aging parents → health insurance status. Children → age bracket.</followUps>
+    </dimension>
+
+    <dimension id="D3" name="Insurance Coverage Quality" optional="false" sensitive="false">
+      <what>Health insurance level; term insurance flag</what>
+      <sizing>Adjusts M_risk via risk_adj_by_insurance mapping table. Also triggers Ω medical buffer if HEALTH_NONE.</sizing>
+    </dimension>
+
+    <dimension id="D4" name="Fixed Obligations" optional="false" sensitive="false">
+      <what>Rent/EMI, school fees, premiums — as ₹ or % of income</what>
+      <sizing>Directly contributes to B (burn rate) via sum of expense fields. High fixed-to-variable ratio signals higher overall risk.</sizing>
+    </dimension>
+
+    <dimension id="D5" name="City Tier / Cost of Living" optional="false" sensitive="false">
+      <what>Metro vs Tier 2 vs Tier 3</what>
+      <sizing>Used in Ω medical buffer calculation (medical_buffer_no_insurance table). Also provides context for validating user-reported expenses.</sizing>
+    </dimension>
+
+    <dimension id="D6" name="Age Bracket" optional="false" sensitive="false">
+      <what>Career stage, not exact year</what>
+      <sizing>Adjusts M_risk via risk_adj_by_age mapping table.</sizing>
+    </dimension>
+
+    <dimension id="D7" name="Household Income Sources" optional="false" sensitive="false">
+      <what>Sole earner vs dual/multiple</what>
+      <sizing>Adjusts M_risk via risk_adj_by_income_sources mapping table.</sizing>
+    </dimension>
+
+    <dimension id="D8" name="Health Profile" optional="false" sensitive="true">
+      <what>Pre-existing conditions, family history</what>
+      <sizing>Adjusts M_risk via risk_adj_by_health mapping table.</sizing>
+      <privacyNote>"Prefer not to say" is always valid → use PREFER_NOT_TO_SAY (conservative default 0.10). Offer text-input fallback. Do not echo verbally.</privacyNote>
+    </dimension>
+
+    <dimension id="D9" name="Open / Contextual" optional="true" sensitive="false">
+      <what>User-volunteered factors outside D1-D8</what>
+      <sizing>Converted to a one-time INR amount added to Ω. Bounded by [0.5 × B, 2 × B]. Pro uses judgment within this bound.</sizing>
+      <mechanic>Not a structured question. A 9th BYP pill appears dynamically.</mechanic>
+      <examples>Supporting brother's education, pending legal case, upcoming major medical procedure</examples>
+    </dimension>
+  </dimensions>
+
+  <!-- ================================================================== -->
+  <!-- §5 — DIMENSION GROUPING and VALUE-AFTER CADENCE                    -->
+  <!-- ================================================================== -->
+
+  <dimensionGrouping>
+    <cluster id="1" name="Income Profile" dimensions="D1,D7">
+      <valueAfter>First range estimate after H_base + income source adjustment. "Based on your income profile, your baseline is roughly X months."</valueAfter>
+      <computeAfter>
+        Pick H_base from h_base_by_employment using employmentType.
+        Pick income source adjustment from risk_adj_by_income_sources.
+        Show preliminary H range: H_base × (1 + income_adj) ± 20%.
+      </computeAfter>
+    </cluster>
+    <cluster id="2" name="Responsibility" dimensions="D2,D3,D4">
+      <valueAfter>"Safety Net So Far" card showing each factor's impact direction and magnitude.</valueAfter>
+      <computeAfter>
+        Compute dependency adjustment from risk_adj_by_dependency (sum for all dependents).
+        Pick insurance adjustment from risk_adj_by_insurance.
+        Compute B from expense fields.
+        Show updated estimate with attribution.
+      </computeAfter>
+    </cluster>
+    <cluster id="3" name="Context" dimensions="D5,D6,D8">
+      <valueAfter>Range collapses to final target number.</valueAfter>
+      <computeAfter>
+        Pick age adjustment from risk_adj_by_age.
+        Pick health adjustment from risk_adj_by_health.
+        Pick Ω medical buffer if applicable using medical_buffer_no_insurance.
+        Compute final H_target and EFT.
+      </computeAfter>
+    </cluster>
+  </dimensionGrouping>
+
+  <!-- ================================================================== -->
+  <!-- §6 — CONFIRMATION PATTERNS                                         -->
+  <!-- ================================================================== -->
+
+  <confirmationPatterns>
+    <pattern id="C1_LIGHT_CONFIRM" description="Categorical inputs (employment type, city, age bracket, yes/no). Auto-proceeds. No tap needed." />
+    <pattern id="C2_ACTIVE_CONFIRM" description="Numeric inputs (income, expenses). Confirm chip with ✓ and ✏️. Flow PAUSES until confirmed. Use range pickers/sliders, not blank text fields." />
+    <pattern id="C3_SUMMARY_CONFIRM" description="Phase-gate after all 8 dimensions. All data shown as scannable rows. Two CTAs: Looks right / Let me adjust." />
+    <pattern id="C4_EDIT_IN_PLACE" description="User-initiated edit of a prior answer. Recalculates downstream." />
+  </confirmationPatterns>
+
+  <!-- ================================================================== -->
+  <!-- §7 — RE-ENTRY SCENARIOS                                            -->
+  <!-- ================================================================== -->
+
+  <reEntryScenarios>
+    <scenario id="A" name="Fresh User" behavior="Full flow from DISCOVERY → ASSESSMENT." />
+    <scenario id="B" name="Has Existing Savings" behavior="Assessment in health-check framing. Respect existing effort." />
+    <scenario id="C" name="Has Known Target" behavior="Offer validation, then skip to FUND_ARCHITECTURE with user's number." />
+    <scenario id="D" name="Returning Mid-Flow" behavior="Resume from last step. If more than 30 days, re-verify." />
+    <scenario id="E" name="Has Existing EF" behavior="Gap-check framing. Pre-fill existing data." />
+  </reEntryScenarios>
+
+  <!-- ================================================================== -->
+  <!-- §8 — JOURNEY GUARDRAILS                                            -->
+  <!-- ================================================================== -->
+
+  <journeyGuardrails>
+    <guardrail>Conservative defaults for withheld data. If a dimension is skipped or user declines, use the higher (more conservative) estimate from the mapping table.</guardrail>
+    <guardrail>D3 social obligation buffer is OPTIONAL. Never mandatory. Surfaced post-target-reveal as add-on step.</guardrail>
+    <guardrail>Starter Shield fires DETERMINISTICALLY when target ≤ existing savings. This is a backend rule, not a Pro judgment call.</guardrail>
+    <guardrail>Pro NEVER does arithmetic. All computation is via tool calls (sum, multiply, max, min). Pro picks values from mapping tables and passes them to tools.</guardrail>
+    <guardrail>For numeric inputs, always use C2_ACTIVE_CONFIRM. Flow pauses until user confirms the number.</guardrail>
+  </journeyGuardrails>
+
+  <!-- ================================================================== -->
+  <!-- §9 — SUGGESTED PLANNING VARIABLES                                  -->
+  <!-- ================================================================== -->
+
+  <suggestedPlanningVariables>
+    <variable name="hBase" type="NUMBER" scope="PLAN" source="MAPPING" note="From h_base_by_employment table" />
+    <variable name="mRisk" type="NUMBER" scope="PLAN" source="COMPUTED" note="Sum of all risk adjustments" />
+    <variable name="hTarget" type="NUMBER" scope="PLAN" source="COMPUTED" note="Final clamped horizon" />
+    <variable name="burnRate" type="CURRENCY" scope="PLAN" source="COMPUTED" note="B — crisis-mode monthly burn" />
+    <variable name="medicalBuffer" type="CURRENCY" scope="PLAN" source="MAPPING" note="From medical_buffer_no_insurance table. 0 if insured." />
+    <variable name="omega" type="CURRENCY" scope="PLAN" source="COMPUTED" note="Total contingency add-ons" />
+    <variable name="efTarget" type="CURRENCY" scope="PLAN" source="COMPUTED" note="Final EFT" />
+    <variable name="socialSupportAmountRange" type="CURRENCY" scope="PLAN" source="ASK_INPUT" note="For D3 social obligation buffer (optional)" />
+    <variable name="openContextFactor" type="CURRENCY" scope="PLAN" source="ASK_INPUT" note="For D9 — defined dynamically based on what user volunteers" />
+  </suggestedPlanningVariables>
+
+  <!-- ================================================================== -->
+  <!-- §10 — BEHAVIORAL DESIGN                                            -->
+  <!-- ================================================================== -->
+
+  <behavioralDesign>
+    <principle name="Separate and Sacred">EF must be in a separate account/instrument. Friction-by-design for withdrawals.</principle>
+    <principle name="Start Small, Build Momentum">Show a Starter Shield (₹25K-50K or 1 month) first. Don't show full target upfront to low-income users. Celebrate each tier hit.</principle>
+    <principle name="Mental Accounting">Labeled sub-funds: "Medical Shield", "Job Buffer", "Parent Care Fund". Named money is 2-3× less likely to be spent impulsively.</principle>
+    <principle name="Automate Like an EMI">SIP-like auto-debit. Frame as "self-EMI" not savings.</principle>
+    <principle name="Reframe as Protection">Show the cost of NOT having a fund: credit-card spiral, SIP-stoppage impact.</principle>
+    <principle name="Replenishment Imperative">After withdrawal, auto-trigger "Rebuild Mode" immediately.</principle>
+    <principle name="Celebrate Milestones">25%, 50%, "1 Month Protected", "3 Months Secure" — show what user can now survive.</principle>
+  </behavioralDesign>
+
+  <!-- ================================================================== -->
+  <!-- §11 — MYTHS (contextual surfacing, not lecture)                    -->
+  <!-- ================================================================== -->
+
+  <myths>
+    <myth claim="3 months is enough" reality="Depends on 8 dimensions. Dangerously low for freelancers/single-income with dependents." surfaceWhen="At target-reveal — show why their number differs from generic advice." />
+    <myth claim="I'll use my credit card" reality="36-42% APR. ₹2L emergency becomes ₹3L+ within a year." surfaceWhen="During assessment if no fund exists." />
+    <myth claim="My investments can be liquidated" reality="Selling equity in a crash = crystallizing losses. SIP stoppage destroys compounding." surfaceWhen="When user mentions MF/stocks as substitute." />
+    <myth claim="My family will help" reality="Informal safety nets declining with urbanization. Should be a bonus, not a plan." surfaceWhen="If user indicates joint family support." />
+    <myth claim="I'll start when I earn more" reality="Lifestyle inflation. Start with ₹500/month — the habit matters more than the amount." surfaceWhen="For low-income/early-career users daunted by the target." />
+    <myth claim="More is always better" reality="Over-saving in low-yield instruments has opportunity cost. Once funded, redirect to wealth creation." surfaceWhen="When fund is ≥100% of target." />
+  </myths>
+
+</journeyTemplate>

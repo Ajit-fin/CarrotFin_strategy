@@ -1,7 +1,7 @@
 # CarrotFin — Assumptions Tracker
 
 > **Domain:** Risk  
-> **Last updated:** 2026-04-16  
+> **Last updated:** 2026-07-29  
 > **Staleness threshold:** 30 days  
 > **Related assumptions:** all  
 > **Related decisions:** —
@@ -24,8 +24,7 @@
 | C1 | Indian millennials/GenZ (25-35) will engage with an AI-powered personal finance advisor | 🟡 Partially validated | InsurEasy traction (~300 users, organic). 11% already use ChatGPT for insurance info [source: Policybazaar survey, as of 2025-04]. GenZ at 14%. Adjacent, not direct validation — InsurEasy is insurance-specific, not holistic finance. | 2026-04-14 |
 | C2 | Holistic financial advice (not just one vertical like insurance or MFs) is what users actually want | 🟡 Partially validated | FIRE calculator users ask about goals beyond retirement — travel, education, housing. A tool designed for insurance led to broader personal finance demand. But: self-selected sample, not representative. | 2026-04-14 |
 | C3 | Users will share financial planning outputs with family/friends (viral coefficient potential) | 🟡 Partially validated | InsurEasy shareable PDF reports built. Sharing behavior not yet measured. The mechanism exists but the behavior is unproven. Cultural sensitivity around sharing financial details is a risk — see C6. | 2026-04-14 |
-| C4 | An adaptive/personalized UI meaningfully outperforms a static dashboard for financial planning | ⬜ Untested | **Core product thesis. Zero A/B data.** This is the highest-conviction, highest-risk assumption. The entire product architecture depends on this being true. Need to validate with first prototype. | 2026-04-14 |
-| C5 | Conversational AI integrated with visuals is better than chat + dashboard as separate surfaces | ⬜ Untested | Design thesis only. No user data. International reference: Cleo's conversational model works for spending, but Cleo doesn't do visual integration at the level CarrotFin envisions. | 2026-04-14 |
+| C4 | AI-driven composition — at the appropriate level for the context and user behavioral mode — outperforms static, one-size-fits-all layouts for financial planning | ⬜ Untested | **Core product thesis. Zero A/B data.** This is the highest-conviction, highest-risk assumption. The entire product architecture depends on this being true. Note: composition strategy may vary by behavioral mode (generative for decision/exploration, hybrid for monitoring-heavy contexts). Need to validate with first prototype. | 2026-04-14 *(refined 2026-07-30)* |
 | C6 | Users trust AI financial advice enough to act on it (beyond just information consumption) | ⬜ Untested | **Critical risk.** InsurEasy insight B2 says users want confidence, not just information. AI may not provide enough confidence alone — 80%+ still consult humans before financial decisions [as of 2025-04]. If this is wrong, the entire AI-native thesis fails. | 2026-04-14 |
 
 ---
@@ -51,7 +50,10 @@
 ## Dependency Chain
 
 ```
-C4 (adaptive UI works) + C5 (integrated conversation + visual works)
+GP-01 (household is the right atomic unit)
+  → gates the data model ([Data-Model.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/Data-Model.md)) + extraction architecture ([Agent-Architecture.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/Agent-Architecture.md))
+
+C4 (adaptive composition works — context-appropriate)
   → enables building the product
     C1 (target users will engage) + C6 (users trust AI enough to act)
       → enables achieving product-market fit
@@ -59,7 +61,9 @@ C4 (adaptive UI works) + C5 (integrated conversation + visual works)
           → enables growth
 ```
 
-> **Sequencing implication:** C4 and C5 must be validated first (via prototype). If they fail, the entire product thesis needs rethinking. C6 is the existential risk that runs parallel to everything.
+> **Sequencing implication:** GP-01 must be validated alongside C4 — if the household model is wrong, the schema and all agent prompts need redesign. C6 is the existential risk that runs parallel to everything.
+
+> **Note:** C5 (surface arrangement assumption) removed 2026-07-30. Surface architecture is a design decision validated by user testing, not a tracked assumption.
 
 ---
 
@@ -91,4 +95,15 @@ C4 (adaptive UI works) + C5 (integrated conversation + visual works)
 
 ---
 
+## Group Profile Assumptions
+
+> Added: 2026-07-29 | Source: Workspace audit — [Data-Model.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/Data-Model.md), [Agent-Architecture.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/Agent-Architecture.md), schema restructuring, buildspec migration
+
+| ID | Assumption | Status | Evidence | Date Added |
+|---|---|---|---|---|
+| GP-01 | The household/family is the right atomic unit for Indian personal finance advisory — not the individual. Indian users will naturally frame financial discussions in family terms, and advisory quality improves materially when the system reasons about household-level dynamics (dual income hedging, cross-entity insurance, shared obligations). | ⬜ Untested | **Foundational architectural assumption.** Entire schema restructured around `Person`, `Household`, `Relationship` entities ([Data-Model.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/Data-Model.md)). All buildspecs migrated from `UserProfile` → `GroupProfile` ([Data-Model.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/Data-Model.md)). flash_extraction_v2 rebuilt for group-aware entity resolution ([Agent-Architecture.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/Agent-Architecture.md)). Strong founder conviction based on Indian family finance norms, but zero user validation. If wrong, the data model, all agent prompts, and extraction logic need fundamental redesign. | 2026-07-29 |
+
+---
+
 *Run `/feedback` after any strategic session to review and update this tracker.*
+

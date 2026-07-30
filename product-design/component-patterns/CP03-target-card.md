@@ -4,7 +4,8 @@
 > **Used on:** Hybrid (Phase 3 only)  
 > **M3 base:** `Card` (elevated), `ListTile` (attribution rows), `ElevatedButton` / `OutlinedButton` (CTAs)  
 > **Date:** 2026-04-16  
-> **Status:** Complete
+> **Status:** Complete  
+> **Design rationale (from DD07):** Linear arrow diagram chosen over text list (loses compounding flow) and force graph (high cognitive load, unfamiliar). Arrow format shows how the baseline was adjusted step by step. Literacy-adaptive: collapses to text summary at level 1-2.
 
 ---
 

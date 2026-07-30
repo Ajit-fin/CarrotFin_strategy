@@ -528,12 +528,12 @@ Phase 3 is a modality pivot. Key rules:
 
 **AI's job:** Recommend how to allocate across 3 liquidity layers and explain the structure. No product execution — that belongs to Phase 5. Phase 4 ends when the user has mentally accepted the structure.
 
-**Screen type:** Hybrid (conversational setup → inline Allocation Card with horizontal liquidity gradient strip per [DD08](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD08-allocation-visual-design.md))
+**Screen type:** Hybrid (conversational setup → inline Allocation Card with horizontal liquidity gradient strip per [CP04](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/component-patterns/CP04-allocation-card.md))
 
 **Advisory ceiling (D4 / DD02):** Instrument type only. No specific fund names, AMC names, or bank products.
 
 > [!NOTE]
-> **DD08:** The 3-layer allocation visual is a **horizontal liquidity gradient strip** — a single continuous bar with proportionally-sized zones, warm amber (Instant) → cool blue-slate (Stability). This communicates liquidity as a spectrum, not three separate buckets. Resolves Q4 / T1 for Phase 4.
+> **Design Rationale (CP04):** The 3-layer allocation visual is a **horizontal liquidity gradient strip** — a single continuous bar with proportionally-sized zones, warm amber (Instant) → cool blue-slate (Stability). This communicates liquidity as a spectrum, not three separate buckets. Resolves Q4 / T1 for Phase 4.
 
 ---
 
@@ -656,10 +656,10 @@ No icon, no red. It is a factual note, visually subordinate to the card.
 **Connects to:**
 - §3-SS (Starter Shield) — the first milestone in Phase 5 must be identical to the Starter Shield revealed in Phase 3. Do not re-introduce it; reference it.
 - J01 §1A (nudge philosophy) — the exit copy is defined there. Reference it; do not rewrite.
-- DD09 — the contribution plan deliverable: Action Card + salary-day reminder.
+- CP05 — the contribution plan deliverable: Action Card + salary-day reminder.
 
 > [!NOTE]
-> **DD09:** When the user confirms their plan, they receive: (1) a persistent **Action Card** saved to their EF goal card on the home surface, with numbered step-by-step external setup instructions per allocation layer; (2) an opt-in **salary-day reminder** that fires monthly. No PDF export in V1. Resolves Q6.
+> **Design Rationale (CP05):** When the user confirms their plan, they receive: (1) a persistent **Action Card** saved to their EF goal card on the home surface, with numbered step-by-step external setup instructions per allocation layer; (2) an opt-in **salary-day reminder** that fires monthly. No PDF export in V1. Resolves Q6.
 
 ---
 

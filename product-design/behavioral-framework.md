@@ -1,11 +1,11 @@
 # CarrotFin — Behavioral Intelligence Framework
 
 > **Domain:** Design — AI Decision Intelligence  
-> **Last updated:** 2026-04-15  
+> **Last updated:** 2026-07-30  
 > **Staleness threshold:** 60 days (active evolution expected)  
 > **Status:** Living document — evolves with research, user data, and learnings  
-> **Related assumptions:** C4, C5, C6  
-> **Related decisions:** DD-002
+> **Related assumptions:** C4, C6, GP-01  
+> **Related decisions:** (DD-002 absorbed — trust relocation is Part 6 of this document)
 
 ---
 
@@ -515,6 +515,14 @@ This file is explicitly a **living document**. It evolves with research, user da
 | 2026-04-15 | Initial creation | Fills the AI Reasoning Layer gap in the product design pipeline |
 | 2026-04-15 | Added Part 6: Trust Architecture | Progressive Trust relocated from design axioms (DD-002) — product-level decision logic, not a UX structural constraint |
 | 2026-04-17 | Trust ramp consolidated to 4 levels | Merged "Curious" into "New" — functionally indistinct under the value-before-ask cadence. Aligns with CG01 §5.1 and ux-philosophy.md which already used 4 levels |
+
+---
+
+## Group/Household Context (DD12)
+
+> **Added:** 2026-07-29 | Source: DD12, GP-01
+
+The behavioral framework operates on individual user context. With the group profile model (DD12), trust and behavioral dimensions raise an open question: **does trust level vary per entity in a group?** The primary user may be at TRUSTING level, but data about their spouse or parent may still be at NEW trust. The framework should be extended to address per-entity trust gating when group-context considerations are designed in detail.
 
 ---
 

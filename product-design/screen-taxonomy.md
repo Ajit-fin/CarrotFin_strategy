@@ -1,10 +1,13 @@
 # CarrotFin — Screen Taxonomy
 
 > **Domain:** Design  
-> **Last updated:** 2026-04-15  
+> **Last updated:** 2026-07-30  
 > **Staleness threshold:** 90 days (foundational)  
-> **Related assumptions:** C4, C5  
-> **Related decisions:** —
+> **Related assumptions:** C4  
+> **Related decisions:** interaction-model (absorbed DD06)
+
+> [!WARNING]
+> The examples in this file reference tab-based screen paradigms ("Home", "Financial Health", "Recommendations") that predate the conversational interaction model. The three-type taxonomy (Generative/Static/Hybrid) remains valid, but the specific screen names and navigation assumptions are superseded by the Conversational Stream / Composed Surface architecture in [interaction-model.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/interaction-model.md). Examples have been updated to reflect the current architecture.
 
 ---
 
@@ -34,11 +37,11 @@ Not every screen in CarrotFin is AI-generated. Some must be fixed (legal, regula
 - Must maintain spatial consistency for anchor elements (e.g., primary action button location doesn't jump between sessions)
 
 **Examples:**
-| Screen | What User A (novice, 25, single) sees | What User B (experienced, 40, family) sees |
+| Surface | What User A (S1: 26, single professional) sees | What User B (S2: 32, dual-income family, uninsured parent) sees |
 |---|---|---|
-| **Home** | Emergency fund progress bar, "Did you know?" financial tip card, single goal tracker | Spending vs. budget summary, 3 goal trackers with alerts, portfolio rebalancing nudge, upcoming bill reminder |
-| **Financial Health** | Simple health score with one improvement suggestion and encouraging copy | Multi-axis health breakdown (liquidity, protection, growth, tax efficiency) with ranked action items |
-| **Recommendations** | One focused suggestion: "Start a ₹500 SIP" with step-by-step | Three suggestions ranked by impact: rebalance, tax-harvest, increase insurance cover |
+| **Conversational Stream** (during EF journey) | EF assessment conversation, single-entity questions, Starter Shield milestone animation | Household-aware conversation: dual-income hedging explanation, dependent-specific medical buffer prompts, joint contribution plan |
+| **Composed Surface** (assessment result) | Simple EF target card with attribution strip, one-action contribution plan | Multi-layer EF target with attribution strip showing household risk factors, family coverage gap callout, salary-day-aware contribution plan |
+| **Ambient Layer** (re-entry) | "Welcome back — you're 40% to your Starter Shield" nudge | "Your household EF target updated — your parent's insurance status changed the medical buffer" |
 
 ---
 
@@ -91,14 +94,17 @@ Not every screen in CarrotFin is AI-generated. Some must be fixed (legal, regula
 ```
 Is this screen regulated, legal, or security-critical?
   → YES: Static
-  → NO: Does the user need structural predictability to orient?
-    → YES: Hybrid (fixed structure, AI content)
-    → NO: Can the AI meaningfully compose this differently for different users?
-      → YES: Generative
-      → NO: Hybrid (consider: should this screen exist?)
+  → NO: What is the primary behavioral mode for this context?
+    → Frequent monitoring / state-checking: bias Hybrid (structural stability)
+    → Decision-making / exploration / advisory: bias Generative
+    → Uncertain: Does the user need structural predictability to orient?
+      → YES: Hybrid (fixed structure, AI content)
+      → NO: Can the AI meaningfully compose this differently for different users?
+        → YES: Generative
+        → NO: Hybrid (consider: should this screen exist?)
 ```
 
-**Default bias:** Generative. If you're debating between hybrid and generative, lean generative. The whole point of CarrotFin is that the AI composes the experience. Static and hybrid are concessions to practical necessity, not aspirations.
+**Composition strategy should match the behavioral mode.** If a context is primarily a decision or exploration context, bias generative — the AI composing the interface adds the most value there. If a context is primarily a monitoring context (users returning frequently to check state), structural stability (hybrid composition) serves users better than re-composition. Static and hybrid are not concessions — they are the right choice when behavioral fit warrants them.
 
 ---
 

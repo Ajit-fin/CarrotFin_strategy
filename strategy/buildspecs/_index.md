@@ -1,20 +1,65 @@
-# BuildSpec Inventory
+# BuildSpec Inventory & Agent Architecture
 
-> **Domain:** Handoff  
-> **Last updated:** 2026-04-17  
+> **Domain:** Handoff & Architecture  
+> **Last updated:** 2026-07-29  
 > **Staleness threshold:** N/A (event-driven updates)
 
 ---
 
-## What This Directory Contains
+## Architecture Overview
 
-Compiled BuildSpec artifacts — self-contained product intent specifications for handoff to the dev workspace. Each BuildSpec is assembled by the `/buildspec` workflow from existing journey definitions, component patterns, research outputs, and design decisions.
+CarrotFin uses a multi-agent LLM architecture. Each agent is defined as a prompt buildspec (XML), and agents share behavior through injectable modules (`<moduleRef>`). The backend orchestrates agent invocation based on user intent and journey phase.
 
-BuildSpecs are consumed by an external Antigravity agent with zero CarrotFin context, as input to its HLD→LLD process.
+```
+User Input
+  │
+  ├─→ flash_conversation (Flash) ─── Conversational response, UI directives, routing
+  │     └─ imports: guardrails_v1, voice_v1
+  │
+  ├─→ flash_extraction_v2 (Flash) ── Group-aware entity resolution, Profile Field extraction
+  │     └─ imports: (standalone)
+  │
+  ├─→ pro_overview_planner (Pro) ─── Goal-level reasoning, EF target sizing, plan structure
+  │     └─ imports: guardrails_v1, voice_v1, goals_context_v1
+  │
+  └─→ pro_detail_planner (Pro) ───── Step construction, UI composition, field sequencing
+        └─ imports: guardrails_v1, voice_v1, goals_context_v1
+```
+
+> **Related design decisions:** [Agent-Architecture.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/Agent-Architecture.md) (split planner & extraction v2)
 
 ---
 
-## Inventory
+## Agent Buildspecs (Prompt XML Files)
+
+| Agent | File | Model | Purpose | Last Modified |
+|---|---|---|---|---|
+| Companion | [flash_conversation_v1.xml](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/flash_conversation_v1.xml) | Flash | Conversational response, UI directives, routing & escalation | 2026-07-28 |
+| Extraction | [flash_extraction_v2.xml](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/flash_extraction_v2.xml) | Flash | Group-aware entity resolution, Profile Field extraction | 2026-07-28 |
+| Overview Planner | [pro_overview_planner_v1.xml](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/pro_overview_planner_v1.xml) | Pro | Goal-level reasoning, EF target sizing, scenario comparison | 2026-07-28 |
+| Detail Planner | [pro_detail_planner_v1.xml](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/pro_detail_planner_v1.xml) | Pro | Step construction, UI component assembly, field sequencing | 2026-07-28 |
+| Journey Template (EF) | [journey_template_ef_v1.xml](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/journey_template_ef_v1.xml) | — | Journey configuration for the Emergency Fund use case | 2026-07-21 |
+
+### Deprecated / Deleted
+
+| Agent | File | Status | Superseded By |
+|---|---|---|---|
+| Extraction v1 | `flash_extraction_v1.xml` | Deleted | flash_extraction_v2.xml ([Agent-Architecture.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/Agent-Architecture.md)) |
+| Monolithic Planner | `pro_planning_v1.xml` | Deleted | pro_overview_planner + pro_detail_planner ([Agent-Architecture.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/Agent-Architecture.md)) |
+
+---
+
+## Shared Modules
+
+| Module | File | Consumed By | Purpose |
+|---|---|---|---|
+| Guardrails | [guardrails_v1.xml](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/modules/guardrails_v1.xml) | flash_conversation, pro_overview_planner, pro_detail_planner | Advisory boundaries, accuracy rules, trust architecture, privacy protocol |
+| Persona | [persona_v1.xml](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/modules/persona_v1.xml) | pro_overview_planner, pro_detail_planner | Identity, register, tone calibration, language rules (renamed from voice_v1.xml per [Interaction-Modality.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/Interaction-Modality.md)) |
+| Goals Context | [goals_context_v1.xml](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/modules/goals_context_v1.xml) | pro_overview_planner, pro_detail_planner | Goal lifecycle logic, behavioral rules |
+
+---
+
+## Compiled BuildSpec Handoff Artifacts
 
 | Spec ID | Flow Name | Status | Date | Supersedes |
 |---|---|---|---|---|
@@ -22,32 +67,14 @@ BuildSpecs are consumed by an external Antigravity agent with zero CarrotFin con
 
 ---
 
-## Status Values
-
-| Status | Meaning |
-|---|---|
-| **Draft** | Compiled but not yet reviewed/approved by the user |
-| **Ready for Build** | Reviewed, approved, and ready to hand off to dev workspace |
-| **In Dev** | Handed off and actively being built |
-| **Built** | Dev agent completed the build |
-| **Superseded** | Replaced by a newer BuildSpec (link to successor in the spec) |
-
----
-
 ## Related Strategy Artifacts
 
 | Artifact | Relationship |
 |:---|:---|
-| [agent-invocation-contracts.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/agent-invocation-contracts.md) | Defines the inter-agent wiring diagram referenced by BS-001 §1.5. Specifies input/output schemas, invocation flow, error taxonomy, and prompt architecture for all 4 agents. |
-
----
-
-## Conventions
-
-- **Naming:** `BS-[NNN]-[flow-name].md` — sequential numbering, kebab-case flow name
-- **Immutability:** Once status is "Ready for Build", the file is immutable. Product changes create a new BuildSpec that supersedes the old one.
-- **Dependency tracking:** BuildSpecs that depend on other BuildSpecs note this in §5.3 (Adjacent Flows) and §6.1 (Dependencies).
+| [agent-invocation-contracts.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/agent-invocation-contracts.md) | Inter-agent wiring diagram, input/output schemas, invocation flow, error taxonomy |
+| [2026-07-11-guardrails-evaluation.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/2026-07-11-guardrails-evaluation.md) | Guardrails compatibility audit — identifies open action items for module alignment |
 
 ---
 
 *Updated by `/buildspec` workflow after each compilation. Update status manually when the dev workspace begins/completes a build.*
+

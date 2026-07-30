@@ -1,9 +1,9 @@
 # CarrotFin — Design Tension Log
 
 > **Domain:** Design  
-> **Last updated:** 2026-04-16  
+> **Last updated:** 2026-07-30  
 > **Staleness threshold:** 30 days  
-> **Related assumptions:** C4, C5, C6  
+> **Related assumptions:** C4, C6  
 > **Related decisions:** —
 
 ---
@@ -34,9 +34,11 @@ Unresolved design tensions — genuine conflicts between opposing forces where n
 |---|---|
 | Some decisions need dialogue — exploration, education, emotional processing. "Should I take this job with lower salary but stock options?" requires a back-and-forth conversation. | Some insights need charts — portfolio performance, spending trends, goal projections. Describing a spending breakdown in words is objectively worse than showing a pie chart. |
 
-**Why unresolved:** The right balance depends on the specific user action AND the user's engagement mode (some users are naturally conversational, others are visual). We hypothesize the AI should dynamically choose, but we haven't tested whether users tolerate or resist the AI's modality choice.
+**Partial insight established:** First-principles behavioral analysis (2026-07-30) confirms that different behavioral modes have different modality needs — frequent monitoring behavior benefits from visual primacy and structural stability; decision/exploration behavior benefits from conversational primacy. The *which behavioral mode gets which modality* question is directionally answered.
 
-**What would resolve it:** Prototype the modality handoff patterns from `interaction-model.md` and observe whether users follow the AI's lead or fight to stay in one modality.
+**Why still active:** The specific surface implementation (how these modalities are organized and how users move between them) is in ideation. The tension remains active until the surface architecture is decided and validated.
+
+**What would resolve it fully:** A committed surface architecture (design decision) + user testing confirming that the modality-per-mode split works in practice.
 
 ---
 
@@ -110,11 +112,11 @@ Unresolved design tensions — genuine conflicts between opposing forces where n
 |---|---|
 | The conversational assessment format is the product differentiator. Each question followed by a value-after moment builds trust, delivers "Show Your Work" transparency, and earns permission for the next, more sensitive question. Rushing through this collapses the trust ramp and makes CarrotFin feel like every other finance app's onboarding form. | Some users — especially returning users, financially literate users, or those re-entering via Scenario B/C/E — may find 10–12 conversational turns slow. They already know why an EF matters; they want the number. For these users, the conversation is friction, not value. A "quick mode" that collapses the assessment into a single structured input surface would be significantly faster. |
 
-**Why unresolved:** The V1 design (DD06) commits to stream-primary for all users. This is the right default — the trust ramp is essential for first-time users who represent the majority of V1 traffic. But as repeat usage grows and Scenarios B/C/E become more common, the tension will intensify. We don't yet know what proportion of users will find the conversational pacing valuable vs. slow.
+**Why unresolved:** The V1 design (DD06, absorbed into [interaction-model.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/interaction-model.md)) commits to stream-primary for all users. This is the right default — the trust ramp is essential for first-time users who represent the majority of V1 traffic. But as repeat usage grows and Scenarios B/C/E become more common, the tension will intensify. We don't yet know what proportion of users will find the conversational pacing valuable vs. slow.
 
 **What would resolve it:** Track Assessment completion time and abandonment rate by beat. If completion time >5 minutes AND Beat 2 abandonment exceeds 30%, design a "Quick Assessment" variant that presents all 8 dimensions as a single structured form (with the same data types and confirmation patterns). Offer as opt-in: "Want the quick version? I'll ask everything at once." A/B test against the conversational flow measuring completion rate, trust score, AND downstream contribution plan confirmation rate.
 
-> **Added:** 2026-04-16 (Step 2B). Related: [DD06](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD06-assessment-stream-primary.md)
+> **Added:** 2026-04-16 (Step 2B). Related: [interaction-model.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/interaction-model.md) (formerly DD06)
 
 ---
 

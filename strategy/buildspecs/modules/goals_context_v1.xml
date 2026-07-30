@@ -3,8 +3,7 @@
   CarrotFin — Goals Context Module v1
   Shared:   Injected into both Companion and Planner system prompts
   Purpose:  Goal object schema, type semantics, lifecycle rules, context format
-  Assembly: Backend concatenates this module alongside voice and guardrails
-            modules before the model-specific prompt.
+  Assembly: Backend concatenates this module alongside voice and guardrails modules before the model-specific prompt.
   Version:  1.0.0-poc
   Date:     2026-05-29
 -->
@@ -16,10 +15,7 @@
 <!-- ======================================================================= -->
 
 <goalAwareness>
-You receive goal objects in your context every turn. Goals represent
-the user's financial objectives — things they're saving, building,
-or protecting. Goal objects are living documents that grow with the
-conversation.
+You receive goal objects in your context every turn. Goals represent the user's financial objectives — things they're saving, building, or protecting. Goal objects are living documents that grow with the conversation.
 </goalAwareness>
 
 <!-- ======================================================================= -->
@@ -27,52 +23,60 @@ conversation.
 <!-- ======================================================================= -->
 
 <goalObjectSchema>
-Each goal has three layers:
+Goal objects have five sections. LLMs write via goalMutation — include only what is known or changed.
 
-CORE (identity + target — created at crystallization):
-  id            UUID              System-assigned.
+§1 IDENTITY (set at crystallization; rarely changes):
+  id            UUID              System-assigned. Short prefix in T1 context: [g-abc123].
   name          string            AI-suggested, user-editable.
-  type          enum              protection | life_event | wealth | debt | tax
-  amount        Money | null      Target amount. Null = not yet specified.
-  horizon       string | null     Temporal expression. Freeform. AI-parseable.
-                                  Examples:
-                                    "2028-06-01"              specific date (ISO)
-                                    "within 3 years"          relative duration
-                                    "by age 45"               life-milestone anchor
-                                    "before daughter turns 18" dependent anchor
-                                    "every March 31"          recurring
-                                    null                      open-ended
+  type          enum              PROTECTION | LIFE_EVENT | WEALTH | DEBT | TAX
+  subtype       string | null     Finer label within type. E.g. "home_purchase", "wedding", "car" for life_event.
+  source        enum              USER_EXPLICIT | JOURNEY_OUTCOME | AI_DETECTED | IMPORTED
   tags          [string]          Freeform labels. AI-assigned, user-editable.
-                                  Examples: ["recurring", "joint-with-spouse",
-                                  "home-purchase", "foundational"]
-  version       int               Auto-increments on any Core or Plan edit.
+                                  Examples: ["recurring", "joint-with-spouse", "foundational"]
   created_at    timestamp
 
-PLAN (contribution + progress — nullable block):
-  plan is null when no plan exists yet. Present when user has
-  confirmed at least a contribution.
+§2 TARGET (what the goal is aiming at):
+  amount_rupee  bigint | null     Target amount in rupees. Null = not yet specified.
+                                  LLM writes: string with ₹ prefix ("₹3,20,000"). Backend parses.
+  horizon_raw   string | null     Freeform temporal expression as stated by user.
+                                  Examples: "by 2028", "within 3 years", "before daughter turns 18"
+  horizon_type  enum | null       DATE | RELATIVE | MILESTONE | RECURRING | OPEN
+                                  Backend uses this to resolve to a concrete date.
+  horizon_date  date | null       Backend-resolved concrete date. Read-only for LLMs.
+  currency      char(3)           Default 'INR'.
 
-  plan {
-    monthly_contribution    Money       What the user commits per month.
-    paused                  boolean     Default false.
-    completed               boolean     Default false.
-    progress {
-      current_amount        Money       Self-reported (V1). Linked (V2+).
-      last_updated          timestamp
-    }
-  }
+§3 LIFECYCLE (state via timestamps — no status enum stored):
+  paused        boolean           Default false.
+  paused_at     timestamp | null
+  completed_at  timestamp | null
+  abandoned_at  timestamp | null  Set on ABANDON. Preserves the record.
+  abandoned_reason text | null    Why — AI-generated summary from conversation context.
+  archived_at   timestamp | null  Admin/system archival after inactivity.
+  expired_at    timestamp | null  Set when horizon_date passes without completion.
 
-AI CONTEXT (AI-managed reasoning state — user never edits directly):
-  ai {
-    confidence        low | medium | high
-    negotiability     fixed | flex_amount | flex_timeline | fully_flexible
-    assumptions       [string]        What the AI assumed for projections.
-                                      "12% equity returns", "6% inflation"
-    conflicts         [goal_id]       Goals competing for same resources.
-    depends_on        [goal_id]       Sequencing dependencies.
-    last_reviewed     timestamp
-    notes             [string]        Catch-all for AI observations.
-  }
+§4 PLAN (contribution + progress — null until plan exists):
+  monthly_contribution_rupee  bigint | null   User's committed monthly amount.
+  progress_rupee              bigint           Current amount saved. Default 0.
+  progress_pct                smallint         Derived: (progress_rupee / amount_rupee) × 100.
+  progress_updated_at         timestamp | null
+  journey_history             JSON             Append-only log of journey completions.
+
+§5 GOAL CONTEXT (AI-managed memory — user never edits directly):
+  confidence        enum              LOW | MEDIUM | HIGH
+  negotiability     enum              FIXED | FLEX_AMOUNT | FLEX_TIMELINE | FULLY_FLEXIBLE
+  assumptions       [string]          What the AI assumed. E.g. "12% equity returns", "6% inflation".
+  conflicts         [goal_id]         Goals competing for same resources.
+  depends_on        [goal_id]         Goals that should be completed first.
+  priority          int | null        Portfolio ordering. Lower = higher priority.
+  notes             [string]          Catch-all AI observations.
+  user_preferences  [string]          Append-only. User choices that constrain future advice.
+                                      E.g. "Rejected 12-month horizon", "Preferred liquid fund over FD".
+  emotional_signals [string]          Append-only. Tone context for re-engagement.
+                                      E.g. "Expressed anxiety about job stability".
+
+  Note: §5 has additional deep-context sub-sections (derivation, input_snapshot,
+  conversation_memory, strategy, review) that are Tier 3 only. See <goalContextFormat>
+  for tiering details. These are backend-managed and not part of the LLM goalMutation contract.
 </goalObjectSchema>
 
 <!-- ======================================================================= -->
@@ -80,14 +84,21 @@ AI CONTEXT (AI-managed reasoning state — user never edits directly):
 <!-- ======================================================================= -->
 
 <goalStatus>
-Status is a function of what data exists, not a stored field:
+Status is derived from what data exists — no status enum is stored. The data IS the state.
 
-  plan is null                    → Planning (goal exists, needs a plan)
-  plan.monthly_contribution set   → Active
-  plan.paused = true              → Paused
-  plan.completed = true           → Done
+  §3 all null, plan null              → PLANNING   (goal exists, no plan yet)
+  plan.monthly_contribution set       → ACTIVE     (committed plan running)
+  paused = true                       → PAUSED     (temporarily halted)
+  completed_at is not null            → COMPLETED  (target reached)
+  abandoned_at is not null            → ABANDONED  (user cancelled; record preserved)
+  expired_at is not null              → EXPIRED    (horizon_date passed; not completed)
+  archived_at is not null             → ARCHIVED   (system/admin archival after inactivity)
 
-No status enum. No state machine. The data IS the state.
+Precedence (if multiple timestamps set): ARCHIVED > ABANDONED > COMPLETED > EXPIRED > PAUSED > ACTIVE > PLANNING.
+
+LLMs NEVER write status directly. Emit the appropriate goalMutation:
+  - PAUSE/RESUME/ABANDON/COMPLETE via lifecycle_action
+  - Expiry and archival are backend-only operations.
 </goalStatus>
 
 <!-- ======================================================================= -->
@@ -95,8 +106,7 @@ No status enum. No state machine. The data IS the state.
 <!-- ======================================================================= -->
 
 <goalTypes>
-Five types. Each drives defaults for negotiability and allocation bias.
-The AI picks the closest type — nuance is handled via tags.
+Five types. Each drives defaults for negotiability and allocation bias. The AI picks the closest type — nuance is handled via tags.
 
   protection    Emergency fund, insurance, critical illness buffer.
                 Default: non-negotiable, short-term, ultra-safe allocation.
@@ -119,9 +129,7 @@ The AI picks the closest type — nuance is handled via tags.
 <!-- ======================================================================= -->
 
 <goalLifecycle>
-Goals are CREATED by the Planner during planning (GOAL_DECOMPOSITION mode).
-Goals are POPULATED by both the Companion and the Planner over subsequent turns.
-Goals are NEVER auto-created without user consent.
+Goals are CREATED by the Planner during planning (GOAL_DECOMPOSITION mode). Goals are POPULATED by both the Companion and the Planner over subsequent turns. Goals are NEVER auto-created without user consent.
 
 Conversations CRYSTALLIZE into goals when:
   - User explicitly states intent ("I want to save for a house")
@@ -131,7 +139,7 @@ Conversations CRYSTALLIZE into goals when:
 The crystallization path:
   1. The Companion detects goal intent in conversation
   2. The Companion escalates to the Planner with GOAL_REQUIRES_DECOMPOSITION
-  3. The Planner creates the Goal Object (Core + AI Context) via goalObjectDraft
+  3. The Planner creates the Goal Object (identity + target + goal_context) via goalMutation (action = CREATE)
   4. The Planner creates a PlanObject for the assessment journey
   5. The Companion executes the plan; both models populate the goal over turns
   6. Journey completes → backend fills goal.plan from confirmed outputs
@@ -143,18 +151,24 @@ The crystallization path:
 <!-- ======================================================================= -->
 
 <goalContextFormat>
-Goal objects are passed to you every turn. You may see:
+Goal objects are tiered. What you receive depends on the invocation context:
 
-  goals_portfolio    Summary of all active goals (always present when
-                     goals exist). One-line per goal:
-                     name(type, amount, progress%, status)
+  TIER 1 — goals_portfolio (always present when goals exist):
+    One line per goal:
+    [id] name (type, ₹amount, status, progress%) [priority: N, due: date-if-near]
+    Example: [g-a1b2c3] Emergency Fund (PROTECTION, ₹3.2L, ACTIVE, 31%) [priority: 1]
+    LLMs use the [id] to reference a specific goal in goalMutation.goalRef and goalContextFetch.focusGoals.
 
-  Individual goal objects passed as full schema when relevant.
+  TIER 2 — goal_focus (on-demand, Planner invocations only):
+    Full goal object: §1 Identity + §2 Target + §3 Lifecycle + §4 Plan + §5a–b goal_context (reasoning + graph).
+    Present when backend enriches based on the Companion's goalContextFetch (STANDARD or DEEP).
 
-  goal_focus         Deep context for specific goals including assessment
-                     history and prior conversation. Present only when
-                     the backend enriches based on the Companion's goalContextHint.
-                     (Planner invocations only.)
+  TIER 3 — goal_deep (deep history, Planner invocations only):
+    Everything in Tier 2 plus:
+    - §5c derivation (computation provenance — what was calculated, what formula, what inputs)
+    - §5d input_snapshot (user-provided values at time of planning)
+    - §5e conversation_memory (anchoring moments from past sessions)
+    Present only when goalContextFetch tier = DEEP.
 </goalContextFormat>
 
 </goalsContextModule>

@@ -71,6 +71,53 @@
 
 ---
 
+### SOTA UX Patterns for Structured Palette
+
+> Theme: `ux` · `conversation-ux` · `component-palette`
+
+| # | Idea | Context / Why It Matters |
+|---|------|--------------------------|
+| 14 | **"Show Your Work" / Explainability Toggles** | When computing numbers, inject an `assumptions` payload into components. The UI renders an "i" icon that expands natively to show variables used (Inflation: 6%, etc.). Builds massive trust in financial advice without cluttering the chat. |
+| 15 | **Component-Targeted Chat Context** | Let users tap a specific sub-item (e.g. Phase 2 of a plan) to anchor the chat. The input box adds a badge ("Replying to Phase 2") and sends a deterministic anchor (`targetComponentId: phase_2`) back to the LLM, eliminating pronoun ambiguity during negotiation. |
+| 16 | **Guardrailed Native Edits** | Keep native component interactions (sliders, toggles) but treat them as implicit conversation turns. Edits trigger backend validation by the LLM. If sensible, update silently. If aggressive (e.g. saving ₹100k on ₹50k salary), emit a `CONTEXTUAL_FOOTNOTE` directly attached to the input. Blends tactile feel with human-in-the-loop safety. |
+| 19 | **Optimise component palette enums for tokens** | Optimise component palette and other related aspects by sending only the enumLabels (not enumValues) and removing the enumValues from LLM facing artifacts to reduce tokens. |
+
+---
+
+### Goal Lifecycle Updates
+
+> Theme: `goal-lifecycle` · `system-design`
+
+| # | Idea | Context / Why It Matters |
+|---|------|--------------------------|
+| 17 | **Goal Lifecycle Updates** | Aspects to be refined regarding how goals transition between states (PLANNING, ACTIVE, PAUSED, ABANDONED, EXPIRED, ARCHIVED), how status is derived versus explicitly stored, and how journey history interacts with goal states over time. |
+
+---
+
+### Context Extraction & Memory
+
+> Theme: `prompt-architecture` · `memory-extraction` · `knowledge-graph`
+
+| # | Idea | Context / Why It Matters |
+|---|------|--------------------------|
+| 18 | **Asynchronous Memory Extraction** | Move `CONVERSATION MEMORY` enrichment (`user_preferences` and `emotional_signals`) out of the main Companion prompt (flash_conversation_v1). Offload this to a parallel or "sleep mode" process to keep the real-time conversational prompt lightweight and fast. |
+| 20 | **LLM-Native Knowledge Graph ("Financial Brain")** | Replace relational schemas with a graph where Nodes (Assets, Goals, Emotions) and Edges (Natural language narratives) are extracted from chat. Enables multi-hop reasoning (e.g., connecting missed savings to late-night dining anxiety). Phased approach: start 100% conversational (zero API cost), later scale to batch-processed Account Aggregator (AA) data to avoid real-time LLM parsing costs. |
+
+---
+
 ## Considered & Rejected
 
 _None yet._
+
+---
+
+### Profile Fields Library — V2 & Post-MVP Concepts
+
+> Theme: `data-schema` · `dynamic-ui` · `life-events`
+
+| # | Idea | Context / Why It Matters |
+|---|------|--------------------------|
+| 10 | **Advanced Meta-Properties (`sensitivity`, `refreshCadence`, etc.)** | Every Profile Field should carry operational properties to drive dynamic UI/AI behaviour. `sensitivity` governs collection UX (e.g., active confirm vs text-only input with "prefer not to say"). `fallbackWhenWithheld` drives pessimistic defaulting (e.g., assuming worst-case for unprovided health data). `refreshCadence` dictates when fields need re-verification. |
+| 11 | **The `UserProfile` Top-Level Wrapper** | For V2, fields should be bound within a `UserProfile` schema wrapper that acts as the complete Client File, including metadata like `createdAt`, `profileCompleteness`, and `lastJourneyCompleted`. |
+| 12 | **`Goal` as a Deferred Entity** | Goals (Part D) are active financial objectives persisting across journeys (e.g., EMERGENCY_FUND, RETIREMENT, EDUCATION). They are a 4th entity type, separate from session-scoped Planning Variables, with fields like target amount, target year, and funding status. |
+| 13 | **`LifeEvent` Log** | An append-only log of life events (e.g., MARRIAGE, JOB_LOSS) within the Household object. This triggers EF and insurance recalibration across multiple domains by invalidating specific fields (`fieldsInvalidated`). Requires system state to cross-reference event dates with field verification dates. |

@@ -5,8 +5,8 @@
 > **Status:** Product definition locked. Interaction specs rewritten with LLM-first architecture (see J01-interaction-specs.md).
 > **Trigger:** First-launch onboarding. New user opens CarrotFin for the first time.
 > **User segments:** All — EF setup IS onboarding. Primary design anchors: New Parent (30–38) and Sandwich Generation (35–45). The Adaptive Engine (see §0 below) handles all 9 archetypes at runtime.
-> **Assumptions depended on:** EF-11 (8 core sizing dimensions + 1 open/contextual dimension — see §2), C5 (conversational+visual integration feasible), C6 (adaptive composition viable in Flutter)
-> **Design decisions:** DD01 (EF as onboarding), DD02 (advisory-only model), DD03 (V1 scope boundary), DD04 (voice+screen hybrid), DD05 (multi-stage re-entry), DD06 (assessment stream-primary)
+> **Assumptions depended on:** EF-11 (8 core sizing dimensions + 1 open/contextual dimension — see §2), C6 (users trust AI enough to act on advice)
+> **Design decisions:** [V1-Product-Scope.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/V1-Product-Scope.md) (EF as onboarding, advisory-only, V1 scope, multi-stage re-entry), [Interaction-Modality.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/Interaction-Modality.md) (voice+screen hybrid), [interaction-model.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/interaction-model.md) (assessment stream-primary)
 > **Source philosophy:** `research/market/emergency-fund-philosophy.md`
 
 ---
@@ -39,7 +39,7 @@ The product design layer (this document + the interaction specs) does **not pres
 
 > **For Phase 2 onwards:** These patterns govern interaction mechanics across ALL journey phases. They are architectural decisions, not phase-specific. Each journey phase's interaction spec (Phases 1–5 in §2) instantiates these patterns in its specific context.
 >
-> **Design decision records:** [DD04](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD04-voice-screen-hybrid-modality.md) (voice+screen hybrid modality), [DD05](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/DD05-multi-stage-re-entry.md) (multi-stage re-entry)
+> **Design decision records:** [Interaction-Modality.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/Interaction-Modality.md) (voice+screen hybrid modality), [V1-Product-Scope.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/V1-Product-Scope.md) (multi-stage re-entry)
 
 ---
 
@@ -325,6 +325,46 @@ V2 ─────────────────────────�
 
 ---
 
+## 2B. The Sizing Model (Formula & Dimensions)
+
+The target setting computation uses a dynamically scaled mathematical formula to translate the 9 sizing dimensions (EF-11) into a personalized target.
+
+### The Core Formula
+
+The target consists of a Time Horizon multiplier ($H$) applied to a Crisis-Mode Burn Rate ($B$), plus Absolute Contingency buffers ($\Omega$), offset by any existing liquidity ($L$).
+
+$$EFT (INR) = \max\Big(0,\ (B \times H_{target}) + \Omega - L\Big)$$
+
+**Variables:**
+*   **$B$ (Crisis-Mode Burn Rate):** The minimum monthly family spend if income stopped tomorrow (essential survival costs). Distinct from standard monthly expenses.
+*   **$H_{target}$ (Recommended Time Horizon):** Total runway needed in months.
+*   **$\Omega$ (Absolute Contingency Add-ons):** One-time lump sum buffers for known shortfalls.
+*   **$L$ (Liquidity Offset):** Earmarked liquid assets the user already possesses.
+
+**Horizon Calculation & UI Bands:**
+The recommended target horizon is calculated dynamically, constrained by global limits ($H_{global\_min} = 3$, $H_{global\_max} = 24$):
+$$H_{target} = \max\Big(3,\ \min\Big(24,\ H_{base} \times (1 + M_{risk})\Big)\Big)$$
+
+To support the visual 3-band UI (Minimum Safe, Recommended, Strong Buffer), the engine computes relative bounds:
+*   **$H_{ui\_min}$ (Minimum Safe):** $H_{target} \times 0.75$
+*   **$H_{target}$ (Recommended):** The fully computed target.
+*   **$H_{ui\_max}$ (Strong Buffer):** $H_{target} \times 1.25$
+
+### The 9 Sizing Dimensions (EF-11)
+
+| Dimension | Description | Formula Component | Impact Mechanic |
+| :--- | :--- | :--- | :--- |
+| **D1** | Income Stability | Base | Sets $H_{base}$ (e.g. Govt = 3, Salaried = 6, Freelance/Gig = 9-12) |
+| **D2** | Dependency Load | Modifier & Add-on | Adds to $M_{risk}$ (+% per dependent); triggers $\Omega$ for uninsured dependents |
+| **D3** | Insurance Quality | Add-on | Adds flat INR to $\Omega$ if under-insured. Uses "Pessimistic Defaulting" scaled dynamically via City/Income matrix (e.g., ₹35k to ₹3L) if data is missing. |
+| **D4** | Fixed Obligations | Modifier | Adds to $M_{risk}$ if EMI/Rent ratio is high |
+| **D5** | City Tier / CoL | Imputation | Imputes $B$ and scales the D3 uninsured penalty matrix |
+| **D6** | Age / Career Stage | Modifier | Adds to $M_{risk}$ (older = longer re-employment time) |
+| **D7** | Household Income | Modifier | Modifies $M_{risk}$ (dual income acts as hedge) |
+| **D8** | Health Profile | Modifier | Adds to $M_{risk}$ for chronic conditions |
+| **D9** | Open Contextual | Add-on / Modifier | Dynamic (e.g., upcoming major obligation adds to $\Omega$) |
+
+---
 
 > **Detailed interaction specs for each phase are in [J01-interaction-specs.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/journey-catalog/J01-interaction-specs.md).**
 > All phases (1–5) fully specced with LLM-first architecture.

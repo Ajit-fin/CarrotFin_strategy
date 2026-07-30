@@ -4,12 +4,6 @@
     "type": "string",
     "userFacingLabel": "Preferred Name",
     "facet": "PERSONAL",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE",
-      "PARENT",
-      "CHILD"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -23,12 +17,6 @@
     "format": "date",
     "userFacingLabel": "Date of Birth",
     "facet": "PERSONAL",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE",
-      "PARENT",
-      "CHILD"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -40,12 +28,6 @@
     "type": "string",
     "userFacingLabel": "Gender",
     "facet": "PERSONAL",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE",
-      "PARENT",
-      "CHILD"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -68,9 +50,6 @@
     "type": "string",
     "userFacingLabel": "Marital Status",
     "facet": "PERSONAL",
-    "relationshipToUser": [
-      "SELF"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -95,10 +74,6 @@
     "type": "string",
     "userFacingLabel": "Employment Type",
     "facet": "INCOME",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -145,10 +120,6 @@
     "type": "string",
     "userFacingLabel": "Employer Stability",
     "facet": "INCOME",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -173,28 +144,21 @@
     "type": "integer",
     "userFacingLabel": "Monthly In-Hand Income",
     "facet": "INCOME",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE",
-      "PARENT"
-    ],
     "journeyTags": [
       "ALL"
     ],
     "inputType": "CURRENCY",
     "min": 0,
     "max": 50000000,
-    "step": 1000
+    "step": 1000,
+    "unit": "INR",
+    "period": "MONTHLY"
   },
   "incomePattern": {
     "fieldId": "incomePattern",
     "type": "string",
     "userFacingLabel": "Income Pattern",
     "facet": "INCOME",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -219,10 +183,6 @@
     "type": "integer",
     "userFacingLabel": "Annual Gross Income",
     "facet": "INCOME",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE"
-    ],
     "journeyTags": [
       "TAX",
       "INVESTMENT"
@@ -230,18 +190,15 @@
     "inputType": "CURRENCY",
     "min": 0,
     "max": 600000000,
-    "step": 10000
+    "step": 10000,
+    "unit": "INR",
+    "period": "ANNUAL"
   },
   "dependencyStatus": {
     "fieldId": "dependencyStatus",
     "type": "string",
     "userFacingLabel": "Financial Dependency Status",
     "facet": "INCOME",
-    "relationshipToUser": [
-      "SPOUSE",
-      "PARENT",
-      "CHILD"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -262,9 +219,6 @@
     "type": "boolean",
     "userFacingLabel": "Is Primary Earner",
     "facet": "INCOME",
-    "relationshipToUser": [
-      "SELF"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -275,10 +229,6 @@
     "type": "string",
     "userFacingLabel": "Income Tax Regime",
     "facet": "TAX",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -299,10 +249,6 @@
     "type": "integer",
     "userFacingLabel": "Section 80C Utilized (Current FY)",
     "facet": "TAX",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE"
-    ],
     "journeyTags": [
       "TAX",
       "INVESTMENT"
@@ -310,17 +256,14 @@
     "inputType": "CURRENCY",
     "min": 0,
     "max": 150000,
-    "step": 1000
+    "step": 1000,
+    "unit": "INR"
   },
   "tobaccoStatus": {
     "fieldId": "tobaccoStatus",
     "type": "string",
     "userFacingLabel": "Tobacco or Smoking Usage",
     "facet": "HEALTH",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE"
-    ],
     "journeyTags": [
       "INSURANCE",
       "EMERGENCY_FUND"
@@ -342,11 +285,6 @@
     "type": "string",
     "userFacingLabel": "Pre-Existing Medical Conditions",
     "facet": "HEALTH",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE",
-      "PARENT"
-    ],
     "journeyTags": [
       "INSURANCE",
       "EMERGENCY_FUND"
@@ -372,11 +310,6 @@
     "type": "integer",
     "userFacingLabel": "Health Insurance Cover Amount",
     "facet": "INSURANCE",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE",
-      "PARENT"
-    ],
     "journeyTags": [
       "EMERGENCY_FUND",
       "INSURANCE"
@@ -384,18 +317,14 @@
     "inputType": "CURRENCY",
     "min": 0,
     "max": 100000000,
-    "step": 50000
+    "step": 50000,
+    "unit": "INR"
   },
   "healthInsuranceSource": {
     "fieldId": "healthInsuranceSource",
     "type": "string",
     "userFacingLabel": "Health Insurance Source",
     "facet": "INSURANCE",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE",
-      "PARENT"
-    ],
     "journeyTags": [
       "EMERGENCY_FUND",
       "INSURANCE"
@@ -421,10 +350,6 @@
     "type": "integer",
     "userFacingLabel": "Term Life Cover Amount",
     "facet": "INSURANCE",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE"
-    ],
     "journeyTags": [
       "EMERGENCY_FUND",
       "INSURANCE"
@@ -432,18 +357,14 @@
     "inputType": "CURRENCY",
     "min": 0,
     "max": 1000000000,
-    "step": 100000
+    "step": 100000,
+    "unit": "INR"
   },
   "dependentHealthInsuranceStatus": {
     "fieldId": "dependentHealthInsuranceStatus",
     "type": "string",
     "userFacingLabel": "Dependent's Health Insurance Status",
     "facet": "INSURANCE",
-    "relationshipToUser": [
-      "SPOUSE",
-      "PARENT",
-      "CHILD"
-    ],
     "journeyTags": [
       "EMERGENCY_FUND",
       "INSURANCE"
@@ -467,10 +388,6 @@
     "type": "string",
     "userFacingLabel": "Investment Risk Tolerance",
     "facet": "BEHAVIORAL",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -493,9 +410,6 @@
     "type": "string",
     "userFacingLabel": "Financial Literacy Level",
     "facet": "BEHAVIORAL",
-    "relationshipToUser": [
-      "SELF"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -520,26 +434,20 @@
     "type": "integer",
     "userFacingLabel": "Target Retirement Age",
     "facet": "BEHAVIORAL",
-    "relationshipToUser": [
-      "SELF",
-      "SPOUSE"
-    ],
     "journeyTags": [
       "ALL"
     ],
     "inputType": "NUMBER",
     "min": 35,
     "max": 80,
-    "step": 1
+    "step": 1,
+    "unit": "YEARS"
   },
   "decisionMakingStyle": {
     "fieldId": "decisionMakingStyle",
     "type": "string",
     "userFacingLabel": "Decision Making Style",
     "facet": "BEHAVIORAL",
-    "relationshipToUser": [
-      "SELF"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -562,9 +470,6 @@
     "type": "string",
     "userFacingLabel": "Residence Status",
     "facet": "EXPENSE",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -591,89 +496,80 @@
     "type": "integer",
     "userFacingLabel": "Monthly Rent",
     "facet": "EXPENSE",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],
     "inputType": "CURRENCY",
     "min": 0,
     "max": 500000,
-    "step": 500
+    "step": 500,
+    "unit": "INR",
+    "period": "MONTHLY"
   },
   "monthlyNonDiscretionaryExpenses": {
     "fieldId": "monthlyNonDiscretionaryExpenses",
     "type": "integer",
     "userFacingLabel": "Monthly Essential Expenses",
     "facet": "EXPENSE",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],
     "inputType": "CURRENCY",
     "min": 5000,
     "max": 10000000,
-    "step": 1000
+    "step": 1000,
+    "unit": "INR",
+    "period": "MONTHLY"
   },
   "totalMonthlyEmi": {
     "fieldId": "totalMonthlyEmi",
     "type": "integer",
     "userFacingLabel": "Total Monthly EMI",
     "facet": "DEBT",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],
     "inputType": "CURRENCY",
     "min": 0,
     "max": 10000000,
-    "step": 1000
+    "step": 1000,
+    "unit": "INR",
+    "period": "MONTHLY"
   },
   "totalOutstandingDebt": {
     "fieldId": "totalOutstandingDebt",
     "type": "integer",
     "userFacingLabel": "Total Outstanding Debt",
     "facet": "DEBT",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],
     "inputType": "CURRENCY",
     "min": 0,
     "max": 5000000000,
-    "step": 10000
+    "step": 10000,
+    "unit": "INR"
   },
   "monthlySipCommitment": {
     "fieldId": "monthlySipCommitment",
     "type": "integer",
     "userFacingLabel": "Monthly SIP/Investment Commitment",
     "facet": "ASSET",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],
     "inputType": "CURRENCY",
     "min": 0,
     "max": 50000000,
-    "step": 500
+    "step": 500,
+    "unit": "INR",
+    "period": "MONTHLY"
   },
   "totalLiquidSavings": {
     "fieldId": "totalLiquidSavings",
     "type": "integer",
     "userFacingLabel": "Total Liquid Savings",
     "facet": "ASSET",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "EMERGENCY_FUND",
       "GOALS"
@@ -681,48 +577,42 @@
     "inputType": "CURRENCY",
     "min": 0,
     "max": 1000000000,
-    "step": 10000
+    "step": 10000,
+    "unit": "INR"
   },
   "totalEquityInvestments": {
     "fieldId": "totalEquityInvestments",
     "type": "integer",
     "userFacingLabel": "Total Equity/Market Investments",
     "facet": "ASSET",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],
     "inputType": "CURRENCY",
     "min": 0,
     "max": 5000000000,
-    "step": 10000
+    "step": 10000,
+    "unit": "INR"
   },
   "totalFixedIncome": {
     "fieldId": "totalFixedIncome",
     "type": "integer",
     "userFacingLabel": "Total Fixed Income Investments",
     "facet": "ASSET",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],
     "inputType": "CURRENCY",
     "min": 0,
     "max": 5000000000,
-    "step": 10000
+    "step": 10000,
+    "unit": "INR"
   },
   "householdIncomeType": {
     "fieldId": "householdIncomeType",
     "type": "string",
     "userFacingLabel": "Household Income Profile",
     "facet": "INCOME",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -745,9 +635,6 @@
     "type": "string",
     "userFacingLabel": "City of Residence",
     "facet": "DEMOGRAPHICS",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -759,9 +646,6 @@
     "type": "string",
     "userFacingLabel": "City Tier",
     "facet": "DEMOGRAPHICS",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -784,9 +668,6 @@
     "type": "integer",
     "userFacingLabel": "Number of Dependents",
     "facet": "DEMOGRAPHICS",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "deprecated": true,
     "deprecationNote": "Superseded by granular count fields. Use the fields listed in supersededBy for EF and insurance journeys.",
     "supersededBy": [
@@ -810,9 +691,6 @@
     "type": "integer",
     "userFacingLabel": "Children Under 5",
     "facet": "DEMOGRAPHICS",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -826,9 +704,6 @@
     "type": "integer",
     "userFacingLabel": "School-Age Children",
     "facet": "DEMOGRAPHICS",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -842,9 +717,6 @@
     "type": "integer",
     "userFacingLabel": "Aging Parents (Insured)",
     "facet": "DEMOGRAPHICS",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -858,9 +730,6 @@
     "type": "integer",
     "userFacingLabel": "Aging Parents (Uninsured)",
     "facet": "DEMOGRAPHICS",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],
@@ -874,9 +743,6 @@
     "type": "integer",
     "userFacingLabel": "Other Dependents",
     "facet": "DEMOGRAPHICS",
-    "relationshipToUser": [
-      "HOUSEHOLD"
-    ],
     "journeyTags": [
       "ALL"
     ],

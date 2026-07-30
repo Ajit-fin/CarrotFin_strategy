@@ -4,7 +4,8 @@
 > **Used on:** Hybrid (Phase 5 only — Contribution Plan Card inline in stream; Action Card persists to home surface)  
 > **M3 base:** `Card` (elevated), `ListTile` (milestone rows, action steps), `FilledButton` / `TextButton` (CTAs), `InputChip` (§C2 contribution confirm)  
 > **Date:** 2026-04-16  
-> **Status:** Complete
+> **Status:** Complete  
+> **Design rationale (from DD09):** Action Card + salary-day reminder chosen over PDF export (static, no re-engagement) and generic savings tracker (doesn't surface the contribution plan as the core deliverable). The contribution plan IS the V1 output — not a secondary artifact.
 
 ---
 

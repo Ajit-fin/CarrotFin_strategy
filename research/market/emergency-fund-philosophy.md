@@ -34,25 +34,49 @@ This distinction must be surfaced proactively — users conflate "unexpected" wi
 
 ---
 
-## 2. The Eight Sizing Dimensions
+## 2. The Sizing Model & Nine Dimensions (EF-11)
 
-The fund target is derived from **8 adaptive dimensions** — not a static formula. This is the product's core advisory logic for the EF use case.
+The fund target is derived from a dynamic mathematical model leveraging **9 adaptive dimensions** (8 core + 1 contextual), rather than a static "rule of thumb". This forms the product's core advisory logic for the EF use case.
 
-> **Assumption EF-11:** These 8 dimensions are the right and sufficient set for sizing. Tracked in assumptions-tracker.md — validate with first user cohort.
+### The Core Formula
+
+The target consists of a Time Horizon multiplier ($H$) applied to a Crisis-Mode Burn Rate ($B$), plus Absolute Contingency buffers ($\Omega$), offset by any existing liquidity ($L$).
+
+$$EFT (INR) = \max\Big(0,\ (B \times H_{target}) + \Omega - L\Big)$$
+
+**Variables:**
+*   **$B$ (Crisis-Mode Burn Rate):** The minimum monthly family spend if income stopped tomorrow (essential survival costs). Distinct from standard monthly expenses.
+*   **$H_{target}$ (Recommended Time Horizon):** Total runway needed in months.
+*   **$\Omega$ (Absolute Contingency Add-ons):** One-time lump sum buffers for known shortfalls (e.g., medical gaps).
+*   **$L$ (Liquidity Offset):** Earmarked liquid assets the user already possesses.
+
+**Horizon Calculation & UI Bands:**
+The recommended target horizon is calculated dynamically, constrained by global limits ($H_{global\_min} = 3$, $H_{global\_max} = 24$):
+$$H_{target} = \max\Big(3,\ \min\Big(24,\ H_{base} \times (1 + M_{risk})\Big)\Big)$$
+
+To support the visual 3-band UI (Minimum Safe, Recommended, Strong Buffer), the engine computes relative bounds:
+*   **$H_{ui\_min}$ (Minimum Safe):** $H_{target} \times 0.75$
+*   **$H_{target}$ (Recommended):** The fully computed target.
+*   **$H_{ui\_max}$ (Strong Buffer):** $H_{target} \times 1.25$
+
+### The 9 Dimensions Mapping
+
+> **Assumption EF-11:** These 9 dimensions are the right and sufficient set for sizing. Tracked in assumptions-tracker.md — validate with first user cohort.
 
 | # | Dimension | Product-Level Implication |
 |:---|:---|:---|
 | 1 | **Income Stability** | Government/PSU: 3–4 months. Large private: 4–6. Startup: 6–8. Freelancer: 8–12. Gig: 6–10. SMB owner: 9–12. Commission-based: 9–12. Seasonal: 10–12+. |
 | 2 | **Dependency Load** | Ask about *nature* of dependents, not just count. Aging parents with no health insurance is a materially different risk than a working adult sibling. |
-| 3 | **Insurance Coverage Quality** | Adequate health (₹10L+ cover) + term: can reduce target by 1–2 months. No health insurance: add ₹2–5L buffer. No term (with dependents): critical flag — EF cannot substitute. |
+| 3 | **Insurance Coverage Quality** | Adequate health (≥₹10L) + term: reduces risk multiplier. No health insurance: triggers "Pessimistic Defaulting" absolute buffer ($\Omega$) scaled by City Tier matrix (₹50K floor to ₹2L ceiling). No term (with dependents): critical flag — EF cannot substitute. |
 | 4 | **Fixed Obligations** | Rent/EMI, school fees, insurance premiums, SIP commitments. High fixed-to-variable ratio = larger fund required. |
-| 5 | **City Tier & Cost of Living** | Metro (₹60K–1.2L/month family essential spend) → Tier 2 (₹25–50K) → Tier 3/semi-urban (₹15–35K). |
-| 6 | **Age & Career Stage** | 22–27: 3–4 months (high re-employability). 28–35: 6–8 months. 35–45 (peak responsibility): 8–12 months. 45–55: 6–12 months (re-employment risk rises). 55+: 12–24 months runway framing. |
-| 7 | **Household Income Sources** | Dual-income salaried = lowest risk. Single income + variable = highest risk. |
-| 8 | **Health Profile & Pre-Existing Conditions** | Chronic conditions (diabetes, hypertension), family history of critical illness, physically demanding occupation → increase buffer. |
+| 5 | **City Tier & Cost of Living** | Metro (₹60K–1.2L/mo) → Tier 2 (₹25–50K) → Tier 3 (₹15–35K). Imputes the baseline Crisis-Mode Burn Rate ($B$) and scales the D3 uninsured penalty. |
+| 6 | **Age & Career Stage** | 22–27: 3–4 months (high re-employability). 28–35: 6–8 months. 35–45 (peak responsibility): 8–12 months. 45–55: 6–12 months. 55+: 12–24 months runway framing. |
+| 7 | **Household Income Sources** | Dual-income salaried = lowest risk (natural hedge). Single income + variable = highest risk. |
+| 8 | **Health Profile & Pre-Existing Conditions** | Chronic conditions, family history of critical illness, or physically demanding occupation → increases risk multiplier. "Prefer not to say" yields a conservative default multiplier (0.10). |
+| 9 | **Open Contextual** | User-volunteered factors outside D1–D8 (e.g. pending legal case, upcoming planned expense) → incorporated as dynamic absolute add-ons ($\Omega$) bounded by [0.5 × B, 2 × B]. |
 
 **Illustrative output of dimension interplay:**
-> "Your target is ₹4.2L (7 months) because: you're a single earner (↑), have 2 dependents including an uninsured parent (↑), but have stable government employment (↓) and good personal health insurance (↓)."
+> "Your target is ₹4.2L (7 months of survival burn) because: you're a single earner (↑), have 2 dependents including an uninsured parent (↑ triggering a ₹1.5L medical buffer), but have stable government employment (↓) and existing liquidity (↓)."
 
 ---
 
@@ -62,7 +86,7 @@ These factors fundamentally differentiate Indian EF advisory from Western framew
 
 | Reality | Key Data | Product Implication |
 |:---|:---|:---|
-| **Medical bankruptcy risk** | 39.4% of health expenditure is out-of-pocket [NHA 2021–22]. ~17% of households face catastrophic health spending annually [as of 2024]. Medical inflation: ~14%/year [as of April 2026]. | EF assessment *must* ask about health insurance status. Medical emergency is the #1 threat to EF adequacy. Flag EF-12. |
+| **Medical bankruptcy risk** | 39.4% of health expenditure is out-of-pocket [NHA 2021–22]. Medical inflation: ~14%/year. Urban private hospitalizations average ₹1.5L–₹3L [NSO 80th Round, 2025]. | EF assessment *must* ask about health insurance status. Medical emergency is the #1 threat to EF adequacy. If uninsured, use Pessimistic Defaulting matrix scaled by City/Income. |
 | **Joint family dynamics** | ~60–67% of income may go to "needs" in joint households vs. standard 50% assumption. Intergenerational financial obligations are cultural norm. | Ask about parents' health, insurance, whether they are financial dependents — not just "number of dependents." Consider a separate, labeled "Parent Care Fund" sub-account. |
 | **Informal economy** | ~87% of India's 634M workers are informally employed [NITI Aayog, 2025]. 10M+ gig workers [as of 2025], growing to 23.5M by 2029–30. No employer benefits, no severance. | Freelancers and gig workers should default to 8–12 month targets. Income gaps between projects/gigs can be multi-week. EF-13 tracks whether our gig-economy sizing is calibrated correctly. |
 | **Inflation erosion** | CPI: ~3.4% [March 2026]; medical: ~14%; education: 8–12%; rent (metros): 5–8%. | EF target must be recalibrated annually. App should auto-suggest inflation-adjusted upward revisions. |
@@ -200,9 +224,12 @@ Intentionally left out — requires separate, dynamic data layers or legal revie
 |:---|:---|:---|:---|
 | NITI Aayog | Gig economy projections (23.5M by 2029–30), informal sector (87%) | 2022, 2025 | Tier 1 |
 | National Health Accounts (NHA) | Out-of-pocket expenditure (39.4%) | 2021–22 | Tier 1 |
+| NSO (80th Round) | Healthcare costs, hospitalization floors/ceilings (₹35k to ₹3L) | 2025 | Tier 1 |
 | MOSPI / CPI Data | Headline CPI 3.4%, food 3.87% | March 2026 | Tier 1 |
 | Tribune India / Survey Data | Households spending 12.2% of income on medical costs | 2025 | Tier 2 |
 | NIH / ORF Research | Catastrophic health expenditure (~17% of households) | 2024 | Tier 1 |
+| Harvard Business Review | Employment risk horizons (3-6 vs 9-12 months) | 2020 | Tier 1 (Global) |
+| Dexian | Job search duration (avg 3-5 months, ~6.5 months post-layoff) | 2024 | Tier 1 (Global/India) |
 | DICGC | Deposit insurance limit ₹5L per depositor per bank | Current | Tier 1 |
 | Economic Times, LiveMint | Emergency fund best practices, instrument comparison | 2024–2026 | Tier 3 |
 | ClearTax, Groww | Tax efficiency: liquid funds vs FDs | 2025 | Tier 3 |

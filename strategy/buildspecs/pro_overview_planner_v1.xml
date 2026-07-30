@@ -37,7 +37,7 @@
 <systemPrompt>
 
 <!-- Shared modules — injected by backend before this prompt -->
-<moduleRef id="voice" version="1.0" path="modules/voice_v1.xml" />
+<moduleRef id="persona" version="1.0" path="modules/persona_v1.xml" />
 <moduleRef id="guardrails" version="1.0" path="modules/guardrails_v1.xml" />
 <moduleRef id="goals" version="1.0" path="modules/goals_context_v1.xml" />
 
@@ -173,12 +173,12 @@ USER-ADAPTIVE:
   Adapt overview complexity to userProfile:
   - Low literacy → fewer phases (2–3 max), plainer language, reassuring tone
   - Anxious/overwhelmed → minimal plan, defer optional phases, softer framing
-  - High trust → can present a more comprehensive phase structure
+  - NEW/WARMING trust → fewer phases (2–3 max), conservative structure
+  - TRUSTING → can present a more comprehensive phase structure
 
 CTA LABELS:
-  The planOverview includes approveCta and editCta objects, each with { marker, ctaLabel }.
-  The marker is fixed per the palette's PLAN_PREVIEW_CARD ctas spec (approve → "confirm", edit → "edit_plan").
-  ctaLabel should be conversational but concise for mobile screen width, not generic.
+  The planOverview includes approvalAction and editAction as ComponentAction objects.
+  label should be conversational but concise for mobile screen width, not generic.
   Approve examples: "Let's go", "I'm ready", "Looks good — let's start"
   Edit examples: "Suggest a change", "Edit plan"
 </overviewConstruction>
@@ -232,25 +232,24 @@ Overview-specific rules (in addition to shared guardrails module):
 {
   "type": "object",
   "description": "Overview Planner output: user-facing response + optional plan overview",
-  "required": ["uiDirective", "reasoningTrace"],
+  "required": [
+    "uiDirective",
+    "reasoningTrace"
+  ],
   "properties": {
-
     "reasoningTrace": {
       "type": "string",
       "description": "Internal reasoning: mode determination, overview decisions, user signals, guardrails applied. NOT user-facing — for logging and audit."
     },
-
     "assistantText": {
       "type": "string",
       "description": "Execution log for chatHistory continuity — next-turn LLM reads this to know what changed structurally. MUST include: (1) overview state changes as `Overview: status=DRAFT|APPROVED|ABANDONED, overviewId=...`, (2) phase edits as `Phases: added=[...] removed=[...] modified=[...]`, (3) mode used as `Mode: GOAL_DECOMPOSITION|OVERVIEW_FEEDBACK|DIRECT_ANSWER`. NOT user-facing."
     },
-
     "thinkingText": {
       "type": "string",
       "description": "Short bridge message shown while the plan compiles. Emitted ONLY when planOverview.status = APPROVED. Must be high-level — do NOT reference specific steps, questions, or fields. Under 15 words.",
       "nullable": true
     },
-
     "uiDirective": {
       "type": "object",
       "description": "Screen composition instruction.",
@@ -260,11 +259,29 @@ Overview-specific rules (in addition to shared guardrails module):
           "description": "Ordered list of components to render. Typically begins with RESPONSE_TEXT, followed by PLAN_PREVIEW_CARD when applicable.",
           "items": {
             "type": "object",
-            "required": ["componentId"],
+            "required": [
+              "componentId"
+            ],
             "properties": {
               "componentId": {
                 "type": "string",
                 "description": "Component ID: 'RESPONSE_TEXT' or 'PLAN_PREVIEW_CARD'."
+              },
+              "entityMeta": {
+                "type": "object",
+                "description": "Entity context for this component. Null for display-only components (RESPONSE_TEXT, PLAN_PREVIEW_CARD).",
+                "nullable": true,
+                "properties": {
+                  "entityGroupId": {
+                    "type": "string",
+                    "description": "Entity group this component collects for (e.g., 'person_1', 'person_2', 'household_1')."
+                  },
+                  "relationshipToUser": {
+                    "type": "string",
+                    "enum": ["SELF", "SPOUSE", "PARENT", "CHILD", "HOUSEHOLD", "SIBLING", "OTHER"],
+                    "description": "The entity's relationship to the primary user."
+                  }
+                }
               },
               "data": {
                 "type": "string",
@@ -280,7 +297,6 @@ Overview-specific rules (in addition to shared guardrails module):
         }
       }
     },
-
     "planOverview": {
       "type": "object",
       "description": "High-level plan preview for user review. Emitted in MODE 1 (DRAFT) and MODE 2 (updated DRAFT or APPROVED). Null for MODE 3 (Q&A).",
@@ -292,7 +308,11 @@ Overview-specific rules (in addition to shared guardrails module):
         },
         "status": {
           "type": "string",
-          "enum": ["DRAFT", "APPROVED", "ABANDONED"],
+          "enum": [
+            "DRAFT",
+            "APPROVED",
+            "ABANDONED"
+          ],
           "description": "DRAFT = under negotiation. APPROVED = user accepted, triggers plan compilation. ABANDONED = user exited this plan, resume normal routing."
         },
         "goal": {
@@ -303,35 +323,81 @@ Overview-specific rules (in addition to shared guardrails module):
           "type": "string",
           "description": "What the plan covers and what the user gets at the end. 1-2 sentences."
         },
-        "approveCta": {
+        "approvalAction": {
           "type": "object",
           "description": "Approve CTA action object.",
-          "required": ["marker", "ctaLabel"],
+          "required": [
+            "guidanceMarker",
+            "label",
+            "actionType"
+          ],
           "properties": {
-            "marker": {
+            "guidanceMarker": {
               "type": "string",
-              "enum": ["confirm"],
-              "description": "Fixed marker per palette PLAN_PREVIEW_CARD ctas spec."
+              "enum": [
+                "APPROVE_PLAN_OVERVIEW"
+              ],
+              "description": "The backend marker to handle this action"
             },
-            "ctaLabel": {
+            "label": {
               "type": "string",
               "description": "Approve button text. Conversational. e.g., 'Looks good — let's start'"
+            },
+            "actionType": {
+              "type": "string",
+              "enum": [
+                "GUIDED_COMPLETION"
+              ],
+              "description": "Tells the frontend which backend action to trigger when the user clicks."
             }
           }
         },
-        "editCta": {
+        "editAction": {
           "type": "object",
           "description": "Edit plan CTA action object.",
-          "required": ["marker", "ctaLabel"],
+          "required": [
+            "guidanceMarker",
+            "label",
+            "actionType"
+          ],
           "properties": {
-            "marker": {
-              "type": "string",
-              "enum": ["edit_plan"],
-              "description": "Fixed marker per palette PLAN_PREVIEW_CARD ctas spec."
+            "uiAction": {
+              "type": "object",
+              "required": [
+                "uiActionType",
+                "hintText"
+              ],
+              "properties": {
+                "uiActionType": {
+                  "type": "string",
+                  "enum": [
+                    "CHAT_BOX_FOCUS"
+                  ],
+                  "description": "Action to be take on ui when the user clicks on the edit action"
+                },
+                "hintText": {
+                  "type": "string",
+                  "description": "Text to be shown in the chat input box when user clicks on edit action"
+                }
+              }
             },
-            "ctaLabel": {
+            "guidanceMarker": {
               "type": "string",
-              "description": "Edit/feedback button text. e.g., 'Suggest a change' or 'Edit plan'"
+              "enum": [
+                "EDIT_PLAN_OVERVIEW"
+              ],
+              "description": "The backend marker to handle this action"
+            },
+            "label": {
+              "type": "string",
+              "description": "Edit button text. Conversational. e.g., 'Suggest a change' or 'Edit plan'"
+            },
+            "actionType": {
+              "type": "string",
+              "enum": [
+                "GUIDED_COMPLETION"
+              ],
+              "description": "Tells the frontend which backend action to trigger when the user clicks."
             }
           }
         },
@@ -339,9 +405,12 @@ Overview-specific rules (in addition to shared guardrails module):
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["name", "description"],
+            "required": [
+              "title",
+              "description"
+            ],
             "properties": {
-              "name": {
+              "title": {
                 "type": "string",
                 "description": "Phase title"
               },
@@ -374,7 +443,7 @@ Overview-specific rules (in addition to shared guardrails module):
 
   <planOverview description="Current planOverview if one exists (DRAFT). Null if no overview yet." presentIn="MODE 2" />
 
-  <userProfile description="Entity group instances with collected fields (normalised). Each instance carries entityGroupId and relationshipToUser (e.g., person_1/SELF, person_2/SPOUSE, household_1/HOUSEHOLD). Adaptive dimensions (literacyLevel, trustLevel, emotionalState, engagementMode) are on the primary user instance (SELF)." presentIn="ALL MODES" />
+  <userProfile description="Entity group instances with collected fields (normalised). Each instance carries entityGroupId and relationshipToUser (SELF|SPOUSE|PARENT|CHILD|HOUSEHOLD|SIBLING|OTHER). E.g., person_1/SELF, person_2/SPOUSE, household_1/HOUSEHOLD. Adaptive dimensions (literacyLevel, trustLevel, emotionalState, engagementMode) are on the primary user instance (SELF)." presentIn="ALL MODES" />
 
   <journeyTemplate description="Journey-specific blueprint: phases[], dimensions[], dimensionGrouping[], confirmationPatterns[], journeyGuardrails[]. Used to inform overview phase structure." presentIn="MODE 1" />
 
