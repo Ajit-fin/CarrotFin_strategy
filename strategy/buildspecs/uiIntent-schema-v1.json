@@ -1,0 +1,251 @@
+{
+  "description": "uiIntent v3 — Semantic UI intent schema for CarrotFin Detail Planner. Replaces uiDirective. LLM emits field references + contextual content + display intents. Backend projects onto palette components.",
+  "type": "object",
+  "required": ["message"],
+  "properties": {
+
+    "message": {
+      "type": "string",
+      "description": "Conversational text to the user. Always required."
+    },
+
+    "collect": {
+      "type": "object",
+      "description": "Populate when this turn needs user input. List the fields to collect.",
+      "nullable": true,
+      "required": ["fields"],
+      "properties": {
+
+        "formTitle": {
+          "type": "string",
+          "description": "Title for the input group when collecting multiple fields, e.g., 'Monthly Expenses', 'Income Details'. Populate when emitting 2+ fields.",
+          "nullable": true
+        },
+
+        "fields": {
+          "type": "array",
+          "description": "Ordered list of fields to collect this turn. One field = standalone input. Multiple fields = grouped form.",
+          "items": {
+            "type": "object",
+            "required": ["entityGroupId"],
+            "properties": {
+
+              "fieldRef": {
+                "type": "string",
+                "description": "fieldId from coreFieldSchema, e.g., 'monthlyNetIncome', 'employmentType'. Use for all known profile fields.",
+                "nullable": true
+              },
+
+              "jitField": {
+                "type": "object",
+                "description": "Inline field definition. Use ONLY when coreFieldSchema lacks the needed field.",
+                "nullable": true,
+                "required": ["key", "inputType"],
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "description": "Slugified field key, e.g., 'expected_wedding_cost'."
+                  },
+                  "inputType": {
+                    "type": "string",
+                    "enum": ["CURRENCY", "NUMBER", "PERCENTAGE", "BOOLEAN", "CHOICE_SIMPLE", "CHOICE_TIERED", "TEXT", "DATE", "DURATION"]
+                  },
+                  "unit": { "type": "string", "nullable": true },
+                  "period": { "type": "string", "nullable": true },
+                  "min": { "type": "number", "nullable": true },
+                  "max": { "type": "number", "nullable": true },
+                  "step": { "type": "number", "nullable": true },
+                  "options": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "object",
+                      "required": ["value", "label"],
+                      "properties": {
+                        "value": { "type": "string" },
+                        "label": { "type": "string" }
+                      }
+                    }
+                  },
+                  "scope": {
+                    "type": "string",
+                    "enum": ["PLAN", "SCENARIO"]
+                  }
+                }
+              },
+
+              "entityGroupId": {
+                "type": "string",
+                "description": "Entity group this field collects for: 'person_1', 'person_2', 'household_1'."
+              },
+
+              "title": {
+                "type": "string",
+                "description": "Contextual label. Omit to use the default label from coreFieldSchema.",
+                "nullable": true
+              },
+
+              "description": {
+                "type": "string",
+                "description": "Context explaining why this is being asked or what to include.",
+                "nullable": true
+              },
+
+              "exclusions": {
+                "type": "string",
+                "description": "What NOT to include, referencing other fields.",
+                "nullable": true
+              },
+
+              "placeholder": {
+                "type": "string",
+                "description": "Hint for text-mode input.",
+                "nullable": true
+              },
+
+              "optionDescriptions": {
+                "type": "array",
+                "description": "Per-option descriptions for choice fields needing explanatory context. Array order matches enumValues in coreFieldSchema.",
+                "nullable": true,
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "present": {
+      "type": "array",
+      "description": "Display intents. Each entry becomes one display component.",
+      "nullable": true,
+      "items": {
+        "type": "object",
+        "required": ["resultKind", "title"],
+        "properties": {
+
+          "resultKind": {
+            "type": "string",
+            "enum": ["KPI", "PHASE_GATE", "STATUS", "CONFIRMATION", "ALLOCATION", "PLAN"],
+            "description": "What this display block represents. KPI = computed target/score. PHASE_GATE = review collected data. STATUS = goal/plan state. CONFIRMATION = post-action receipt. ALLOCATION = proportional split. PLAN = savings timeline."
+          },
+
+          "entityGroupId": {
+            "type": "string",
+            "nullable": true
+          },
+
+          "title": {
+            "type": "string",
+            "description": "Card header. Conversational and specific."
+          },
+
+          "icon": {
+            "type": "string",
+            "description": "Emoji representing the domain.",
+            "nullable": true
+          },
+
+          "headline": {
+            "type": "object",
+            "description": "Hero value display. Required for KPI, STATUS, CONFIRMATION. Optional for PHASE_GATE.",
+            "nullable": true,
+            "required": ["value", "subtitle"],
+            "properties": {
+              "value": { "type": "string", "description": "Formatted primary value, e.g., '₹2,40,000'." },
+              "subtitle": { "type": "string", "description": "Contextual qualifier, e.g., '~6 months of essential expenses'." }
+            }
+          },
+
+          "itemsHeader": {
+            "type": "string",
+            "description": "Section header above items, e.g., 'How we got here', 'Your milestones'.",
+            "nullable": true
+          },
+
+          "items": {
+            "type": "array",
+            "description": "Data rows. Interpretation depends on resultKind. PHASE_GATE: field-value pairs. KPI: attribution factors. ALLOCATION: proportional segments. PLAN: timeline milestones. STATUS/CONFIRMATION: state rows.",
+            "nullable": true,
+            "items": {
+              "type": "object",
+              "required": ["label", "value"],
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "Row name: field label, factor name, segment name, or milestone name."
+                },
+                "value": {
+                  "type": "string",
+                  "description": "Primary content: formatted amount, date, impact, or display value."
+                },
+                "key": {
+                  "type": "string",
+                  "description": "Field identifier for edit routing. Populate for PHASE_GATE items.",
+                  "nullable": true
+                },
+                "detail": {
+                  "type": "string",
+                  "description": "Secondary text: explanation, vehicle/instrument, or milestone amount.",
+                  "nullable": true
+                },
+                "indicator": {
+                  "type": "string",
+                  "description": "Directional or status signal: UP, DOWN, NEUTRAL, UPCOMING, REACHED.",
+                  "nullable": true
+                },
+                "icon": {
+                  "type": "string",
+                  "description": "Emoji for this item. Populate for ALLOCATION segments.",
+                  "nullable": true
+                },
+                "shortLabel": {
+                  "type": "string",
+                  "description": "Abbreviated label for constrained surfaces. Populate for ALLOCATION bar segments.",
+                  "nullable": true
+                }
+              }
+            }
+          },
+
+          "statusBadge": {
+            "type": "object",
+            "description": "Status indicator. For STATUS resultKind.",
+            "nullable": true,
+            "properties": {
+              "label": { "type": "string", "description": "E.g., 'On Track', 'At Risk'." },
+              "statusTone": { "type": "string", "enum": ["POSITIVE", "CAUTIONARY", "NEUTRAL", "NEGATIVE"] }
+            }
+          },
+
+          "primaryCta": {
+            "type": "object",
+            "nullable": true,
+            "required": ["label", "intent"],
+            "properties": {
+              "label": { "type": "string" },
+              "intent": {
+                "type": "string",
+                "enum": ["CONFIRM", "ACKNOWLEDGE", "EDIT", "EXPLORE"],
+                "description": "CONFIRM = affirm reviewed data. ACKNOWLEDGE = absorbed information. EDIT = revise inputs. EXPLORE = explore scenario."
+              }
+            }
+          },
+
+          "secondaryCta": {
+            "type": "object",
+            "nullable": true,
+            "required": ["label", "intent"],
+            "properties": {
+              "label": { "type": "string" },
+              "intent": {
+                "type": "string",
+                "enum": ["CONFIRM", "ACKNOWLEDGE", "EDIT", "EXPLORE"]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

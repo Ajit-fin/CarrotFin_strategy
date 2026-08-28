@@ -56,6 +56,7 @@ User Input
 | Guardrails | [guardrails_v1.xml](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/modules/guardrails_v1.xml) | flash_conversation, pro_overview_planner, pro_detail_planner | Advisory boundaries, accuracy rules, trust architecture, privacy protocol |
 | Persona | [persona_v1.xml](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/modules/persona_v1.xml) | pro_overview_planner, pro_detail_planner | Identity, register, tone calibration, language rules (renamed from voice_v1.xml per [Interaction-Modality.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/design-decisions/Interaction-Modality.md)) |
 | Goals Context | [goals_context_v1.xml](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/modules/goals_context_v1.xml) | pro_overview_planner, pro_detail_planner | Goal lifecycle logic, behavioral rules |
+| **Component Palette (OpenAPI)** | [**component-palette-openapi.json**](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/component-palette-openapi.json) | flash_conversation, pro_detail_planner | **Global UI component schema — OpenAPI-compliant `$defs`/`$ref` discriminated unions. Supersedes `componentPalette.json`.** |
 
 ---
 
@@ -67,12 +68,26 @@ User Input
 
 ---
 
+## PromptEvolve v3 — Prompt Optimization Engine
+
+Modular implementation plan for an AlphaEvolve-inspired evolutionary prompt optimization engine.
+
+| Document | Purpose |
+|:---|:---|
+| [promptevolve_v3_plan.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/promptevolve_v3_plan.md) | **Master plan** — architecture, schemas, decisions, phase overview |
+| [promptevolve_v3_scripts.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/promptevolve_v3_scripts.md) | Phase 1 — script specs, schemas, config, scaffolding |
+| [promptevolve_v3_templates.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/promptevolve_v3_templates.md) | Phase 2 — mutator & evaluator prompt templates |
+| [promptevolve_v3_engine.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/promptevolve_v3_engine.md) | Phases 3-5 — SKILL.md structure, workflow, dry run verification |
+
+---
+
 ## Related Strategy Artifacts
 
 | Artifact | Relationship |
 |:---|:---|
 | [agent-invocation-contracts.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/agent-invocation-contracts.md) | Inter-agent wiring diagram, input/output schemas, invocation flow, error taxonomy |
 | [2026-07-11-guardrails-evaluation.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/2026-07-11-guardrails-evaluation.md) | Guardrails compatibility audit — identifies open action items for module alignment |
+| [promptevolve_design_rationale.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/promptevolve_design_rationale.md) | Design rationale and key decisions for the PromptEvolve engine |
 
 ---
 

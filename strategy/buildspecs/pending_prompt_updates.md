@@ -19,8 +19,8 @@ We need to prevent the LLM from emitting multiple non-text components (cards, fo
    * **Target:** `flash_conversation_v1.xml`, `pro_detail_planner_v1.xml`, `pro_overview_planner_v1.xml` (within `<responseSchema>`)
    * **Action:** Update the `uiDirective.components` description to explicitly state: *"Maximum 2 items total: typically one RESPONSE_TEXT and at most ONE visual component. Never emit multiple visual cards in a single turn."*
    
-   * **Target:** `componentPalette.json` (within `howToUse.principle`)
-   * **Action:** Change the principle to state: *"you MUST append at most ONE additional visual component... Do not stack multiple visual components."*
+   * **Target:** `component-palette-openapi.json` (top-level `description` field — OpenAPI format has no separate `howToUse.principle`)
+   * **Action:** Append to the description: *"you MUST append at most ONE additional visual component... Do not stack multiple visual components."*
 
 3. **Multi-Input Fallback (FORM_GROUP):**
    * **Target:** `flash_conversation_v1.xml`, `pro_detail_planner_v1.xml` (within system prompt rules)

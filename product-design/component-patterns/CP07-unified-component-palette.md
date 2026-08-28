@@ -2,9 +2,9 @@
 ## 14 Components · Input + Display + Composite · Flash/Pro-Compatible · Journey-Agnostic
 
 > **Merged from:** display-component-stitch-prompts.md (v4) + confirmation-widget-stitch-prompts.md (v6)
-> **New components:** `interactiveSorter`, `inlineInsight`, `contextualFootnote` (added to componentPalette.json)
+> **New components:** `interactiveSorter`, `inlineInsight`, `contextualFootnote` (added to component-palette-openapi.json)
 > **Design system:** DS01 — M3 seed `#3CDDC7`, Financial Sanctuary aesthetic
-> **Runtime reference:** [componentPalette.json](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/componentPalette.json)
+> **Runtime reference:** [component-palette-openapi.json](file:///Users/kshekhaw/Documents/CarrotFin_strategy/strategy/buildspecs/component-palette-openapi.json) *(OpenAPI-compliant; supersedes componentPalette.json)*
 
 ---
 

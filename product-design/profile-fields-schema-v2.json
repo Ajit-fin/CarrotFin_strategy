@@ -1,0 +1,925 @@
+{
+  "preferredName": {
+    "fieldId": "preferredName",
+    "type": "string",
+    "userFacingLabel": "Preferred Name",
+    "description": "Display name. Not legal name.",
+    "facet": "PERSONAL",
+    "journeyTags": ["ALL"],
+    "inputType": "TEXT",
+    "minLength": 1,
+    "maxLength": 50
+  },
+  "dateOfBirth": {
+    "fieldId": "dateOfBirth",
+    "type": "string",
+    "format": "date",
+    "userFacingLabel": "Date of Birth",
+    "description": "SELF entity only. Other entities use age field instead.",
+    "facet": "PERSONAL",
+    "journeyTags": ["ALL"],
+    "inputType": "DATE",
+    "maxDate": "today"
+  },
+  "age": {
+    "fieldId": "age",
+    "type": "integer",
+    "userFacingLabel": "Age",
+    "description": "Age in years. SELF entity: SYSTEM_DERIVED from dateOfBirth. Non-SELF entities (spouse, children, parents): user-input.",
+    "facet": "PERSONAL",
+    "journeyTags": ["ALL"],
+    "inputType": "NUMBER",
+    "derivation": {
+      "type": "SYSTEM_DERIVED",
+      "applicableWhenEntity": "SELF",
+      "from": ["dateOfBirth"],
+      "logic": "yearsElapsed(dateOfBirth)"
+    },
+    "min": 0,
+    "max": 120,
+    "step": 1,
+    "unit": "YEARS"
+  },
+  "gender": {
+    "fieldId": "gender",
+    "type": "string",
+    "userFacingLabel": "Gender",
+    "description": "Biological sex. Used in actuarial contexts.",
+    "facet": "PERSONAL",
+    "journeyTags": ["ALL"],
+    "inputType": "CHOICE_SIMPLE",
+    "options": [
+      { "value": "MALE", "label": "Male", "icon": "👨" },
+      { "value": "FEMALE", "label": "Female", "icon": "👩" },
+      { "value": "OTHER", "label": "Other", "icon": "🧑" },
+      { "value": "PREFER_NOT_TO_SAY", "label": "Prefer Not To Say", "icon": "🤐" }
+    ]
+  },
+  "maritalStatus": {
+    "fieldId": "maritalStatus",
+    "type": "string",
+    "userFacingLabel": "Marital Status",
+    "description": "Legal marital status. Gates SPOUSE entity creation. Affects household income model and HUF tax eligibility.",
+    "facet": "PERSONAL",
+    "journeyTags": ["ALL"],
+    "inputType": "CHOICE_SIMPLE",
+    "options": [
+      { "value": "SINGLE", "label": "Single" },
+      { "value": "MARRIED", "label": "Married" },
+      {
+        "value": "DIVORCED",
+        "label": "Divorced",
+        "infotip": "Alimony paid/received: reflect in expense/income fields."
+      },
+      { "value": "WIDOWED", "label": "Widowed" },
+      { "value": "SEPARATED", "label": "Separated" }
+    ]
+  },
+  "cityName": {
+    "fieldId": "cityName",
+    "type": "string",
+    "userFacingLabel": "City of Residence",
+    "description": "Current residence city. Source for cityTier derivation.",
+    "infotip": "Enter current residence city, not hometown or office city.",
+    "facet": "DEMOGRAPHICS",
+    "journeyTags": ["ALL"],
+    "inputType": "TEXT",
+    "maxLength": 100
+  },
+  "cityTier": {
+    "fieldId": "cityTier",
+    "type": "string",
+    "userFacingLabel": "City Tier",
+    "description": "SYSTEM_DERIVED from cityName. Metro/Tier1/Tier2/Tier3 classification for cost-of-living and HRA calculations.",
+    "facet": "DEMOGRAPHICS",
+    "journeyTags": ["ALL"],
+    "derivation": {
+      "type": "SYSTEM_DERIVED",
+      "from": ["cityName"],
+      "logic": "cityName IN metroList ? 'METRO' : cityName IN tier1List ? 'TIER_1' : cityName IN tier2List ? 'TIER_2' : 'TIER_3'"
+    },
+    "inputType": "CHOICE_SIMPLE",
+    "options": [
+      { "value": "METRO", "label": "Metro", "infotip": "Mumbai, Delhi-NCR, Bangalore, Hyderabad, Chennai, Kolkata, Pune." },
+      { "value": "TIER_1", "label": "Tier 1", "infotip": "Ahmedabad, Jaipur, Lucknow, Chandigarh, Kochi, Indore, etc." },
+      { "value": "TIER_2", "label": "Tier 2", "infotip": "Mysore, Bhopal, Dehradun, Ranchi, Guwahati, etc." },
+      { "value": "TIER_3", "label": "Tier 3" }
+    ]
+  },
+  "hasChildren": {
+    "fieldId": "hasChildren",
+    "type": "boolean",
+    "userFacingLabel": "Do You Have Children?",
+    "description": "Boolean. Gates CHILD entity creation.",
+    "infotip": "Under 18, financially dependent on you.",
+    "facet": "DEMOGRAPHICS",
+    "journeyTags": ["ALL"],
+    "inputType": "BOOLEAN"
+  },
+  "hasDependentParents": {
+    "fieldId": "hasDependentParents",
+    "type": "boolean",
+    "userFacingLabel": "Financially Dependent Parents?",
+    "description": "Boolean. Gates PARENT entity creation.",
+    "infotip": "Parents or in-laws you contribute to for living or medical expenses.",
+    "facet": "DEMOGRAPHICS",
+    "journeyTags": ["ALL"],
+    "inputType": "BOOLEAN"
+  },
+  "hasOtherDependents": {
+    "fieldId": "hasOtherDependents",
+    "type": "boolean",
+    "userFacingLabel": "Other Financial Dependents?",
+    "description": "Boolean. Dependents beyond spouse, minor children, parents.",
+    "infotip": "Adult children 18+, siblings, grandparents, etc.",
+    "facet": "DEMOGRAPHICS",
+    "journeyTags": ["ALL"],
+    "inputType": "BOOLEAN"
+  },
+  "employmentCategory": {
+    "fieldId": "employmentCategory",
+    "type": "string",
+    "userFacingLabel": "Work Category",
+    "description": "Primary work category. Gates salariedType, selfEmployedType, notEarningType.",
+    "facet": "INCOME",
+    "journeyTags": ["ALL"],
+    "inputType": "CHOICE_SIMPLE",
+    "options": [
+      {
+        "value": "SALARIED",
+        "label": "Salaried / Employed",
+        "icon": "💼"
+      },
+      {
+        "value": "SELF_EMPLOYED",
+        "label": "Self-Employed / Business",
+        "icon": "🏢"
+      },
+      {
+        "value": "NOT_EARNING",
+        "label": "Not Currently Earning",
+        "icon": "🏠"
+      }
+    ]
+  },
+  "salariedType": {
+    "fieldId": "salariedType",
+    "type": "string",
+    "userFacingLabel": "Employer Type",
+    "description": "Employer type within salaried category. Gated: employmentCategory == SALARIED.",
+    "facet": "INCOME",
+    "journeyTags": ["ALL"],
+    "inputType": "CHOICE_SIMPLE",
+    "isApplicableWhen": {
+      "condition": "employmentCategory == 'SALARIED'",
+      "defaultWhenSkipped": null,
+      "conditionDepth": 1
+    },
+    "options": [
+      {
+        "value": "GOVT",
+        "label": "Government",
+        "icon": "🏛️",
+        "infotip": "High job security, NPS/defined pension, GPF."
+      },
+      {
+        "value": "PSU",
+        "label": "PSU / Public Sector",
+        "icon": "🏭",
+        "infotip": "Near-government stability, EPF + gratuity + group insurance."
+      },
+      {
+        "value": "LARGE_PRIVATE",
+        "label": "Large Private Company",
+        "icon": "🏢",
+        "infotip": "5000+ employees. EPF, gratuity, group health insurance."
+      },
+      {
+        "value": "MID_SMALL_PRIVATE",
+        "label": "Mid / Small Private Company",
+        "icon": "🏢",
+        "infotip": "EPF likely; group insurance possible but not guaranteed."
+      },
+      {
+        "value": "STARTUP",
+        "label": "Startup",
+        "icon": "🚀",
+        "infotip": "ESOP-heavy comp, minimal benefits."
+      }
+    ]
+  },
+  "selfEmployedType": {
+    "fieldId": "selfEmployedType",
+    "type": "string",
+    "userFacingLabel": "Self-Employment Type",
+    "description": "Self-employment nature. Gated: employmentCategory == SELF_EMPLOYED.",
+    "facet": "INCOME",
+    "journeyTags": ["ALL"],
+    "inputType": "CHOICE_SIMPLE",
+    "isApplicableWhen": {
+      "condition": "employmentCategory == 'SELF_EMPLOYED'",
+      "defaultWhenSkipped": null,
+      "conditionDepth": 1
+    },
+    "options": [
+      {
+        "value": "BUSINESS_ESTABLISHED",
+        "label": "Established Business / Practice",
+        "icon": "💼",
+        "infotip": "3+ years steady operation."
+      },
+      {
+        "value": "BUSINESS_NEW",
+        "label": "New Business (< 3 years)",
+        "icon": "🆕",
+        "infotip": "Under 3 years or pre-revenue."
+      },
+      {
+        "value": "FREELANCER",
+        "label": "Freelancer / Consultant",
+        "icon": "💻",
+        "infotip": "Serving multiple clients. Project-based fees."
+      },
+      {
+        "value": "GIG_PLATFORM",
+        "label": "Gig / Platform Worker",
+        "icon": "📱",
+        "infotip": "Uber, Swiggy, Urban Company, etc."
+      },
+      {
+        "value": "CONTRACT",
+        "label": "Contract / Commission / Seasonal",
+        "icon": "📋",
+        "infotip": "Income from fixed-term contracts, commissions, or seasonal activity."
+      }
+    ]
+  },
+  "notEarningType": {
+    "fieldId": "notEarningType",
+    "type": "string",
+    "userFacingLabel": "Current Situation",
+    "description": "Non-earning status. Gated: employmentCategory == NOT_EARNING.",
+    "facet": "INCOME",
+    "journeyTags": ["ALL"],
+    "inputType": "CHOICE_SIMPLE",
+    "isApplicableWhen": {
+      "condition": "employmentCategory == 'NOT_EARNING'",
+      "defaultWhenSkipped": null,
+      "conditionDepth": 1
+    },
+    "options": [
+      {
+        "value": "RETIRED",
+        "label": "Retired",
+        "icon": "🏖️",
+        "infotip": "Enter pension amount in Monthly Income."
+      },
+      {
+        "value": "HOMEMAKER",
+        "label": "Homemaker",
+        "icon": "🏠",
+        "infotip": "Enter any rental or investment income in Monthly Income."
+      },
+      {
+        "value": "STUDENT",
+        "label": "Student",
+        "icon": "🎓",
+        "infotip": "Enter any stipend or part-time income in Monthly Income."
+      },
+      {
+        "value": "UNEMPLOYED",
+        "label": "Unemployed / Between Jobs",
+        "icon": "🔍"
+      }
+    ]
+  },
+  "employerStabilityTier": {
+    "fieldId": "employerStabilityTier",
+    "type": "string",
+    "userFacingLabel": "Income Stability",
+    "description": "Income source stability. SUGGEST_AND_CONFIRM from employment fields. Gated: SALARIED or SELF_EMPLOYED. Affects EF multiplier.",
+    "infotip": "We've suggested based on your work type — adjust if it doesn't feel right.",
+    "facet": "INCOME",
+    "journeyTags": ["ALL"],
+    "inputType": "CHOICE_TIERED",
+    "isApplicableWhen": {
+      "condition": "employmentCategory IN ['SALARIED', 'SELF_EMPLOYED']",
+      "defaultWhenSkipped": "NOT_APPLICABLE",
+      "conditionDepth": 1
+    },
+    "derivation": {
+      "type": "SUGGEST_AND_CONFIRM",
+      "from": ["employmentCategory", "salariedType", "selfEmployedType"],
+      "logic": "SALARIED: GOVT→VERY_STABLE, PSU→VERY_STABLE, LARGE_PRIVATE→STABLE, MID_SMALL_PRIVATE→MODERATE, STARTUP→VOLATILE. SELF_EMPLOYED: BUSINESS_ESTABLISHED→MODERATE, BUSINESS_NEW→VOLATILE, FREELANCER→MODERATE, GIG_PLATFORM→VOLATILE, CONTRACT→VOLATILE."
+    },
+    "options": [
+      {
+        "value": "VERY_STABLE",
+        "label": "Very Stable",
+        "infotip": "E.g., government, large PSUs, top-tier MNCs."
+      },
+      {
+        "value": "STABLE",
+        "label": "Stable",
+        "infotip": "E.g., profitable large private companies."
+      },
+      {
+        "value": "MODERATE",
+        "label": "Moderate",
+        "infotip": "E.g., mid-stage startups, cyclical industry."
+      },
+      {
+        "value": "VOLATILE",
+        "label": "Volatile",
+        "infotip": "E.g., early startups, gig work, contract roles."
+      },
+      {
+        "value": "NOT_APPLICABLE",
+        "label": "Not Applicable"
+      }
+    ]
+  },
+  "monthlyNetIncome": {
+    "fieldId": "monthlyNetIncome",
+    "type": "integer",
+    "userFacingLabel": "Monthly In-Hand Income",
+    "description": "Monthly post-tax take-home. Includes salary, pension, drawings, rental income. Excludes spouse income, reimbursements, one-off bonuses.",
+    "infotip": "Amount credited to your bank after tax and deductions. For variable income, use 6–12 month average.",
+    "facet": "INCOME",
+    "journeyTags": ["ALL"],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 50000000,
+    "step": 1000,
+    "unit": "INR",
+    "period": "MONTHLY",
+    "smartDefault": 50000
+  },
+  "incomePattern": {
+    "fieldId": "incomePattern",
+    "type": "string",
+    "userFacingLabel": "Income Pattern",
+    "description": "Income amount predictability month-to-month. Not income source.",
+    "facet": "INCOME",
+    "journeyTags": ["ALL"],
+    "inputType": "CHOICE_SIMPLE",
+    "options": [
+      {
+        "value": "FIXED_MONTHLY",
+        "label": "Fixed Monthly",
+        "infotip": "Under 10% variation month-to-month."
+      },
+      {
+        "value": "VARIABLE_MONTHLY",
+        "label": "Variable Monthly",
+        "infotip": "20%+ swings month-to-month."
+      },
+      {
+        "value": "SEASONAL",
+        "label": "Seasonal",
+        "infotip": "Lean or zero months in between."
+      },
+      {
+        "value": "PROJECT_BASED",
+        "label": "Project Based",
+        "infotip": "Multi-month gaps between payments."
+      },
+      {
+        "value": "MIXED",
+        "label": "Mixed",
+        "infotip": "Stable base plus significant variable component."
+      }
+    ]
+  },
+  "annualGrossIncome": {
+    "fieldId": "annualGrossIncome",
+    "type": "integer",
+    "userFacingLabel": "Annual Gross Income",
+    "description": "Annual pre-deduction income (Form 16 / ITR). Includes salary, bonuses, employer PF, rental, capital gains.",
+    "infotip": "The figure on your Form 16 or ITR — before any deductions.",
+    "facet": "INCOME",
+    "journeyTags": ["TAX", "INVESTMENT"],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 600000000,
+    "step": 10000,
+    "unit": "INR",
+    "period": "ANNUAL",
+    "smartDefault": 700000
+  },
+  "dependencyStatus": {
+    "fieldId": "dependencyStatus",
+    "type": "string",
+    "userFacingLabel": "Financial Dependency Status",
+    "description": "User's financial self-sufficiency. Dependency ON others, not others on user.",
+    "infotip": "About whether you depend on others — not about who depends on you.",
+    "facet": "INCOME",
+    "journeyTags": ["ALL"],
+    "inputType": "CHOICE_SIMPLE",
+    "options": [
+      {
+        "value": "FULLY_DEPENDENT",
+        "label": "Fully Dependent",
+        "infotip": "All expenses covered by someone else."
+      },
+      {
+        "value": "PARTIALLY_DEPENDENT",
+        "label": "Partially Dependent",
+        "infotip": "Others cover 30%+ of living expenses."
+      },
+      {
+        "value": "FINANCIALLY_INDEPENDENT",
+        "label": "Financially Independent",
+        "infotip": "May also support others."
+      }
+    ]
+  },
+  "primaryEarner": {
+    "fieldId": "primaryEarner",
+    "type": "boolean",
+    "userFacingLabel": "Primary Earner",
+    "description": "Household's main breadwinner. Affects life insurance need and EF sizing.",
+    "infotip": "In dual-income homes, the earner whose loss causes greater disruption.",
+    "facet": "INCOME",
+    "journeyTags": ["ALL"],
+    "inputType": "BOOLEAN"
+  },
+  "incomeTaxRegime": {
+    "fieldId": "incomeTaxRegime",
+    "type": "string",
+    "userFacingLabel": "Income Tax Regime",
+    "description": "Current FY Indian income tax regime. Gates section80cUtilized.",
+    "facet": "TAX",
+    "journeyTags": ["ALL"],
+    "inputType": "CHOICE_TIERED",
+    "options": [
+      {
+        "value": "OLD_REGIME",
+        "label": "Old Regime",
+        "infotip": "Allows 80C, 80D, HRA, LTA, home loan interest, NPS deductions."
+      },
+      {
+        "value": "NEW_REGIME",
+        "label": "New Regime",
+        "infotip": "Lower rates but almost no deductions."
+      },
+      {
+        "value": "UNKNOWN",
+        "label": "Not Sure",
+        "infotip": "Not yet decided."
+      }
+    ]
+  },
+  "section80cUtilized": {
+    "fieldId": "section80cUtilized",
+    "type": "integer",
+    "userFacingLabel": "Section 80C Utilized (Current FY)",
+    "description": "80C utilization current FY. Gated: OLD_REGIME only. Max ₹1.5L. Includes EPF(employee), PPF, ELSS, LIC, NSC, tuition, home loan principal.",
+    "infotip": "Includes EPF (your share), PPF, ELSS, LIC premiums, NSC, tuition fees, home loan principal.",
+    "facet": "TAX",
+    "journeyTags": ["TAX", "INVESTMENT"],
+    "inputType": "CURRENCY",
+    "isApplicableWhen": {
+      "condition": "incomeTaxRegime == 'OLD_REGIME'",
+      "defaultWhenSkipped": 0,
+      "conditionDepth": 1
+    },
+    "min": 0,
+    "max": 150000,
+    "step": 1000,
+    "unit": "INR",
+    "smartDefault": 75000
+  },
+  "residenceStatus": {
+    "fieldId": "residenceStatus",
+    "type": "string",
+    "userFacingLabel": "Residence Status",
+    "description": "Current living arrangement. Gates monthlyRent.",
+    "infotip": "Where you currently live — not investment property.",
+    "facet": "EXPENSE",
+    "journeyTags": ["ALL"],
+    "inputType": "CHOICE_SIMPLE",
+    "options": [
+      { "value": "RENTED", "label": "Rented", "icon": "🏠" },
+      {
+        "value": "OWNED_WITH_LOAN",
+        "label": "Owned With Loan",
+        "icon": "🏦",
+        "infotip": "EMI goes in Total EMIs."
+      },
+      {
+        "value": "OWNED_OUTRIGHT",
+        "label": "Owned Outright",
+        "icon": "🏡",
+        "infotip": "Maintenance and property tax go in Essential Expenses."
+      },
+      {
+        "value": "COMPANY_PROVIDED",
+        "label": "Company Provided",
+        "icon": "🏢",
+        "infotip": "Enter only what you pay out of pocket in Monthly Rent."
+      },
+      {
+        "value": "LIVING_WITH_FAMILY",
+        "label": "Living With Family",
+        "icon": "👨‍👩‍👦",
+        "infotip": "Household contributions go in Essential Expenses."
+      },
+      {
+        "value": "OTHER",
+        "label": "Other",
+        "icon": "🔍",
+        "infotip": "Co-living, hostel, PG. Enter housing cost in Monthly Rent."
+      }
+    ]
+  },
+  "monthlyRent": {
+    "fieldId": "monthlyRent",
+    "type": "integer",
+    "userFacingLabel": "Monthly Rent",
+    "description": "Monthly rent. Gated: residenceStatus IN [RENTED, COMPANY_PROVIDED, OTHER]. Excludes utilities, EMI, RWA charges.",
+    "infotip": "Include bundled society maintenance if part of rent agreement.",
+    "facet": "EXPENSE",
+    "journeyTags": ["ALL"],
+    "inputType": "CURRENCY",
+    "isApplicableWhen": {
+      "condition": "residenceStatus IN ['RENTED', 'COMPANY_PROVIDED', 'OTHER']",
+      "defaultWhenSkipped": 0,
+      "conditionDepth": 1
+    },
+    "min": 0,
+    "max": 500000,
+    "step": 500,
+    "unit": "INR",
+    "period": "MONTHLY",
+    "smartDefault": 15000
+  },
+  "monthlyNonDiscretionaryExpenses": {
+    "fieldId": "monthlyNonDiscretionaryExpenses",
+    "type": "integer",
+    "userFacingLabel": "Monthly Core Living Expenses",
+    "description": "Essential expense floor — minimum spend in a crisis. Excludes rent, EMIs, SIPs, insurance premiums, discretionary.",
+    "infotip": "Groceries, utilities, commuting, school fees, medicines. Excludes rent, EMIs, SIPs, insurance premiums, and discretionary spending.",
+    "facet": "EXPENSE",
+    "journeyTags": ["ALL"],
+    "inputType": "CURRENCY",
+    "min": 5000,
+    "max": 10000000,
+    "step": 1000,
+    "unit": "INR",
+    "period": "MONTHLY",
+    "smartDefault": 25000
+  },
+  "monthlyInsurancePremiums": {
+    "fieldId": "monthlyInsurancePremiums",
+    "type": "integer",
+    "userFacingLabel": "Monthly Insurance Premiums",
+    "description": "All personal/family insurance premiums monthly. Excludes vehicle/property and employer-paid.",
+    "infotip": "Health, term life, accident, critical illness. Divide annual/quarterly by 12 or 3.",
+    "facet": "EXPENSE",
+    "journeyTags": ["ALL"],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 500000,
+    "step": 500,
+    "unit": "INR",
+    "period": "MONTHLY",
+    "smartDefault": 2000
+  },
+  "totalMonthlyEmi": {
+    "fieldId": "totalMonthlyEmi",
+    "type": "integer",
+    "userFacingLabel": "Total Monthly EMI",
+    "description": "All active loan EMIs combined. Excludes rent, SIPs, insurance premiums.",
+    "infotip": "Home, car, personal, education, gold loans + credit card EMI conversions. Not bills paid in full.",
+    "facet": "DEBT",
+    "journeyTags": ["ALL"],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 10000000,
+    "step": 1000,
+    "unit": "INR",
+    "period": "MONTHLY",
+    "smartDefault": 0
+  },
+  "totalOutstandingDebt": {
+    "fieldId": "totalOutstandingDebt",
+    "type": "integer",
+    "userFacingLabel": "Total Outstanding Debt",
+    "description": "Total principal owed across all loans and revolving credit.",
+    "infotip": "All loans plus revolving credit card balances. Enter 0 if debt-free.",
+    "facet": "DEBT",
+    "journeyTags": ["ALL"],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 5000000000,
+    "step": 10000,
+    "unit": "INR",
+    "smartDefault": 0
+  },
+  "tobaccoStatus": {
+    "fieldId": "tobaccoStatus",
+    "type": "string",
+    "userFacingLabel": "Tobacco or Smoking Usage",
+    "description": "Tobacco/nicotine usage status.",
+    "facet": "HEALTH",
+    "journeyTags": ["INSURANCE", "EMERGENCY_FUND"],
+    "inputType": "CHOICE_SIMPLE",
+    "options": [
+      { "value": "NEVER", "label": "Never" },
+      {
+        "value": "CURRENT_USER",
+        "label": "Current User",
+        "infotip": "Any usage in last 12 months counts."
+      },
+      {
+        "value": "FORMER_USER",
+        "label": "Former User",
+        "infotip": "Most insurers need 12–36 months tobacco-free for non-smoker rates."
+      }
+    ],
+    "skipConfig": {
+      "label": "Prefer not to say",
+      "value": "PREFER_NOT_TO_SAY"
+    }
+  },
+  "preExistingConditions": {
+    "fieldId": "preExistingConditions",
+    "type": "array",
+    "items": { "type": "string" },
+    "userFacingLabel": "Pre-Existing Medical Conditions",
+    "description": "Self-reported medical conditions. Multi-select — combinations allowed. Non-exclusive.",
+    "infotip": "Select all that apply. Self-reported — not a diagnosis.",
+    "facet": "HEALTH",
+    "journeyTags": ["INSURANCE", "EMERGENCY_FUND"],
+    "inputType": "CHOICE_MULTI",
+    "options": [
+      { "value": "NONE_KNOWN", "label": "None Known" },
+      {
+        "value": "MINOR_MANAGED",
+        "label": "Minor / Managed Condition",
+        "infotip": "E.g., mild BP, stable thyroid, mild allergies."
+      },
+      {
+        "value": "CHRONIC_CONDITION",
+        "label": "Chronic Condition",
+        "infotip": "E.g., diabetes, BP, asthma, PCOD."
+      },
+      {
+        "value": "CRITICAL_HISTORY",
+        "label": "Critical Illness History",
+        "infotip": "E.g., cancer, heart attack, stroke, organ transplant."
+      },
+      {
+        "value": "PREFER_NOT_TO_SAY",
+        "label": "Prefer Not To Say",
+        "infotip": "Conservative defaults applied."
+      }
+    ],
+    "skipConfig": {
+      "label": "Skip for now",
+      "value": "SKIP"
+    }
+  },
+  "healthInsuranceCoverAmount": {
+    "fieldId": "healthInsuranceCoverAmount",
+    "type": "integer",
+    "userFacingLabel": "Health Insurance Cover Amount",
+    "description": "Total health sum insured across all active policies. Excludes life and accident cover.",
+    "infotip": "Add all policies. On a floater? Enter full floater amount. Enter 0 if uninsured.",
+    "facet": "INSURANCE",
+    "journeyTags": ["EMERGENCY_FUND", "INSURANCE"],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 100000000,
+    "step": 50000,
+    "unit": "INR",
+    "smartDefault": 500000
+  },
+  "healthInsuranceSource": {
+    "fieldId": "healthInsuranceSource",
+    "type": "string",
+    "userFacingLabel": "Health Insurance Source",
+    "description": "Primary health cover source. Portability risk factor.",
+    "infotip": "If multiple sources, select the highest sum insured.",
+    "facet": "INSURANCE",
+    "journeyTags": ["EMERGENCY_FUND", "INSURANCE"],
+    "inputType": "CHOICE_SIMPLE",
+    "options": [
+      {
+        "value": "EMPLOYER_GROUP",
+        "label": "Employer Group",
+        "infotip": "Tied to your job — lost on resignation, layoff, or retirement."
+      },
+      {
+        "value": "RETAIL_INDIVIDUAL",
+        "label": "Retail Individual",
+        "infotip": "Portable — continues regardless of employment."
+      },
+      {
+        "value": "RETAIL_FAMILY_FLOATER",
+        "label": "Retail Family Floater",
+        "infotip": "Shared sum insured across family. Portable."
+      },
+      {
+        "value": "GOVERNMENT_SCHEME",
+        "label": "Government Scheme",
+        "infotip": "Ayushman Bharat, CGHS, ESI, ECHS."
+      },
+      { "value": "NONE", "label": "None" }
+    ]
+  },
+  "termLifeCoverAmount": {
+    "fieldId": "termLifeCoverAmount",
+    "type": "integer",
+    "userFacingLabel": "Term Life Cover Amount",
+    "description": "Total term life death benefit. Pure protection. Excludes endowment, ULIP, accident cover.",
+    "infotip": "All term life policies combined. Enter 0 if none.",
+    "facet": "INSURANCE",
+    "journeyTags": ["EMERGENCY_FUND", "INSURANCE"],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 1000000000,
+    "step": 100000,
+    "unit": "INR",
+    "smartDefault": 10000000
+  },
+  "riskTolerance": {
+    "fieldId": "riskTolerance",
+    "type": "string",
+    "userFacingLabel": "Investment Risk Tolerance",
+    "description": "Behavioral investment risk tolerance.",
+    "facet": "BEHAVIORAL",
+    "journeyTags": ["ALL"],
+    "inputType": "CHOICE_TIERED",
+    "options": [
+      {
+        "value": "CONSERVATIVE",
+        "label": "Conservative",
+        "infotip": "Would likely redeem if portfolio drops 10%."
+      },
+      {
+        "value": "MODERATE",
+        "label": "Moderate",
+        "infotip": "Can tolerate a 15–20% portfolio drop."
+      },
+      {
+        "value": "AGGRESSIVE",
+        "label": "Aggressive",
+        "infotip": "Comfortable with 30%+ drops. Long-term mindset."
+      },
+      {
+        "value": "UNKNOWN",
+        "label": "Not Sure",
+        "infotip": "Moderate default applied; refined over time."
+      }
+    ]
+  },
+  "financialLiteracyLevel": {
+    "fieldId": "financialLiteracyLevel",
+    "type": "string",
+    "userFacingLabel": "Financial Comfort Level",
+    "description": "Financial concept familiarity. Controls communication depth, not advice quality.",
+    "infotip": "Doesn't affect advice quality — only how we communicate.",
+    "facet": "BEHAVIORAL",
+    "journeyTags": ["ALL"],
+    "inputType": "CHOICE_TIERED",
+    "options": [
+      {
+        "value": "LEVEL_1",
+        "label": "Level 1",
+        "infotip": "Unfamiliar with SIPs, NAV, CAGR."
+      },
+      {
+        "value": "LEVEL_2",
+        "label": "Level 2",
+        "infotip": "Knows FDs, PPF, MF/SIP basics."
+      },
+      {
+        "value": "LEVEL_3",
+        "label": "Level 3",
+        "infotip": "Comfortable with fund categories, tax instruments."
+      },
+      {
+        "value": "LEVEL_4",
+        "label": "Level 4",
+        "infotip": "Portfolio theory, tax optimisation, financial modelling."
+      },
+      {
+        "value": "UNKNOWN",
+        "label": "Not Sure",
+        "infotip": "We start at Level 2 and adjust."
+      }
+    ]
+  },
+  "targetRetirementAge": {
+    "fieldId": "targetRetirementAge",
+    "type": "integer",
+    "userFacingLabel": "Target Retirement Age",
+    "description": "Planned age to stop active income. Sets accumulation horizon.",
+    "infotip": "For gradual wind-down, enter the age when income drops significantly.",
+    "facet": "BEHAVIORAL",
+    "journeyTags": ["ALL"],
+    "inputType": "NUMBER",
+    "min": 27,
+    "max": 80,
+    "step": 1,
+    "unit": "YEARS",
+    "smartDefault": 60
+  },
+  "decisionMakingStyle": {
+    "fieldId": "decisionMakingStyle",
+    "type": "string",
+    "userFacingLabel": "Decision Making Style",
+    "description": "How user makes major financial decisions. Affects recommendation framing.",
+    "facet": "BEHAVIORAL",
+    "journeyTags": ["ALL"],
+    "inputType": "CHOICE_SIMPLE",
+    "options": [
+      { "value": "SOLO", "label": "Solo" },
+      { "value": "JOINT_WITH_SPOUSE", "label": "Joint With Spouse" },
+      {
+        "value": "DELEGATOR",
+        "label": "Delegator",
+        "infotip": "Consults CA, planner, or parent before acting."
+      },
+      { "value": "FAMILY_CONSENSUS", "label": "Family Consensus" }
+    ]
+  },
+  "monthlySipCommitment": {
+    "fieldId": "monthlySipCommitment",
+    "type": "integer",
+    "userFacingLabel": "Monthly SIP/Investment Commitment",
+    "description": "Total recurring investment commitment monthly. MF SIPs, RDs, PPF/NPS/SSY. Excludes lump-sum and EMIs.",
+    "infotip": "LIC endowment/ULIP: include here if primarily investment, in insurance premiums if primarily cover.",
+    "facet": "ASSET",
+    "journeyTags": ["ALL"],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 50000000,
+    "step": 500,
+    "unit": "INR",
+    "period": "MONTHLY",
+    "smartDefault": 10000
+  },
+  "totalLiquidSavings": {
+    "fieldId": "totalLiquidSavings",
+    "type": "integer",
+    "userFacingLabel": "Total Liquid Savings",
+    "description": "Cash accessible within 1–3 days. Savings accounts, liquid MFs, breakable FDs. Excludes equity, long-term FDs, EPF, PPF, NPS, gold.",
+    "infotip": "E.g., savings/current account balance, liquid or overnight MFs, FDs breakable without penalty. Not equity, EPF, PPF, NPS, or gold.",
+    "facet": "ASSET",
+    "journeyTags": ["EMERGENCY_FUND", "GOALS"],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 1000000000,
+    "step": 10000,
+    "unit": "INR",
+    "smartDefault": 50000
+  },
+  "totalEquityInvestments": {
+    "fieldId": "totalEquityInvestments",
+    "type": "integer",
+    "userFacingLabel": "Total Equity/Market Investments",
+    "description": "Current market value of equity and market-linked investments. Stocks, equity MFs, ELSS, ETFs, ULIPs. Excludes liquid, debt, FDs, EPF, PPF, real estate, gold.",
+    "infotip": "Current value, not invested amount.",
+    "facet": "ASSET",
+    "journeyTags": ["ALL"],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 5000000000,
+    "step": 10000,
+    "unit": "INR",
+    "smartDefault": 0
+  },
+  "totalFixedIncome": {
+    "fieldId": "totalFixedIncome",
+    "type": "integer",
+    "userFacingLabel": "Total Fixed Income Investments",
+    "description": "Redeemable fixed-income (accessible < 30 days). FDs, RDs, NSC, debt MFs, bonds, SGBs. Excludes EPF, NPS I, PPF, SSY, equity, liquid.",
+    "infotip": "E.g., FDs, RDs, NSC, debt mutual funds, bonds, SGBs. Not EPF, PPF, NPS, or equity.",
+    "facet": "ASSET",
+    "journeyTags": ["ALL"],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 5000000000,
+    "step": 10000,
+    "unit": "INR",
+    "smartDefault": 0
+  },
+  "totalRetirementCorpus": {
+    "fieldId": "totalRetirementCorpus",
+    "type": "integer",
+    "userFacingLabel": "Total Retirement Corpus",
+    "description": "Retirement-locked instruments. EPF, VPF, NPS I, PPF, SSY, superannuation, gratuity. Not available for emergencies.",
+    "infotip": "E.g., EPF, VPF, PPF, NPS Tier I, Sukanya Samriddhi, gratuity. NPS Tier II goes in Fixed Income.",
+    "facet": "ASSET",
+    "journeyTags": ["ALL"],
+    "inputType": "CURRENCY",
+    "min": 0,
+    "max": 5000000000,
+    "step": 10000,
+    "unit": "INR",
+    "smartDefault": 0
+  }
+}

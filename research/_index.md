@@ -11,6 +11,7 @@
 | File | Domain | Topic | Last Updated | Stale After | Status |
 |---|---|---|---|---|---|
 | [emergency-fund-philosophy.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/research/market/emergency-fund-philosophy.md) | Market | Emergency Fund — adaptive sizing philosophy, India-specific structural realities, 3-layer liquidity architecture, behavioral design principles, 9 user archetypes | 2026-04-16 | 2026-07-16 | ✅ Active |
+| [financial-fitness-foundational-research.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/research/market/financial-fitness-foundational-research.md) | Market | Financial Fitness & Multi-Dimensional Scoring — Institutional quantitative framework, behavioral economics, life-cycle portfolio theory, health economics, 8 archetypes, 8 myth deconstructions | 2026-08-22 | 2026-11-22 | ✅ Active |
 | [voice-tts-architecture-options.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/research/technology/voice-tts-architecture-options.md) | Technology | Voice/TTS architecture scenarios — edge SLM vs. Gemini unified vs. hybrid, evaluated against CarrotFin latency/Indian English/privacy constraints. Recommends cloud V1 → hybrid V2. | 2026-04-18 | 2026-07-18 | ✅ Active |
 
 ---

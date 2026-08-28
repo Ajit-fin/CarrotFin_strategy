@@ -1,0 +1,1513 @@
+{
+    "description": "Available UI components for uiDirective.components[]. Each item picks exactly one ACTIVE branch below (discriminated by componentId) and its data payload. Non-escalation turns start uiDirective with RESPONSE_TEXT; append visual components for structure/data. On escalation, uiDirective is null and thinkingText is emitted instead. Emit a visual component when input is faster than typing, when visualizing computed structure, or when a phase-gate is required; do not emit one when text suffices, mid-conversation with no structure needed, or when a visual would add no value. Input-type selection (requiredInputs.type to componentId): CURRENCY/NUMBER default to VALUE_INPUT with inputType SLIDER if bounded else TEXT; PERCENTAGE is always VALUE_INPUT with inputType SLIDER (0-100); DURATION defaults to VALUE_INPUT with inputType TEXT, upgrading to TIERED_SELECTOR if the valid set is small (omit per-item description for flat chip style); BOOLEAN is TIERED_SELECTOR with fixed Yes/No options (no per-item description needed); CHOICE_SIMPLE is TIERED_SELECTOR with self-explanatory labels, omit per-item description (2-6 options, flat chip mode); CHOICE_TIERED is TIERED_SELECTOR with per-item title+description (2-5 options, full card mode) or when topic is sensitive; MULTIPLE_FIELDS is FORM_GROUP grouping 2+ related inputs under one submitAction; PHASE_GATE is REVIEW_CARD with rows (populate rows + confirmAction + editAction; optionally add headline as summary KPI); SHOW_RESULT computed target/score/recommendation is REVIEW_CARD without rows (populate headline + attribution + acknowledgeAction; optionally add editAction for adjust); SHOW_STATUS goal/plan/profile state is REVIEW_CARD (headline + rows or attribution + statusBadge + acknowledgeAction; optionally add editAction); SHOW_CONFIRMATION post-action receipt is REVIEW_CARD (headline + rows + acknowledgeAction); SHOW_RESULT proportional split is ALLOCATION_BAR; SHOW_RESULT savings/contribution plan is MILESTONE_PLAN. [MVP-INACTIVE mappings not injected at runtime: CLASSIFICATION -> INTERACTIVE_SORTER.]",
+    "x-mvp-filter-note": "BE filters x-inactive-defs components at injection time. anyOf + $defs contain only ACTIVE components included in the runtime response schema. x-inactive-anyOf + x-inactive-defs hold MVP-deferred components. To promote: move $ref from x-inactive-anyOf to anyOf, move definition from x-inactive-defs to $defs.",
+    "anyOf": [
+        {
+            "$ref": "#/$defs/ResponseText"
+        },
+        {
+            "$ref": "#/$defs/ValueInput"
+        },
+        {
+            "$ref": "#/$defs/TieredSelector"
+        },
+        {
+            "$ref": "#/$defs/FormGroup"
+        },
+        {
+            "$ref": "#/$defs/ReviewCard"
+        },
+        {
+            "$ref": "#/$defs/AllocationBar"
+        },
+        {
+            "$ref": "#/$defs/MilestonePlan"
+        }
+    ],
+    "x-inactive-anyOf": [
+        {
+            "$ref": "#/x-inactive-defs/InteractiveSorter"
+        },
+        {
+            "$ref": "#/x-inactive-defs/InlineInsight"
+        },
+        {
+            "$ref": "#/x-inactive-defs/ActionChecklist"
+        },
+        {
+            "$ref": "#/x-inactive-defs/ContextualFootnote"
+        },
+        {
+            "$ref": "#/x-inactive-defs/ConditionalPrompt"
+        },
+        {
+            "$ref": "#/x-inactive-defs/GoalPortfolioView"
+        },
+        {
+            "$ref": "#/x-inactive-defs/GoalDetailCard"
+        },
+        {
+            "$ref": "#/x-inactive-defs/ScenarioComparison"
+        }
+    ],
+    "$defs": {
+        "EntityMeta": {
+            "type": "OBJECT",
+            "description": "Entity context for this component. Required for input components; null for display-only components.",
+            "properties": {
+                "entityGroupId": {
+                    "type": "STRING",
+                    "description": "Entity group this component collects for (e.g., 'person_1', 'person_2', 'household_1')."
+                },
+                "relationshipToUser": {
+                    "type": "STRING",
+                    "enum": [
+                        "SELF",
+                        "SPOUSE",
+                        "PARENT",
+                        "CHILD",
+                        "HOUSEHOLD",
+                        "SIBLING",
+                        "OTHER"
+                    ],
+                    "description": "The entity's relationship to the primary user."
+                }
+            }
+        },
+        "UiAction": {
+            "type": "OBJECT",
+            "required": [
+                "uiActionType"
+            ],
+            "properties": {
+                "uiActionType": {
+                    "type": "STRING",
+                    "enum": "${AVAILABLE_UI_ACTION_TYPES}",
+                    "description": "Frontend-only affordance triggered instead of a backend call, e.g. focusing the chat input."
+                },
+                "hintText": {
+                    "type": "STRING",
+                    "description": "Supplementary hint for the UI."
+                }
+            }
+        },
+        "ComponentAction": {
+            "type": "OBJECT",
+            "description": "The action object a CTA-bearing component fills. GUIDED_COMPLETION requires guidanceMarker and drives backend routing and conversation state; STANDARD_COMPLETION's guidanceMarker is optional and triggers no guided routing.",
+            "required": [
+                "label",
+                "actionType",
+                "uiAction"
+            ],
+            "properties": {
+                "guidanceMarker": {
+                    "type": "STRING",
+                    "enum": "${AVAILABLE_GUIDANCE_MARKERS}",
+                    "description": "Backend routing marker. Required when actionType is GUIDED_COMPLETION; omit or null for STANDARD_COMPLETION."
+                },
+                "label": {
+                    "type": "STRING",
+                    "description": "Button label shown to the user."
+                },
+                "actionType": {
+                    "type": "STRING",
+                    "enum": "${AVAILABLE_ACTION_TYPES}"
+                },
+                "uiAction": {
+                    "$ref": "#/$defs/UiAction"
+                }
+            }
+        },
+        "ResponseText": {
+            "type": "OBJECT",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "RESPONSE_TEXT"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "description": "Conversational message to the user.",
+                    "required": [
+                        "text"
+                    ],
+                    "properties": {
+                        "text": {
+                            "type": "STRING",
+                            "description": "User-facing message in valid markdown format only, as per MODE."
+                        }
+                    }
+                }
+            }
+        },
+        "_OptionSelector_REMOVED": {
+            "description": "Consolidated into TIERED_SELECTOR as of 2026-08-11. TIERED_SELECTOR is now a logical superset: per-item description is optional (flat chip mode) and component-level title/description are optional. Use TIERED_SELECTOR for all former OPTION_SELECTOR use cases."
+        },
+        "ValueInput": {
+            "type": "OBJECT",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "VALUE_INPUT"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "description": "Single numeric or currency value (CURRENCY, PERCENTAGE, NUMBER, DURATION) via slider or text field. CTA notes: submitAction — explicit button to confirm entered value.",
+                    "required": [
+                        "fieldKey",
+                        "inputType",
+                        "submitAction"
+                    ],
+                    "properties": {
+                        "title": {
+                            "type": "STRING",
+                            "description": "Component title."
+                        },
+                        "description": {
+                            "type": "STRING",
+                            "description": "Context explaining why this is asked or what it includes."
+                        },
+                        "exclusions": {
+                            "type": "STRING",
+                            "description": "Explicitly state what NOT to include, referencing past or future fields that might be asked later."
+                        },
+                        "fieldKey": {
+                            "type": "STRING"
+                        },
+                        "inputType": {
+                            "type": "STRING",
+                            "enum": [
+                                "SLIDER",
+                                "TEXT"
+                            ]
+                        },
+                        "config": {
+                            "type": "OBJECT",
+                            "properties": {
+                                "unit": {
+                                    "type": "STRING",
+                                    "description": "e.g., Rs, %."
+                                },
+                                "period": {
+                                    "type": "STRING",
+                                    "description": "e.g., MONTHLY, YEARLY."
+                                },
+                                "min": {
+                                    "type": "NUMBER",
+                                    "description": "Slider only."
+                                },
+                                "max": {
+                                    "type": "NUMBER",
+                                    "description": "Slider only."
+                                },
+                                "step": {
+                                    "type": "NUMBER",
+                                    "description": "Slider only."
+                                },
+                                "smartDefault": {
+                                    "type": "NUMBER",
+                                    "description": "Pre-positions slider. Derive from userContext profile (income, city, household). Null = centered."
+                                },
+                                "placeholder": {
+                                    "type": "STRING",
+                                    "description": "Text mode only, e.g., 'e.g., 120000'."
+                                }
+                            }
+                        },
+                        "submitAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        }
+                    }
+                }
+            }
+        },
+        "TieredSelector": {
+            "type": "OBJECT",
+            "description": "Unified selector component covering both flat chip-style picks (former OPTION_SELECTOR) and full card-style tiered picks. Render mode is driven by whether per-item description is present: omit description on all items for flat chip UI (BOOLEAN, CHOICE_SIMPLE, small-set DURATION); include description on all items for full card UI (CHOICE_TIERED, sensitive topics). 2-6 items total. CTA notes: submitAction — fires automatically on item tap, UI handles trigger; skipAction — populate only when skipOption is present, else omit.",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "TIERED_SELECTOR"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "required": [
+                        "fieldKey",
+                        "items",
+                        "submitAction"
+                    ],
+                    "properties": {
+                        "title": {
+                            "type": "STRING",
+                            "description": "Optional component header — 2-5 words, user-facing. Omit when the preceding RESPONSE_TEXT already frames the question."
+                        },
+                        "description": {
+                            "type": "STRING",
+                            "description": "Optional context explaining why this is being asked or what it covers. Omit when the question is self-evident."
+                        },
+                        "fieldKey": {
+                            "type": "STRING",
+                            "description": "Maps to requiredInputs.fieldName."
+                        },
+                        "items": {
+                            "type": "ARRAY",
+                            "description": "2-6 selectable items. Omit per-item description on all items for flat chip rendering; include it on all items for full card rendering. Do not mix — either all items have description or none do.",
+                            "items": {
+                                "type": "OBJECT",
+                                "required": [
+                                    "label",
+                                    "value"
+                                ],
+                                "properties": {
+                                    "label": {
+                                        "type": "STRING",
+                                        "description": "Display text / tier title."
+                                    },
+                                    "value": {
+                                        "type": "STRING",
+                                        "description": "Stored value submitted on selection."
+                                    },
+                                    "description": {
+                                        "type": "STRING",
+                                        "description": "One-line explanation shown below the label in full card mode. Omit on all items for flat chip mode."
+                                    },
+                                    "icon": {
+                                        "type": "STRING",
+                                        "description": "Optional emoji displayed alongside the label."
+                                    }
+                                }
+                            }
+                        },
+                        "skipOption": {
+                            "type": "OBJECT",
+                            "description": "Include only when skipping is genuinely valid for this field (e.g., 'Not sure', 'Skip for now'). Omit otherwise.",
+                            "required": [
+                                "label",
+                                "value"
+                            ],
+                            "properties": {
+                                "label": {
+                                    "type": "STRING"
+                                },
+                                "description": {
+                                    "type": "STRING"
+                                },
+                                "value": {
+                                    "type": "STRING"
+                                },
+                                "icon": {
+                                    "type": "STRING",
+                                    "description": "Optional emoji displayed alongside the skip label."
+                                }
+                            }
+                        },
+                        "submitAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        },
+                        "skipAction": {
+                            "description": "Populate only when skipOption is present; omit otherwise.",
+                            "$ref": "#/$defs/ComponentAction"
+                        }
+                    }
+                }
+            }
+        },
+        "FormGroup": {
+            "type": "OBJECT",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "FORM_GROUP"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "description": "Collect 2+ related inputs presented one at a time within a single form. Submit is at form level, not per-component. All input component types are valid children. FORM_GROUP cannot be nested inside another FORM_GROUP. Each child's own action slot (submitAction/skipAction) must be null — the form owns the single submit. CTA notes: submitAction — single submit for the entire form.",
+                    "required": [
+                        "title",
+                        "components",
+                        "submitAction"
+                    ],
+                    "properties": {
+                        "title": {
+                            "type": "STRING",
+                            "description": "Card header, e.g., 'Monthly Expenses'."
+                        },
+                        "showTotal": {
+                            "type": "BOOLEAN",
+                            "description": "Show live-calculated sum row."
+                        },
+                        "totalLabel": {
+                            "type": "STRING",
+                            "description": "Label for total row."
+                        },
+                        "components": {
+                            "type": "ARRAY",
+                            "description": "Children use the identical envelope-and-data shape as top-level uiDirective.components entries.",
+                            "items": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/$defs/ValueInput"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/TieredSelector"
+                                    }
+                                ]
+                            }
+                        },
+                        "submitAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        }
+                    }
+                }
+            }
+        },
+        "ReviewCard": {
+            "type": "OBJECT",
+            "description": "Structured summary card for presenting titled, non-editable information in card layout. Content-driven rendering: rows present → tabular detail (field-value pairs); attribution present → factor breakdown; headline alone → hero value card. Cross-content fields: icon, headline, statusBadge, and editAction are available in all modes. Example use cases: (1) Phase-gate review — user confirms collected data (rows + confirmAction + editAction); (2) Computed result — reveal target/score (headline + attribution + acknowledgeAction); (3) Status summary — current state of goal/plan (headline + rows + statusBadge + acknowledgeAction); (4) Confirmation receipt — post-action summary (headline + rows + acknowledgeAction); (5) Profile/insight reveal — computed profile or insight (headline + attribution or rows + acknowledgeAction).",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "REVIEW_CARD"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "description": "title is always required. Populate content fields by use case: (a) Phase-gate review: rows + confirmAction + editAction; optionally headline as summary KPI and icon. (b) Computed result: headline + attribution + acknowledgeAction; optionally editAction for adjust and secondaryAction for explore. (c) Status summary: headline + rows + statusBadge + acknowledgeAction; optionally editAction. (d) Confirmation receipt: headline + rows + acknowledgeAction. (e) Profile/insight reveal: headline + attribution or rows + acknowledgeAction. CTA notes — confirmAction: affirms all values are correct (phase-gate only); acknowledgeAction: signals user has absorbed the information, non-committal (all non-phase-gate use cases); editAction: revise a field or input (any use case); secondaryAction: detail or explore-scenario affordance (optional, any non-phase-gate use case).",
+                    "required": [
+                        "title"
+                    ],
+                    "properties": {
+                        "icon": {
+                            "type": "STRING",
+                            "description": "Optional emoji representing the card domain. Adds visual personality, e.g., '💰' for budget review, '🎯' for a computed target, '✅' for confirmation, '📊' for status."
+                        },
+                        "statusBadge": {
+                            "type": "OBJECT",
+                            "description": "Optional status indicator for goal tracking, plan state, profile classification, or any contextual state label. Omit when no status semantics apply (e.g., phase-gate review, one-off result reveal).",
+                            "properties": {
+                                "label": {
+                                    "type": "STRING",
+                                    "description": "Short status text, e.g., 'On Track', 'Moderate', 'Completed', '50% Funded'."
+                                },
+                                "tone": {
+                                    "type": "STRING",
+                                    "enum": [
+                                        "POSITIVE",
+                                        "CAUTIONARY",
+                                        "NEUTRAL",
+                                        "NEGATIVE"
+                                    ],
+                                    "description": "Visual tone for the badge. Frontend maps to color/icon treatment."
+                                }
+                            }
+                        },
+                        "title": {
+                            "type": "STRING",
+                            "description": "Card header. Phase-gate: e.g., 'Your Profile', 'Monthly Expenses'. Result: conversational and specific, e.g., 'Your Emergency Fund Target'."
+                        },
+                        "headline": {
+                            "type": "OBJECT",
+                            "description": "Primary value display. Required for result, status, confirmation, and insight use cases. Optional for phase-gate (summary KPI above rows, e.g., total income hero number). Omit when no single value meaningfully summarises the card content.",
+                            "required": [
+                                "value",
+                                "subtitle"
+                            ],
+                            "properties": {
+                                "value": {
+                                    "type": "STRING",
+                                    "description": "Formatted primary value, e.g., '₹2,40,000' or '82/100' or '₹85,000/month'."
+                                },
+                                "subtitle": {
+                                    "type": "STRING",
+                                    "description": "Contextual qualifier, e.g., '~6 months of essential expenses' or 'Total monthly outflow'."
+                                }
+                            }
+                        },
+                        "rows": {
+                            "type": "ARRAY",
+                            "description": "Tabular content block — field-value pairs. Use for phase-gate review (collected fields for confirmation — confirmAction and editAction are required in this case), status detail (current state fields), confirmation receipts (committed values), or structured breakdowns. Omit when attribution alone suffices.",
+                            "items": {
+                                "type": "OBJECT",
+                                "required": [
+                                    "fieldKey",
+                                    "label",
+                                    "displayValue",
+                                    "fieldType"
+                                ],
+                                "properties": {
+                                    "fieldKey": {
+                                        "type": "STRING"
+                                    },
+                                    "label": {
+                                        "type": "STRING",
+                                        "description": "Display label."
+                                    },
+                                    "displayValue": {
+                                        "type": "STRING",
+                                        "description": "Formatted value from collectedFields."
+                                    },
+                                    "fieldType": {
+                                        "type": "STRING",
+                                        "enum": [
+                                            "CATEGORICAL",
+                                            "NUMERIC",
+                                            "TIERED"
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "attribution": {
+                            "type": "OBJECT",
+                            "description": "Factor breakdown explaining how a computed value was derived or what influenced a classification/profile. Typical in result and profile/insight use cases. Omit when rows alone convey the detail.",
+                            "required": [
+                                "header",
+                                "factors"
+                            ],
+                            "properties": {
+                                "header": {
+                                    "type": "STRING",
+                                    "description": "Section header, e.g., 'How we got here'."
+                                },
+                                "factors": {
+                                    "type": "ARRAY",
+                                    "items": {
+                                        "type": "OBJECT",
+                                        "required": [
+                                            "label",
+                                            "impact",
+                                            "direction"
+                                        ],
+                                        "properties": {
+                                            "label": {
+                                                "type": "STRING",
+                                                "description": "Factor name."
+                                            },
+                                            "impact": {
+                                                "type": "STRING",
+                                                "description": "Quantified impact, e.g., '+2 months'."
+                                            },
+                                            "direction": {
+                                                "type": "STRING",
+                                                "enum": [
+                                                    "UP",
+                                                    "DOWN",
+                                                    "NEUTRAL"
+                                                ]
+                                            },
+                                            "detail": {
+                                                "type": "STRING",
+                                                "description": "One-line explanation."
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "confirmAction": {
+                            "description": "Phase-gate use case only. Required when rows represents collected fields for user confirmation. Affirms all reviewed values are correct. Omit for all other use cases — use acknowledgeAction instead.",
+                            "$ref": "#/$defs/ComponentAction"
+                        },
+                        "acknowledgeAction": {
+                            "description": "Non-committal acknowledgement. Required for result, status, confirmation, and insight use cases (any use case except phase-gate). Signals user has absorbed the information. Label guidance: 'Got it', 'Understood', 'Done', 'Continue'.",
+                            "$ref": "#/$defs/ComponentAction"
+                        },
+                        "editAction": {
+                            "description": "Available in all use cases. Phase-gate (required): signals intent to change a reviewed field, opens conversational flow. Result/status/profile (optional): revise an input that fed the computation or update a tracked parameter.",
+                            "$ref": "#/$defs/ComponentAction"
+                        },
+                        "secondaryAction": {
+                            "description": "Optional in any non-phase-gate use case. Contextual non-edit action: detail (deeper breakdown), explore_scenario, or navigate. Omit if it adds no value. Do not use in phase-gate mode (editAction covers the secondary need there).",
+                            "$ref": "#/$defs/ComponentAction"
+                        }
+                    }
+                }
+            }
+        },
+        "_ResultReveal_REMOVED": {
+            "description": "Consolidated into REVIEW_CARD as of 2026-08-11. REVIEW_CARD is now a logical superset: populate headline + attribution + acknowledgeAction for result mode (former RESULT_REVEAL behaviour); populate rows + confirmAction + editAction for phase-gate mode (original REVIEW_CARD behaviour)."
+        },
+        "AllocationBar": {
+            "type": "OBJECT",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "ALLOCATION_BAR"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "description": "SHOW_RESULT: proportional split or allocation breakdown across 2-5 categories. CTA notes: primaryAction — pick acknowledge (informational) or confirm (decision point) based on context; secondaryAction — pick adjust or explore_scenario based on context; omit if neither adds value.",
+                    "required": [
+                        "title",
+                        "layers",
+                        "primaryAction"
+                    ],
+                    "properties": {
+                        "icon": {
+                            "type": "STRING",
+                            "description": "Emoji representing the allocation domain."
+                        },
+                        "title": {
+                            "type": "STRING",
+                            "description": "Card header."
+                        },
+                        "layers": {
+                            "type": "ARRAY",
+                            "items": {
+                                "type": "OBJECT",
+                                "required": [
+                                    "label",
+                                    "amount"
+                                ],
+                                "properties": {
+                                    "label": {
+                                        "type": "STRING",
+                                        "description": "Segment name."
+                                    },
+                                    "amount": {
+                                        "type": "STRING",
+                                        "description": "Formatted value, e.g., '₹80,000'."
+                                    },
+                                    "displayLabel": {
+                                        "type": "STRING",
+                                        "description": "Short label for bar segment."
+                                    },
+                                    "color": {
+                                        "type": "STRING",
+                                        "description": "Design token reference or hex."
+                                    },
+                                    "icon": {
+                                        "type": "STRING",
+                                        "description": "Emoji for segment."
+                                    },
+                                    "vehicle": {
+                                        "type": "STRING",
+                                        "description": "Instrument or category, e.g., 'Savings Account', 'Equity MF'."
+                                    },
+                                    "description": {
+                                        "type": "STRING",
+                                        "description": "One-line explanation."
+                                    },
+                                    "detail": {
+                                        "type": "STRING",
+                                        "description": "Expandable detail text."
+                                    }
+                                }
+                            }
+                        },
+                        "footnote": {
+                            "type": "STRING",
+                            "description": "Disclaimer or explanatory note."
+                        },
+                        "primaryAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        },
+                        "secondaryAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        }
+                    }
+                }
+            }
+        },
+        "MilestonePlan": {
+            "type": "OBJECT",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "MILESTONE_PLAN"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "description": "SHOW_RESULT: savings/contribution plan with an editable commitment headline + milestone timeline with dates. CTA notes: inlineEditAction — triggered by headline value edit event, not a button; UI handles trigger; primaryAction — pick acknowledge (seen the plan) or confirm (commits to the plan) based on context.",
+                    "required": [
+                        "title",
+                        "headline",
+                        "milestoneHeader",
+                        "milestones",
+                        "primaryAction"
+                    ],
+                    "properties": {
+                        "icon": {
+                            "type": "STRING",
+                            "description": "Emoji representing the plan domain."
+                        },
+                        "title": {
+                            "type": "STRING",
+                            "description": "Card header."
+                        },
+                        "headline": {
+                            "type": "OBJECT",
+                            "required": [
+                                "fieldKey",
+                                "value",
+                                "rawValue",
+                                "cadence"
+                            ],
+                            "properties": {
+                                "fieldKey": {
+                                    "type": "STRING",
+                                    "description": "Maps to the editable field."
+                                },
+                                "value": {
+                                    "type": "STRING",
+                                    "description": "Formatted value, e.g., '₹8,000/month'."
+                                },
+                                "rawValue": {
+                                    "type": "NUMBER",
+                                    "description": "Unformatted numeric value."
+                                },
+                                "cadence": {
+                                    "type": "STRING",
+                                    "description": "e.g., 'MONTHLY', 'WEEKLY'."
+                                },
+                                "editable": {
+                                    "type": "BOOLEAN",
+                                    "description": "Whether user can inline-edit this value."
+                                },
+                                "editConfig": {
+                                    "type": "OBJECT",
+                                    "description": "Config for inline editor (slider range, step, etc.)."
+                                },
+                                "inlineEditAction": {
+                                    "$ref": "#/$defs/ComponentAction"
+                                }
+                            }
+                        },
+                        "milestoneHeader": {
+                            "type": "STRING",
+                            "description": "Section header, e.g., 'Your milestones'."
+                        },
+                        "milestones": {
+                            "type": "ARRAY",
+                            "items": {
+                                "type": "OBJECT",
+                                "required": [
+                                    "label",
+                                    "date",
+                                    "status"
+                                ],
+                                "properties": {
+                                    "label": {
+                                        "type": "STRING",
+                                        "description": "Milestone name."
+                                    },
+                                    "date": {
+                                        "type": "STRING",
+                                        "description": "Projected date."
+                                    },
+                                    "amount": {
+                                        "type": "STRING",
+                                        "description": "Target amount at this milestone."
+                                    },
+                                    "status": {
+                                        "type": "STRING",
+                                        "enum": [
+                                            "UPCOMING",
+                                            "REACHED"
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "primaryAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        }
+                    }
+                }
+            }
+        },
+        "PlanPreviewCard": {
+            "type": "OBJECT",
+            "description": "Backend-authored. Not offered as a model-authored branch of any generator's component union — documented here for frontend consumers only. Emitted when generating or updating a planOverview; its data is derived server-side from the stamped PlanOverview, never authored by the model.",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "PLAN_PREVIEW_CARD"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "required": [
+                        "overviewId",
+                        "status",
+                        "goal",
+                        "scopeNote",
+                        "phases",
+                        "approvalAction",
+                        "editAction"
+                    ],
+                    "properties": {
+                        "overviewId": {
+                            "type": "STRING",
+                            "description": "Descriptive slug, e.g., 'ef-overview-v1'."
+                        },
+                        "status": {
+                            "type": "STRING",
+                            "enum": [
+                                "DRAFT",
+                                "APPROVED",
+                                "ABANDONED"
+                            ]
+                        },
+                        "goal": {
+                            "type": "STRING",
+                            "description": "What we're planning for."
+                        },
+                        "scopeNote": {
+                            "type": "STRING",
+                            "description": "What the plan covers and what the user gets at the end. 1-2 sentences."
+                        },
+                        "phases": {
+                            "type": "ARRAY",
+                            "items": {
+                                "type": "OBJECT",
+                                "required": [
+                                    "title",
+                                    "description"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "STRING",
+                                        "description": "Phase title."
+                                    },
+                                    "description": {
+                                        "type": "STRING",
+                                        "description": "1-2 sentences: what happens in this phase and why it matters for the goal."
+                                    }
+                                }
+                            }
+                        },
+                        "approvalAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        },
+                        "editAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        }
+                    },
+                    "description": " CTA notes: approvalAction — approves the plan to begin execution; editAction — signals intent to modify the plan structure."
+                }
+            }
+        }
+    },
+    "x-inactive-defs": {
+        "InteractiveSorter": {
+            "type": "OBJECT",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "INTERACTIVE_SORTER"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "description": "CLASSIFICATION - user categorises, prioritises, or sorts a set of items into labelled buckets. 2-4 categories, 4-10 items. Result map: {categoryValue: [itemLabels]}. CTA notes: submitAction — fires when all items are sorted.",
+                    "required": [
+                        "fieldKey",
+                        "instruction",
+                        "categories",
+                        "items",
+                        "submitAction"
+                    ],
+                    "properties": {
+                        "fieldKey": {
+                            "type": "STRING",
+                            "description": "Maps to requiredInputs.fieldName."
+                        },
+                        "instruction": {
+                            "type": "STRING",
+                            "description": "Task framing, e.g., 'Tap each scenario to sort it'."
+                        },
+                        "categories": {
+                            "type": "ARRAY",
+                            "items": {
+                                "type": "OBJECT",
+                                "required": [
+                                    "label",
+                                    "value"
+                                ],
+                                "properties": {
+                                    "label": {
+                                        "type": "STRING",
+                                        "description": "Bucket label."
+                                    },
+                                    "value": {
+                                        "type": "STRING",
+                                        "description": "Stored value."
+                                    },
+                                    "icon": {
+                                        "type": "STRING"
+                                    }
+                                }
+                            }
+                        },
+                        "items": {
+                            "type": "ARRAY",
+                            "items": {
+                                "type": "OBJECT",
+                                "required": [
+                                    "label"
+                                ],
+                                "properties": {
+                                    "label": {
+                                        "type": "STRING",
+                                        "description": "Item text."
+                                    },
+                                    "icon": {
+                                        "type": "STRING"
+                                    }
+                                }
+                            }
+                        },
+                        "submitAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        }
+                    }
+                }
+            }
+        },
+        "InlineInsight": {
+            "type": "OBJECT",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "INLINE_INSIGHT"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "description": "Mid-flow read-only insight card. CTA notes: rowAction — optional per-row tap for expand-on-demand; omit if row is not tappable.",
+                    "required": [
+                        "title",
+                        "rows"
+                    ],
+                    "properties": {
+                        "icon": {
+                            "type": "STRING",
+                            "description": "Emoji representing the insight domain."
+                        },
+                        "title": {
+                            "type": "STRING",
+                            "description": "Card header, conversational and specific."
+                        },
+                        "subtitle": {
+                            "type": "STRING",
+                            "description": "One-line summary or timing context."
+                        },
+                        "rows": {
+                            "type": "ARRAY",
+                            "items": {
+                                "type": "OBJECT",
+                                "required": [
+                                    "label"
+                                ],
+                                "properties": {
+                                    "label": {
+                                        "type": "STRING"
+                                    },
+                                    "impact": {
+                                        "type": "STRING",
+                                        "description": "Quantified effect."
+                                    },
+                                    "direction": {
+                                        "type": "STRING",
+                                        "enum": [
+                                            "UP",
+                                            "DOWN",
+                                            "NEUTRAL"
+                                        ]
+                                    },
+                                    "detail": {
+                                        "type": "STRING",
+                                        "description": "Expandable explanation."
+                                    },
+                                    "rowAction": {
+                                        "$ref": "#/$defs/ComponentAction"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "ActionChecklist": {
+            "type": "OBJECT",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "ACTION_CHECKLIST"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "description": "RECOMMEND: numbered action steps for the user to execute. Optional per-step action — not every step needs one. No component-level action. CTA notes: stepAction — optional per-step; pick start_journey, explain, or save based on context.",
+                    "required": [
+                        "title",
+                        "steps"
+                    ],
+                    "properties": {
+                        "icon": {
+                            "type": "STRING",
+                            "description": "Emoji representing the action domain."
+                        },
+                        "title": {
+                            "type": "STRING",
+                            "description": "Card header."
+                        },
+                        "subtitle": {
+                            "type": "STRING",
+                            "description": "Timing context, e.g., 'This week'."
+                        },
+                        "steps": {
+                            "type": "ARRAY",
+                            "items": {
+                                "type": "OBJECT",
+                                "required": [
+                                    "number",
+                                    "action"
+                                ],
+                                "properties": {
+                                    "number": {
+                                        "type": "INTEGER",
+                                        "description": "Step order."
+                                    },
+                                    "action": {
+                                        "type": "STRING",
+                                        "description": "What to do."
+                                    },
+                                    "detail": {
+                                        "type": "STRING",
+                                        "description": "How or why."
+                                    },
+                                    "dueDate": {
+                                        "type": "STRING",
+                                        "description": "When to complete."
+                                    },
+                                    "urgency": {
+                                        "type": "STRING",
+                                        "enum": [
+                                            "HIGH",
+                                            "MEDIUM",
+                                            "LOW"
+                                        ]
+                                    },
+                                    "stepAction": {
+                                        "$ref": "#/$defs/ComponentAction"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "ContextualFootnote": {
+            "type": "OBJECT",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "CONTEXTUAL_FOOTNOTE"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "description": "Non-blocking explanatory prose below the preceding component - for factual disclosures, regulatory notes, or 'good to know' context.",
+                    "required": [
+                        "text"
+                    ],
+                    "properties": {
+                        "text": {
+                            "type": "STRING",
+                            "description": "1-3 sentences of plain explanatory prose."
+                        },
+                        "icon": {
+                            "type": "STRING",
+                            "description": "Optional emoji prefix."
+                        }
+                    }
+                }
+            }
+        },
+        "ConditionalPrompt": {
+            "type": "OBJECT",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "CONDITIONAL_PROMPT"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "description": "Optional enhancement or rider the user can accept or skip. resolvedState is null on initial emit; populate on the follow-up turn after user accepts and any computation completes. CTA notes: acceptAction — conveys opting in to the add-on; declineAction — conveys skipping without negativity, lower visual weight; keepAction — confirms keeping the processed add-on (in resolvedState); removeAction — removes the add-on, lower visual weight (in resolvedState).",
+                    "required": [
+                        "title",
+                        "description",
+                        "acceptAction",
+                        "declineAction"
+                    ],
+                    "properties": {
+                        "icon": {
+                            "type": "STRING",
+                            "description": "Emoji representing the add-on."
+                        },
+                        "title": {
+                            "type": "STRING",
+                            "description": "Include '(Optional)' suffix."
+                        },
+                        "description": {
+                            "type": "STRING",
+                            "description": "What the add-on is, 1-3 sentences."
+                        },
+                        "acceptAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        },
+                        "declineAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        },
+                        "inputConfig": {
+                            "type": "OBJECT",
+                            "description": "Populate only if accepting needs user input: componentId plus that component's own data shape from the input palette."
+                        },
+                        "resolvedState": {
+                            "type": "OBJECT",
+                            "description": "Null on initial emit. Populated on follow-up turn after user accepts.",
+                            "properties": {
+                                "title": {
+                                    "type": "STRING",
+                                    "description": "Confirmed add-on title."
+                                },
+                                "details": {
+                                    "type": "ARRAY",
+                                    "items": {
+                                        "type": "STRING"
+                                    },
+                                    "description": "Confirmed detail lines."
+                                },
+                                "keepAction": {
+                                    "$ref": "#/$defs/ComponentAction"
+                                },
+                                "removeAction": {
+                                    "$ref": "#/$defs/ComponentAction"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "GoalPortfolioView": {
+            "type": "OBJECT",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "GOAL_PORTFOLIO_VIEW"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "description": "All active goals with health indicators. CTA notes: goalTapAction — per-goal tap to view detail; addGoalAction — initiates a new goal journey.",
+                    "required": [
+                        "title",
+                        "goals",
+                        "addGoalAction"
+                    ],
+                    "properties": {
+                        "title": {
+                            "type": "STRING",
+                            "description": "Card header, e.g., 'Your Goals'."
+                        },
+                        "goals": {
+                            "type": "ARRAY",
+                            "items": {
+                                "type": "OBJECT",
+                                "required": [
+                                    "goalRef",
+                                    "name",
+                                    "status",
+                                    "goalTapAction"
+                                ],
+                                "properties": {
+                                    "goalRef": {
+                                        "type": "STRING",
+                                        "description": "Goal identifier."
+                                    },
+                                    "name": {
+                                        "type": "STRING",
+                                        "description": "Goal name."
+                                    },
+                                    "status": {
+                                        "type": "STRING",
+                                        "enum": [
+                                            "ON_TRACK",
+                                            "AT_RISK",
+                                            "OFF_TRACK",
+                                            "COMPLETED"
+                                        ]
+                                    },
+                                    "progress": {
+                                        "type": "NUMBER",
+                                        "description": "0-100 percentage."
+                                    },
+                                    "headline": {
+                                        "type": "STRING",
+                                        "description": "One-line summary."
+                                    },
+                                    "goalTapAction": {
+                                        "$ref": "#/$defs/ComponentAction"
+                                    }
+                                }
+                            }
+                        },
+                        "addGoalAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        }
+                    }
+                }
+            }
+        },
+        "GoalDetailCard": {
+            "type": "OBJECT",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "GOAL_DETAIL_CARD"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "description": "Single goal deep-dive with projection and what-if. CTA notes: primaryAction — requests AI recommendation for this goal; secondaryAction — pick adjust (update goal parameters) or explore_scenario (what-if); omit if neither adds value.",
+                    "required": [
+                        "goalRef",
+                        "name",
+                        "status",
+                        "primaryAction"
+                    ],
+                    "properties": {
+                        "goalRef": {
+                            "type": "STRING",
+                            "description": "Goal identifier."
+                        },
+                        "name": {
+                            "type": "STRING",
+                            "description": "Goal name."
+                        },
+                        "status": {
+                            "type": "STRING",
+                            "enum": [
+                                "ON_TRACK",
+                                "AT_RISK",
+                                "OFF_TRACK",
+                                "COMPLETED"
+                            ]
+                        },
+                        "progress": {
+                            "type": "NUMBER",
+                            "description": "0-100 percentage."
+                        },
+                        "projection": {
+                            "type": "OBJECT",
+                            "properties": {
+                                "targetDate": {
+                                    "type": "STRING",
+                                    "description": "Projected completion date."
+                                },
+                                "targetAmount": {
+                                    "type": "STRING",
+                                    "description": "Formatted target amount."
+                                },
+                                "currentAmount": {
+                                    "type": "STRING",
+                                    "description": "Formatted current amount."
+                                },
+                                "gap": {
+                                    "type": "STRING",
+                                    "description": "Formatted shortfall or surplus."
+                                }
+                            }
+                        },
+                        "insights": {
+                            "type": "ARRAY",
+                            "items": {
+                                "type": "OBJECT",
+                                "required": [
+                                    "label",
+                                    "value"
+                                ],
+                                "properties": {
+                                    "label": {
+                                        "type": "STRING",
+                                        "description": "Insight name."
+                                    },
+                                    "value": {
+                                        "type": "STRING",
+                                        "description": "Insight value or description."
+                                    }
+                                }
+                            }
+                        },
+                        "primaryAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        },
+                        "secondaryAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        }
+                    }
+                }
+            }
+        },
+        "ScenarioComparison": {
+            "type": "OBJECT",
+            "required": [
+                "componentId",
+                "data"
+            ],
+            "properties": {
+                "componentId": {
+                    "type": "STRING",
+                    "const": "SCENARIO_COMPARISON"
+                },
+                "entityMeta": {
+                    "$ref": "#/$defs/EntityMeta"
+                },
+                "priority": {
+                    "type": "NUMBER",
+                    "description": "Display priority (1 = highest)."
+                },
+                "data": {
+                    "type": "OBJECT",
+                    "description": "SHOW_RESULT from scenario planning - side-by-side comparison of two options. CTA notes: selectAction — selects this scenario as the chosen path; exploreAction — triggers exploration of another scenario variation; adviseAction — requests AI recommendation on which scenario to choose.",
+                    "required": [
+                        "title",
+                        "scenarios",
+                        "exploreAction",
+                        "adviseAction"
+                    ],
+                    "properties": {
+                        "title": {
+                            "type": "STRING",
+                            "description": "Card header."
+                        },
+                        "scenarios": {
+                            "type": "ARRAY",
+                            "items": {
+                                "type": "OBJECT",
+                                "required": [
+                                    "label",
+                                    "description",
+                                    "metrics",
+                                    "selectAction"
+                                ],
+                                "properties": {
+                                    "label": {
+                                        "type": "STRING",
+                                        "description": "Scenario name."
+                                    },
+                                    "description": {
+                                        "type": "STRING",
+                                        "description": "One-line summary."
+                                    },
+                                    "metrics": {
+                                        "type": "ARRAY",
+                                        "items": {
+                                            "type": "OBJECT",
+                                            "required": [
+                                                "label",
+                                                "value"
+                                            ],
+                                            "properties": {
+                                                "label": {
+                                                    "type": "STRING",
+                                                    "description": "Metric name."
+                                                },
+                                                "value": {
+                                                    "type": "STRING",
+                                                    "description": "Metric value."
+                                                },
+                                                "direction": {
+                                                    "type": "STRING",
+                                                    "enum": [
+                                                        "UP",
+                                                        "DOWN",
+                                                        "NEUTRAL"
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "selectAction": {
+                                        "$ref": "#/$defs/ComponentAction"
+                                    }
+                                }
+                            }
+                        },
+                        "exploreAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        },
+                        "adviseAction": {
+                            "$ref": "#/$defs/ComponentAction"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "x-version": "2.0.0-poc",
+    "x-lineage": "Evolved from component-palette-openapi.json (v1). MilestonePlan.headline.required: removed inlineEditAction, editable, editConfig — inline edit not yet implemented in the component; these fields remain available as optional.",
+    "x-date": "2026-08-13"
+}

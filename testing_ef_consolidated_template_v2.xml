@@ -71,7 +71,7 @@
 
         H_base: Determined by employment type. Pick value from mappingTable "h_base_by_employment".
         M_risk: Cumulative risk adjustment. Sum of individual adjustments picked from
-                risk_adj_by_age, risk_adj_by_income_sources, risk_adj_by_dependency,
+                risk_adj_by_age, risk_adj_by_income_sources, dep_adj_* (spouse, children, parents, other),
                 risk_adj_by_insurance, risk_adj_by_health mapping tables.
       </composition>
       <toolCall>
@@ -176,8 +176,10 @@
     </table>
 
     <!-- M_risk adjustment: Age bracket → risk multiplier adjustment -->
+    <!-- ageBracket is JOURNEY_DERIVED — Pro computes age from dateOfBirth, buckets it. -->
     <table name="risk_adj_by_age" inputField="ageBracket" outputType="NUMBER" unit="multiplier"
-           description="Risk multiplier adjustment based on career stage. Added to other risk adjustments.">
+           inputSource="JOURNEY_DERIVED"
+           description="Risk multiplier by career stage. ageBracket is journey-derived from dateOfBirth — see journeyDerivedFields.">
       <entry key="AGE_22_27" value="0.00" note="High re-employability, low obligations" />
       <entry key="AGE_28_35" value="0.10" note="Growing obligations" />
       <entry key="AGE_35_45" value="0.20" note="Peak responsibility" />
@@ -186,38 +188,47 @@
     </table>
 
     <!-- M_risk adjustment: Income sources → risk multiplier adjustment -->
+    <!-- inputField householdIncomeType is SYSTEM_DERIVED — backend computes it from      -->
+    <!-- maritalStatus + SELF.employmentType + SPOUSE.employmentType. Pro reads the value. -->
     <table name="risk_adj_by_income_sources" inputField="householdIncomeType" outputType="NUMBER" unit="multiplier"
-           description="Risk multiplier adjustment based on household income diversity.">
+           inputSource="SYSTEM_DERIVED"
+           description="Risk multiplier adjustment based on household income diversity. householdIncomeType is system-derived — never ask the user directly.">
       <entry key="DUAL_INCOME_SALARIED" value="-0.15" note="Lowest risk — natural hedge" />
       <entry key="DUAL_INCOME_MIXED" value="-0.05" note="Some hedge but one variable income" />
       <entry key="SINGLE_INCOME_SALARIED" value="0.10" note="Single point of failure but stable" />
       <entry key="SINGLE_INCOME_VARIABLE" value="0.20" note="Highest risk" />
     </table>
 
-    <!-- M_risk adjustment: Dependency load → risk multiplier adjustment -->
-    <!-- Split into 6 single-field lookup tables. Pro sums the 6 lookup results for total dep adjustment. -->
-    <!-- Each table: direct lookup from a single profile field. No arithmetic required.                   -->
+    <!-- Dependency load tables. Pro sums results for total dep adjustment. -->
 
-    <table name="dep_adj_spouse" inputField="spouseEmploymentStatus" outputType="NUMBER" unit="multiplier"
-           description="Adjustment for non-working spouse. Direct lookup from spouseEmploymentStatus.">
-      <entry key="NOT_WORKING" value="0.05" />
-      <entry key="WORKING_SALARIED" value="0.00" />
-      <entry key="WORKING_VARIABLE" value="0.00" />
-      <entry key="NOT_APPLICABLE" value="0.00" note="Single / unmarried user" />
+    <!-- employmentType on SPOUSE entity. noEntityDefault if no SPOUSE exists. -->
+    <table name="dep_adj_spouse" inputField="employmentType" inputEntityGroup="SPOUSE"
+           outputType="NUMBER" unit="multiplier"
+           description="Spouse dependency adjustment. Reads employmentType from SPOUSE entity. noEntityDefault if single/unmarried.">
+      <noEntityDefault value="0.00" note="No spouse — single or unmarried" />
+      <entry key="HOMEMAKER" value="0.05" />
+      <entry key="UNEMPLOYED" value="0.05" />
+      <entry key="STUDENT" value="0.05" />
+      <entry key="RETIRED" value="0.02" note="May have pension" />
+      <entry key="SALARIED_GOVT" value="0.00" />
+      <entry key="SALARIED_PSU" value="0.00" />
+      <entry key="SALARIED_LARGE_PRIVATE" value="0.00" />
+      <entry key="SALARIED_MID_PRIVATE" value="0.00" />
+      <entry key="SALARIED_STARTUP" value="0.00" />
+      <entry key="SELF_EMPLOYED_ESTABLISHED" value="0.00" />
+      <entry key="SELF_EMPLOYED_NEW" value="0.00" />
+      <entry key="FREELANCER" value="0.00" />
+      <entry key="GIG_WORKER" value="0.00" />
+      <entry key="CONTRACTUAL" value="0.00" />
+      <entry key="COMMISSION_BASED" value="0.00" />
+      <entry key="SEASONAL" value="0.00" />
     </table>
 
-    <table name="dep_adj_children_under5" inputField="childrenUnder5Count" outputType="NUMBER" unit="multiplier"
-           defaultAbove="3plus"
-           description="Adjustment for children under 5. Pre-computed total by count (capped at 0.15). For count &gt; 2, use defaultAbove key.">
-      <entry key="0" value="0.00" />
-      <entry key="1" value="0.05" />
-      <entry key="2" value="0.10" />
-      <entry key="3plus" value="0.15" />
-    </table>
+    <!-- Children and parent tables read JOURNEY_DERIVED inputs from entity data. -->
 
-    <table name="dep_adj_children_school" inputField="childrenSchoolAgeCount" outputType="NUMBER" unit="multiplier"
-           defaultAbove="3plus"
-           description="Adjustment for school-age children. Pre-computed total by count (capped at 0.20). School fees are fixed obligations. For count &gt; 2, use defaultAbove key.">
+    <table name="dep_adj_children" inputField="dependentChildrenCount" outputType="NUMBER" unit="multiplier"
+           defaultAbove="3plus" inputSource="JOURNEY_DERIVED"
+           description="Adjustment for dependent children. Input is journey-derived: total count of CHILD entities. 0.08 per child, capped at 0.20.">
       <entry key="0" value="0.00" />
       <entry key="1" value="0.08" />
       <entry key="2" value="0.16" />
@@ -225,8 +236,8 @@
     </table>
 
     <table name="dep_adj_aging_parent_insured" inputField="agingParentInsuredCount" outputType="NUMBER" unit="multiplier"
-           defaultAbove="3plus"
-           description="Adjustment for insured aging parents. 0.05 per parent. For count &gt; 2, use defaultAbove key.">
+           defaultAbove="3plus" inputSource="JOURNEY_DERIVED"
+           description="Adjustment for insured aging parents. Input is journey-derived: count of PARENT entities with healthInsuranceCoverAmount &gt; 0. See journeyDerivedFields.">
       <entry key="0" value="0.00" />
       <entry key="1" value="0.05" />
       <entry key="2" value="0.10" />
@@ -234,8 +245,8 @@
     </table>
 
     <table name="dep_adj_aging_parent_uninsured" inputField="agingParentUninsuredCount" outputType="NUMBER" unit="multiplier"
-           defaultAbove="3plus"
-           description="Adjustment for uninsured aging parents. 0.15 per parent — significant medical risk. For count &gt; 2, use defaultAbove key.">
+           defaultAbove="3plus" inputSource="JOURNEY_DERIVED"
+           description="Adjustment for uninsured aging parents. Input is journey-derived: count of PARENT entities with healthInsuranceCoverAmount = 0 or null. See journeyDerivedFields.">
       <entry key="0" value="0.00" />
       <entry key="1" value="0.15" />
       <entry key="2" value="0.30" />
@@ -323,33 +334,40 @@
     </dimension>
 
     <dimension id="D2" name="Dependency Load" optional="false" sensitive="false">
-      <what>Who depends on user's income — nature matters, not just count</what>
-      <sizing>Adjusts M_risk via risk_adj_by_dependency mapping table. Each dependent type adds a specific increment.</sizing>
-      <followUps>Aging parents → health insurance status. Children → age bracket.</followUps>
+      <what>Who depends on user's income — household structure and entity composition</what>
+      <sizing>Adjusts M_risk via dep_adj_* mapping tables. Each dependent type adds a specific increment.</sizing>
+      <gateFields>hasChildren, hasDependentParents (boolean gates determining which dependent entities exist)</gateFields>
+      <entityBased>
+        SPOUSE: employmentType on SPOUSE entity (gated by maritalStatus = MARRIED).
+        CHILD: dateOfBirth per child entity. Total count journey-derived (see journeyDerivedFields).
+        PARENT: healthInsuranceCoverAmount per parent. Insured/uninsured counts journey-derived.
+      </entityBased>
     </dimension>
 
     <dimension id="D3" name="Insurance Coverage Quality" optional="false" sensitive="false">
       <what>Health insurance level; term insurance flag</what>
-      <sizing>Adjusts M_risk via risk_adj_by_insurance mapping table. Also triggers Ω medical buffer if HEALTH_NONE.</sizing>
+      <sizing>Adjusts M_risk via risk_adj_by_insurance. Triggers Ω medical buffer if HEALTH_NONE.</sizing>
     </dimension>
 
     <dimension id="D4" name="Fixed Obligations" optional="false" sensitive="false">
       <what>Rent/EMI, school fees, premiums — as ₹ or % of income</what>
-      <sizing>Directly contributes to B (burn rate) via sum of expense fields. High fixed-to-variable ratio signals higher overall risk.</sizing>
+      <sizing>Directly contributes to B (burn rate).</sizing>
     </dimension>
 
     <dimension id="D5" name="City Tier / Cost of Living" optional="false" sensitive="false">
       <what>Metro vs Tier 2 vs Tier 3</what>
-      <sizing>Used in Ω medical buffer calculation (medical_buffer_no_insurance table). Also provides context for validating user-reported expenses.</sizing>
+      <sizing>Used in Ω medical buffer calculation.</sizing>
     </dimension>
 
-    <dimension id="D6" name="Age Bracket" optional="false" sensitive="false">
-      <what>Career stage, not exact year</what>
+    <dimension id="D6" name="Age Bracket" optional="false" sensitive="false" collectionType="JOURNEY_DERIVED">
+      <what>Career stage — journey-derived from dateOfBirth. Brackets are journey-specific JIT bucketing.</what>
+      <derivedFrom>dateOfBirth (age computed, then bucketed per this journey's risk_adj_by_age table)</derivedFrom>
       <sizing>Adjusts M_risk via risk_adj_by_age mapping table.</sizing>
     </dimension>
 
-    <dimension id="D7" name="Household Income Sources" optional="false" sensitive="false">
-      <what>Sole earner vs dual/multiple</what>
+    <dimension id="D7" name="Household Income Sources" optional="false" sensitive="false" collectionType="SYSTEM_DERIVED">
+      <what>Sole earner vs dual/multiple — system-derived from maritalStatus, SELF.employmentType, SPOUSE.employmentType</what>
+      <derivedFrom>maritalStatus, SELF.employmentType, SPOUSE.employmentType</derivedFrom>
       <sizing>Adjusts M_risk via risk_adj_by_income_sources mapping table.</sizing>
     </dimension>
 
@@ -367,38 +385,98 @@
     </dimension>
   </dimensions>
 
-  <!-- ================================================================== -->
-  <!-- §5 — DIMENSION GROUPING and VALUE-AFTER CADENCE                    -->
-  <!-- ================================================================== -->
+  <!-- §5 — COLLECTION GUIDANCE and VALUE-AFTER CADENCE -->
+  <!-- Theme-based collection order. Planner reads coreFieldSchema for field details
+       and isApplicableWhen conditions. Key gate fields named; rest at theme level. -->
 
-  <dimensionGrouping>
-    <cluster id="1" name="Income Profile" dimensions="D1,D7">
-      <valueAfter>First range estimate after H_base + income source adjustment. "Based on your income profile, your baseline is roughly X months."</valueAfter>
-      <computeAfter>
-        Pick H_base from h_base_by_employment using employmentType.
-        Pick income source adjustment from risk_adj_by_income_sources.
-        Show preliminary H range: H_base × (1 + income_adj) ± 20%.
-      </computeAfter>
-    </cluster>
-    <cluster id="2" name="Responsibility" dimensions="D2,D3,D4">
-      <valueAfter>"Safety Net So Far" card showing each factor's impact direction and magnitude.</valueAfter>
-      <computeAfter>
-        Compute dependency adjustment from risk_adj_by_dependency (sum for all dependents).
-        Pick insurance adjustment from risk_adj_by_insurance.
-        Compute B from expense fields.
-        Show updated estimate with attribution.
-      </computeAfter>
-    </cluster>
-    <cluster id="3" name="Context" dimensions="D5,D6,D8">
-      <valueAfter>Range collapses to final target number.</valueAfter>
-      <computeAfter>
-        Pick age adjustment from risk_adj_by_age.
-        Pick health adjustment from risk_adj_by_health.
-        Pick Ω medical buffer if applicable using medical_buffer_no_insurance.
-        Compute final H_target and EFT.
-      </computeAfter>
-    </cluster>
-  </dimensionGrouping>
+  <collectionGuidance>
+
+    <theme id="T1" name="Your Profile">
+      <purpose>Identity, career context, location. Low-effort, high-branching-power questions.</purpose>
+      <gateFields>
+        <field ref="maritalStatus" gates="SPOUSE entity existence" />
+        <field ref="employmentType" gates="income stability path, employerStabilityTier applicability" />
+      </gateFields>
+      <covers dimensions="D1, D5, D6">Identity basics, employment, city/location.
+        D6 (ageBracket) is journey-derived from dateOfBirth (see journeyDerivedFields) — do not ask.</covers>
+    </theme>
+
+    <theme id="T2" name="Your Household">
+      <purpose>Household structure and dependency load. Gates determine which entities exist.</purpose>
+      <gateFields>
+        <field ref="hasChildren" gates="CHILD entity creation" />
+        <field ref="hasDependentParents" gates="PARENT entity creation" />
+      </gateFields>
+      <covers dimensions="D2, D7">Dependency load and household income.
+        D7 (householdIncomeType) is system-derived after spouse data — do not ask.</covers>
+      <entityCollection>
+        SPOUSE (maritalStatus = MARRIED): Collect employmentType on SPOUSE entity.
+        CHILD (hasChildren = true): Ask count, create entities, collect dateOfBirth per child.
+        PARENT (hasDependentParents = true): Ask count, create entities, collect healthInsuranceCoverAmount per parent.
+      </entityCollection>
+    </theme>
+
+    <valueAfter trigger="after T1 and T2">
+      First range estimate: "Based on your profile and household, your baseline safety net is roughly X months."
+      <computeAfter>Pick H_base from h_base_by_employment. Pick income source adj from risk_adj_by_income_sources.
+        Compute dependency adj from dep_adj_* tables. Show H range ± 20%.</computeAfter>
+    </valueAfter>
+
+    <theme id="T3" name="Your Monthly Numbers">
+      <purpose>Financial flows for crisis-mode burn rate. Income first, then outflows.</purpose>
+      <covers dimensions="D1 (income detail), D4">Monthly income, pattern, expenses, housing,
+        EMIs, premiums. Planner checks isApplicableWhen per field.</covers>
+    </theme>
+
+    <valueAfter trigger="after T3">
+      Burn rate (B) with attribution showing each component's contribution.
+      <computeAfter>Compute B = sum(essential expenses, housing, secured debt). Show updated estimate.</computeAfter>
+    </valueAfter>
+
+    <theme id="T4" name="Your Safety Net">
+      <purpose>Insurance and health. Sensitive — placed after trust earned via value delivery.</purpose>
+      <covers dimensions="D3, D8">Health insurance, term life, dependent insurance (if dependents exist),
+        pre-existing conditions, tobacco. Respect skipConfig and "prefer not to say".</covers>
+    </theme>
+
+    <valueAfter trigger="after T4">
+      Final EF target with full attribution.
+      <computeAfter>Pick age adj from risk_adj_by_age using journey-derived ageBracket.
+        Pick health adj from risk_adj_by_health. Pick Ω medical buffer if applicable.
+        Compute final H_target and EFT.</computeAfter>
+    </valueAfter>
+
+  </collectionGuidance>
+
+  <!-- §5b — JOURNEY-DERIVED FIELDS -->
+  <!-- Computed from entity/profile data, never asked. Planner MUST use these derivations. -->
+
+  <journeyDerivedFields>
+    <derivedField name="dependentChildrenCount" type="NUMBER" scope="JOURNEY">
+      <source>Count of all CHILD entity instances (total dependent children)</source>
+      <fallback value="0">When hasChildren = false or no CHILD entities</fallback>
+      <usedBy>dep_adj_children mapping table</usedBy>
+    </derivedField>
+
+    <derivedField name="agingParentInsuredCount" type="NUMBER" scope="JOURNEY">
+      <source>Count PARENT entities where healthInsuranceCoverAmount &gt; 0</source>
+      <fallback value="0">When hasDependentParents = false or no PARENT entities</fallback>
+      <usedBy>dep_adj_aging_parent_insured mapping table</usedBy>
+    </derivedField>
+
+    <derivedField name="agingParentUninsuredCount" type="NUMBER" scope="JOURNEY">
+      <source>Count PARENT entities where healthInsuranceCoverAmount = 0 or null</source>
+      <fallback value="0">When hasDependentParents = false or no PARENT entities</fallback>
+      <usedBy>dep_adj_aging_parent_uninsured mapping table</usedBy>
+    </derivedField>
+
+    <derivedField name="ageBracket" type="STRING" scope="JOURNEY">
+      <source>Compute age in years from dateOfBirth. Bucket: 18-27→AGE_22_27, 28-35→AGE_28_35, 36-45→AGE_35_45, 46-55→AGE_45_55, 56+→AGE_55_PLUS</source>
+      <fallback value="AGE_28_35">Conservative default when dateOfBirth unavailable</fallback>
+      <usedBy>risk_adj_by_age mapping table</usedBy>
+      <note>Age brackets are journey-specific JIT bucketing. Other journeys may define different brackets.</note>
+    </derivedField>
+  </journeyDerivedFields>
 
   <!-- ================================================================== -->
   <!-- §6 — CONFIRMATION PATTERNS                                         -->
@@ -409,6 +487,7 @@
     <pattern id="C2_ACTIVE_CONFIRM" description="Numeric inputs (income, expenses). Confirm chip with ✓ and ✏️. Flow PAUSES until confirmed. Use range pickers/sliders, not blank text fields." />
     <pattern id="C3_SUMMARY_CONFIRM" description="Phase-gate after all 8 dimensions. All data shown as scannable rows. Two CTAs: Looks right / Let me adjust." />
     <pattern id="C4_EDIT_IN_PLACE" description="User-initiated edit of a prior answer. Recalculates downstream." />
+    <pattern id="C5_CONFIRM_EXTRACTED" description="Pre-compute gate for auto-extracted field values (provenance = EXTRACTED). User reviews and confirms or edits extracted values before any calculation that depends on them." />
   </confirmationPatterns>
 
   <!-- ================================================================== -->
@@ -433,6 +512,7 @@
     <guardrail>Starter Shield fires DETERMINISTICALLY when target ≤ existing savings. This is a backend rule, not a Pro judgment call.</guardrail>
     <guardrail>Pro NEVER does arithmetic. All computation is via tool calls (sum, multiply, max, min). Pro picks values from mapping tables and passes them to tools.</guardrail>
     <guardrail>For numeric inputs, always use C2_ACTIVE_CONFIRM. Flow pauses until user confirms the number.</guardrail>
+    <guardrail>Before any computation step, confirm all inputs that were auto-extracted (provenance = EXTRACTED). Never compute on unconfirmed extracted values.</guardrail>
   </journeyGuardrails>
 
   <!-- ================================================================== -->
@@ -449,6 +529,11 @@
     <variable name="efTarget" type="CURRENCY" scope="PLAN" source="COMPUTED" note="Final EFT" />
     <variable name="socialSupportAmountRange" type="CURRENCY" scope="PLAN" source="ASK_INPUT" note="For D3 social obligation buffer (optional)" />
     <variable name="openContextFactor" type="CURRENCY" scope="PLAN" source="ASK_INPUT" note="For D9 — defined dynamically based on what user volunteers" />
+    <!-- Journey-derived variables — computed from entity data, never asked directly -->
+    <variable name="dependentChildrenCount" type="NUMBER" scope="PLAN" source="JOURNEY_DERIVED" note="Total CHILD entities. See journeyDerivedFields." />
+    <variable name="agingParentInsuredCount" type="NUMBER" scope="PLAN" source="JOURNEY_DERIVED" note="PARENT entities with health insurance. See journeyDerivedFields." />
+    <variable name="agingParentUninsuredCount" type="NUMBER" scope="PLAN" source="JOURNEY_DERIVED" note="PARENT entities without health insurance. See journeyDerivedFields." />
+    <variable name="ageBracket" type="STRING" scope="PLAN" source="JOURNEY_DERIVED" note="Bucketed from age (derived from dateOfBirth). Brackets are journey-specific. See risk_adj_by_age." />
   </suggestedPlanningVariables>
 
   <!-- ================================================================== -->

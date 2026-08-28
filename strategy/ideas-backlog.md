@@ -102,6 +102,20 @@
 |---|------|--------------------------|
 | 18 | **Asynchronous Memory Extraction** | Move `CONVERSATION MEMORY` enrichment (`user_preferences` and `emotional_signals`) out of the main Companion prompt (flash_conversation_v1). Offload this to a parallel or "sleep mode" process to keep the real-time conversational prompt lightweight and fast. |
 | 20 | **LLM-Native Knowledge Graph ("Financial Brain")** | Replace relational schemas with a graph where Nodes (Assets, Goals, Emotions) and Edges (Natural language narratives) are extracted from chat. Enables multi-hop reasoning (e.g., connecting missed savings to late-night dining anxiety). Phased approach: start 100% conversational (zero API cost), later scale to batch-processed Account Aggregator (AA) data to avoid real-time LLM parsing costs. |
+| 21 | **Incremental/Additive Data Extraction** | Handle data fields that are incremental (additive) rather than just updating/replacing existing values. For example, a new loan adds a new EMI. The system needs to track both aggregates (total EMIs) and individual line items, especially since user-provided totals might not perfectly match the sum of individual inputs. |
+
+---
+
+### Behavioral Loop Ideas
+
+> Theme: `behavioral-psychology` · `engagement`
+
+| # | Idea | Context / Why It Matters |
+|---|------|--------------------------|
+| 22 | **Endless Scrolling (Dopamine Loop)** | Learning from Swiggy Instamart: Endless scrolling constantly provides new data, triggering dopamine release. Explore how this mechanic can be ethically applied to financial insights, discovery, or exploring investment options without inducing gambling-like behavior. |
+| 23 | **Instant Gratification** | Learning from Swiggy Instamart: The promise of getting items in minutes tricks the brain into seeking a quick reward. Identify the financial equivalent of a "10-minute delivery" to create short-term reward loops alongside long-term financial goals (e.g., instant micro-savings gratification). |
+| 24 | **FOMO & Artificial Urgency** | Learning from Swiggy Instamart: Flash sales and discount banners create artificial urgency. Explore how we can use urgency ethically and constructively (e.g., tax-saving deadlines, limited-time employer matching, time-sensitive wealth-building opportunities) without causing undue anxiety. |
+| 25 | **Micro-Games / Easter Eggs** | Like the Chrome offline dinosaur game. Embed small, delightful micro-games or interactions that provide a quick dopamine hit and surprise during waiting states (e.g., while AI is generating a complex plan, during app load, or when the internet is offline). |
 
 ---
 

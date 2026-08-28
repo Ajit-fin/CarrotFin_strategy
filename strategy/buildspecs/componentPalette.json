@@ -148,6 +148,8 @@
         "tiers": "2–5"
       },
       "data": {
+        "title": "str: component title — 2–4 words user-facing text",
+        "description": "str: context explaining why this is asked or what it includes",
         "fieldKey": "str",
         "tiers": [
           {
@@ -173,6 +175,7 @@
         "Result map: {categoryValue: [itemLabels]}."
       ],
       "data": {
+        "title": "str: component title — 2–4 words user-facing text",
         "fieldKey": "str: maps to requiredInputs.fieldName",
         "instruction": "str: task framing, e.g., 'Tap each scenario to sort it'",
         "categories": [
@@ -201,6 +204,7 @@
       ],
       "data": {
         "title": "str: card header, e.g., 'Monthly Expenses'",
+        "description": "str?: context explaining why these fields are grouped",
         "showTotal": "bool?: show live-calculated sum row",
         "totalLabel": "str?: label for total row",
         "components": [
@@ -291,6 +295,7 @@
       "data": {
         "icon": "str?: emoji representing the allocation domain",
         "title": "str: card header",
+        "description": "str?: one-line framing of what the allocation represents",
         "layers": [
           {
             "label": "str: segment name",
@@ -314,6 +319,7 @@
       "data": {
         "icon": "str?: emoji representing the plan domain",
         "title": "str: card header",
+        "description": "str?: one-line framing of what the plan achieves",
         "headline": {
           "fieldKey": "str: maps to the editable field",
           "value": "str: formatted value, e.g., '₹8,000/month'",
