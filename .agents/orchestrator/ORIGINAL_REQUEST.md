@@ -1,23 +1,43 @@
 # Original User Request
 
-## Initial Request — 2026-07-11T14:49:28+05:30
+## 2026-08-28T12:13:47Z
 
-You are the project orchestrator for CarrotFin's guardrails evaluation.
-Your working directory is: /Users/kshekhaw/Documents/CarrotFin_strategy/.agents/orchestrator
-Your identity is: teamwork_preview_orchestrator
-Your mission:
-Evaluate guardrails_v1.xml against pro_detail_planner_v1.xml, pro_overview_planner_v1.xml, and flash_conversation_v1.xml for CarrotFin (text-only mode). Assess compatibility, identify gaps or conflicts, and generate best-fit solutions without modifying the prompt files directly.
-Requirements:
-1. R1: First-Principles Markdown Report. Produce a concise (not verbose) markdown report with structured sections and recommendations. Evaluate how guardrails_v1.xml interacts with the three specified prompt files, focusing on major first-principles aspects (advisory boundaries, accuracy, risk disclosure, trust architecture, privacy).
-2. R2: Text-Only Constraints. Assume text-only mode for CarrotFin (voice is excluded from MVP). Generate best-fit solutions to address any identified gaps or conflicts without editing the original prompt files.
-3. R3: Module Optimization Opportunities. Identify other recurring logic/instructions across the three prompts that could be extracted into new shared modules to optimize architecture.
-4. Acceptance Criteria:
-- Output is a single markdown file containing structured sections.
-- Report explicitly evaluates all three target prompts.
-- Report explicitly addresses text-only mode constraints.
-- Identifies specific gaps/conflicts and proposes concrete solutions.
-- Identifies opportunities for new shared modules.
-- Concise, first-principles focus.
-- No modifications are made to original xml files.
+Comprehensive cross-domain research, interaction design framework, and interactive mobile prototypes for presenting and manipulating "Scenarios & What-If Simulations" across their entire lifecycle on mobile screens, without editing existing strategy workspace files.
 
-Please start by initializing your plan.md and progress.md in your working directory, and dispatch any analysis tasks to subagents as needed. Keep progress.md updated regularly.
+Working directory: ~/teamwork_projects/scenario_what_if_mobile_ux
+Integrity mode: development
+
+## Requirements
+
+### R1. Cross-Domain Interaction Research & Teardown
+Perform an in-depth UX teardown of how complex multi-variable scenarios and what-if simulations are handled on mobile screens across diverse non-finance and finance domains (e.g. navigation route recalculation in Google/Apple Maps, fitness/macro projection calculators, cloud resource pricing/capacity sliders, strategy gaming tech trees, logistics simulation). Identify cognitive load reduction techniques, progressive disclosure tactics, and single-thumb touch affordances.
+
+### R2. End-to-End Scenario Lifecycle Framework
+Define the end-to-end UX lifecycle for what-if scenarios on mobile from introduction to commitment:
+1. **Introduction & Discovery:** Nudging the user into exploration without overwhelming them.
+2. **Parameter Tuning / Sandbox:** Intuitive multi-variable manipulation on small viewports (handling interdependent variables, sensitivity analysis, delta previews).
+3. **Comparison & Trade-off Analysis:** Side-by-side vs. toggle vs. diff views on mobile constraints.
+4. **Decision Commitment & Lock-in:** Converting simulated states into actionable plans.
+5. **Drift & Lifecycle Monitoring:** Tracking real-life divergence from the chosen scenario over time.
+
+### R3. Mobile Component Pattern Specifications & Stitch Prompts
+Design standalone, reusable mobile UI component patterns for scenario exploration:
+- Provide detailed component specs (states, invariants, adaptive behaviors, touch ergonomics).
+- Produce Google Stitch-ready prompt templates (showing stacked storyboard states, two diverse data examples, and explicit invariants).
+
+### R4. Standalone Interactive Mobile Prototype (HTML/CSS/JS)
+Build interactive, standalone mobile HTML/CSS/JS prototypes in the working directory that showcase the scenario exploration lifecycle with live interactive sliders, branching cards, delta visualizers, and state transitions, viewable in a responsive mobile simulator frame.
+
+## Acceptance Criteria
+
+### Research & Analysis
+- [ ] At least 5 detailed teardowns of scenario/what-if interactions documented with clear interaction diagrams/mechanics, with at least 3 from non-finance domains.
+- [ ] Explicit analysis of mobile ergonomics (thumb-reach zones, live calculation debouncing/feedback, visual hierarchy on 390px-wide viewports).
+
+### Framework & Component Specifications
+- [ ] Complete 5-stage lifecycle framework detailing user state, system state, and primary interaction modality at each stage.
+- [ ] At least 3 component specifications with corresponding production-ready Google Stitch prompts following the standard 2-example + invariants template.
+
+### Working Interactive Prototype
+- [ ] Self-contained interactive HTML/CSS/JS prototype in `~/teamwork_projects/scenario_what_if_mobile_ux/` demonstrating the what-if lifecycle with real-time UI updates, smooth animations, and touch-friendly controls.
+- [ ] Clean visual design system suitable for dark/light mobile themes with zero external backend dependencies.

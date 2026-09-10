@@ -1,29 +1,35 @@
-# BRIEFING — 2026-07-11T09:19:08Z
+# BRIEFING — 2026-09-04T03:46:00Z
 
 ## Mission
-Coordinate and monitor the evaluation of guardrails_v1.xml against pro_detail_planner_v1.xml, pro_overview_planner_v1.xml, and flash_conversation_v1.xml.
+Supervise sequential end-to-end multi-persona QA simulation (T01 structured, T07 natural language) and evaluation/audit on CarrotFin conversational advisory backend services.
 
 ## 🔒 My Identity
 - Archetype: sentinel
 - Working directory: /Users/kshekhaw/Documents/CarrotFin_strategy/.agents/sentinel
-- Orchestrator: 54bef539-badb-4b4f-96c4-c3a6857bba6f
-- Victory Auditor: 0b2a8932-f168-44fc-a7e6-ce4f0f70a202
+- Orchestrator: d2e21f8c-ed80-440e-bc29-b644a06a9d93
+- Victory Auditor: d350a122-c34e-4a48-88ff-43f52f2b8fa1
 
 ## 🔒 Key Constraints
 - No technical decisions — relay only
 - Victory Audit is MANDATORY before reporting completion
-- Work in development integrity mode
-- Assume text-only mode for CarrotFin
+- Must enforce sequential execution: Persona T01 completes fully before Persona T07 begins
+- Dedicated subagents for each persona simulation and for evaluation/auditing
+
+## Routing Decision
+- **Route**: General -> `teamwork_preview_orchestrator`
+- **Rationale**: User requested sequential multi-persona simulation (T01 and T07) with dedicated subagents, deterministic checks, and LLM-based UX evaluation across multiple stages.
 
 ## User Context
-- **Last user request**: Evaluate guardrails_v1.xml against three planner/conversation xml files for CarrotFin in text-only mode and identify gaps/conflicts.
+- **Last user request**: Multi-persona QA execution and evaluation (T01 structured, T07 natural language) followed by deterministic and LLM-based UX audit.
 - **Pending clarifications**: none
-- **Delivered results**:
-  - `/Users/kshekhaw/Documents/CarrotFin_strategy/strategy/2026-07-11-guardrails-evaluation.md` (Guardrails Evaluation Report)
+- **Delivered results**: Verified completion of sequential QA simulations, deterministic checks, LLM-based UX assessments, root-cause fault attributions, and independent victory audit.
+
+## Active Tasks / Crons
+- **Progress Reporting Cron**: cancelled (cleaned up)
+- **Liveness Check Cron**: cancelled (cleaned up)
 
 ## Project Status
 - **Phase**: complete
-- **Last Liveness Check**: 2026-07-11T09:20:00Z (Orchestrator active)
 
 ## Victory Audit Status
 - **Triggered**: yes
@@ -31,5 +37,10 @@ Coordinate and monitor the evaluation of guardrails_v1.xml against pro_detail_pl
 - **Retry count**: 0
 
 ## Artifact Index
-- /Users/kshekhaw/Documents/CarrotFin_strategy/.agents/ORIGINAL_REQUEST.md — Original User Request verbatim copy
-- /Users/kshekhaw/Documents/CarrotFin_strategy/strategy/2026-07-11-guardrails-evaluation.md — Guardrails Evaluation Report
+- /Users/kshekhaw/Documents/CarrotFin_strategy/.agents/ORIGINAL_REQUEST.md — Authoritative record of user request
+- /Users/kshekhaw/Documents/CarrotFin_strategy/.agents/sentinel/BRIEFING.md — Sentinel state and persistent memory
+- /Users/kshekhaw/Documents/CarrotFin_strategy/.agents/sentinel/handoff.md — Sentinel final handoff report
+- /Users/kshekhaw/Documents/CarrotFin_strategy/.agents/orchestrator_1/handoff.md — Orchestrator handoff report
+- /Users/kshekhaw/Documents/CarrotFin_strategy/.agents/evaluator_1/qa_audit_report.md — Master QA Audit Report
+- /Users/kshekhaw/Documents/CarrotFin_strategy/.agents/victory_auditor_qa_1/audit_report.md — Independent Victory Audit Report
+- /Users/kshekhaw/Documents/CarrotFin_strategy/workspace-files/qa/data/journeys.db — SQLite database with runs, turns, evals, and attributions

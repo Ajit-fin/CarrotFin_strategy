@@ -1,7 +1,7 @@
 # CarrotFin — Interaction Model
 
 > **Domain:** Design  
-> **Last updated:** 2026-07-30  
+> **Last updated:** 2026-08-28  
 > **Staleness threshold:** 90 days (foundational)  
 > **Related assumptions:** C6  
 > **Related decisions:** interaction-model (absorbed DD06)
@@ -10,69 +10,53 @@
 
 ## The Core Problem This Solves
 
-Every existing finance app separates conversation from visualization in a way that breaks context. If a chat feature exists, it's behind a support icon — a separate surface where you ask questions and get text responses, completely disconnected from the dashboard, portfolio view, and insights that live elsewhere. You're constantly switching contexts with no shared state between them.
+Every existing finance app separates conversation from visualization in a way that breaks context. If a chat feature exists, it's behind a support icon — a separate surface where you ask questions and get text responses, completely disconnected from the data and insights that live elsewhere. You're constantly switching contexts with no shared state between them.
 
-CarrotFin rejects this *disconnection*. Conversation and visualization are not two isolated features — they're one interaction paradigm sharing context, state, and intent. A chart IS part of the conversation. A recommendation card IS the AI's advice rendered visually. **The anti-pattern:** Surfaces — regardless of count — that don't share context, state, or intent. Two surfaces that know nothing about each other are two products glued together. Two surfaces with shared context and integrated state are one product.
+CarrotFin rejects this disconnection. Conversation and contextually relevant data presentation are not two isolated features — they're one interaction paradigm sharing context, state, and intent. A chart shown inline IS part of the conversation. A recommendation card IS the AI's advice rendered visually. **The anti-pattern:** surfaces or modes that don't share context, state, or intent — two products glued together rather than one product that flows.
 
 ---
 
-## Surface Types
+## How CarrotFin Interacts with Users
 
-The interaction model defines three surface types as **interaction modalities** — they describe *how* the AI communicates and the user responds, not *how many* screens the product has. These modalities may manifest on one or multiple surfaces depending on the chosen UX architecture. Importantly, these modalities are surface-agnostic: a composed surface could exist as a dashboard or as a temporary view within a conversational stream.
+### The Conversational Stream
 
-### 1. The Conversational Stream
+The primary interaction surface. A vertical flow where the AI engages the user as a financial advisor would — asking questions, explaining reasoning, surfacing insights — and the user responds.
 
-The primary interaction surface. A vertical flow where the AI speaks and the user responds. But unlike traditional chat:
+What makes this different from a standard chatbot:
 
-- **Messages can contain visual elements.** The AI doesn't say "here's a chart" and link to a separate page. The chart materializes *within* the conversation, inline.
-- **User responses can be structured.** Instead of only typing, the user taps buttons, adjusts sliders, selects from options — all inline within the conversation flow.
-- **The stream isn't just messages.** It's a sequence of AI-generated interface fragments: text, charts, cards, forms, comparisons, alerts, nudges — woven together with conversational connective tissue.
+- **Responses can contain structured visual elements.** Where words alone would be insufficient or clunky — a target calculation, a spending breakdown, an option comparison — the AI surfaces the right data and the app renders it inline, within the conversation. The user doesn't leave the stream to see a chart; the chart appears as part of the conversation.
+- **User responses can be structured.** Instead of only typing, the user can tap option chips, adjust range pickers, or confirm inline — all within the conversational flow.
+- **The stream is not just messages.** It's a sequence of AI-generated advisory turns woven with appropriate contextual display: text, inline inputs, data summaries, insight cards, action confirmations.
 
-**When the stream leads:** Discovery, exploration, education. "What should I do with my bonus?" "Explain SIPs to me." "Am I saving enough?" — open-ended queries where the AI guides the user through a thought process.
+**When the stream leads:** Discovery, exploration, education, decision-making. "What should I do with my bonus?" "Am I saving enough?" "Help me understand SIPs." — any intent where the AI needs to understand context, guide reasoning, or build trust through dialogue.
 
-### 2. The Composed Surface
-
-A full-screen interface assembled by the AI from components. No conversational thread — just a contextually relevant arrangement of cards, charts, trackers, and actionable elements.
-
-**When the composed surface leads:** Tracking, monitoring, comparison. "Show me my spending this month." "How are my goals doing?" — the user wants to see data, not have a conversation about it.
-
-**Key distinction from a static dashboard:** composed surfaces are AI-assembled, not pre-designed. The components, their order, their density, and their content adapt to user context. Two users opening "My Goals" see different compositions based on their goals, progress, and what the AI thinks they should focus on.
-
-### 3. The Ambient Layer
+### The Ambient Layer
 
 Background intelligence that surfaces proactively without user initiation.
 
-- **Nudges:** "You haven't checked your portfolio in 2 weeks. Returns are up 4%."
+- **Nudges:** "You haven't reviewed your portfolio in 2 weeks. Returns are up 4%."
 - **Alerts:** "Your credit card bill is due in 3 days. You have sufficient balance."
 - **Opportunities:** "Tax-saving season ends March 31. You've used ₹1.08L of your ₹1.5L 80C limit."
 
-**Delivery channels:** Push notifications, in-app banners, or conversation-starter cards on the home surface. Each has attached visual context — not a bare text notification, but a notification with a relevant mini-visualization.
+**Delivery channels:** Push notifications or in-app banners that carry relevant context — not bare text, but prompts that include enough data to be immediately useful and naturally invite engagement.
+
+> **Note:** Additional interaction modalities (dashboards, monitoring surfaces, reporting screens) are design decisions to be made as the product evolves and user behavior data emerges. These are not ruled out — they just aren't in the current product. When they are added, the principle that guides them is the same: match the interaction style to the user's intent and behavioral mode.
 
 ---
 
-## Flow Modes: When Each Modality Leads
+## Flow Modes: How Intent Maps to Interaction
 
-The AI dynamically selects the right modality based on intent and context.
+The AI selects the right interaction approach based on what the user is trying to do.
 
-| User Intent | Modality | Why |
+| User Intent | Interaction Dynamic | Why |
 |---|---|---|
-| **Explore / Learn** ("What should I do?") | Conversational Stream | Open-ended discovery needs dialogue. The AI asks clarifying questions, responds to reactions, builds understanding progressively. |
-| **Decide** ("Should I increase my SIP?") | Stream → Visual pivot | Starts conversational (understanding the question), pivots to visualization (showing projections, comparisons) for decision support. |
-| **Track** ("How's my spending?") | Composed Surface | The user wants data, not a conversation. Show the answer directly with charts and metrics. |
-| **Act** ("Start a new SIP for ₹5,000") | Composed Surface with inline confirmation | Task completion doesn't need a conversation. Clear form, clear action, clear confirmation. |
-| **React** (responds to an AI nudge) | Ambient → Stream transition | A nudge (ambient) triggers the user to engage. The AI expands the nudge into a conversational or visual thread. |
+| **Explore / Learn** ("What should I do?") | Progressive Dialogue | Open-ended discovery requires back-and-forth. The AI asks clarifying questions and builds understanding progressively. |
+| **Decide** ("Should I increase my SIP?") | Advisory with Decision Support | Starts by understanding the question, then surfaces structured visualizations (projections, comparisons) to support the decision. |
+| **Track** ("How's my spending?") | Direct Data with Interpretive Frame | The user wants state, not a long conversation. The AI surfaces the relevant summary immediately, wrapped in brief, contextual analysis. |
+| **Act** ("Start a new SIP for ₹5,000") | Structured Confirmation | Task completion should be frictionless. Clear parameters, clear action, clear confirmation without unnecessary dialogue. |
+| **React** (responds to an AI nudge) | Ambient → Active Transition | A background nudge triggers engagement. The AI seamlessly expands the context of the nudge into an active advisory session. |
 
-### Modality Handoffs
-
-The most critical design challenge: transitioning between conversational and visual modes without jarring the user.
-
-**Smooth handoffs look like this:**
-1. User asks "Am I spending too much on dining?"
-2. AI responds with a text insight: "You spent ₹14K on dining this month — that's 2× your 3-month average."
-3. *Below* the text, a spending breakdown chart materializes with dining highlighted.
-4. Below the chart, the AI asks: "Want me to suggest a monthly dining budget that keeps your savings on track?"
-
-**Bad handoffs:** "Click here to see your spending dashboard." Any handoff that sends the user to a different page breaks the integrated paradigm.
+> The specific UI patterns (e.g., chat streams, dashboards, inline forms) used to fulfill these dynamics will evolve. The core principle — matching the cognitive weight of the interface to the user's intent — remains constant.
 
 ---
 
@@ -91,7 +75,7 @@ The AI never overwhelms. It focuses on one financial topic per conversational th
 
 ### Inline Data Collection
 
-> **Design rationale (from DD06):** Assessment is conducted stream-primary with no composed surface during data collection. A form-like surface during assessment breaks the conversational trust ramp and cognitive flow. Inline components (option chips, range pickers) handle structured data capture within the stream.
+> **Design rationale (from DD06):** Assessment is conducted stream-primary with no separate form surface during data collection. A form-like surface during assessment breaks the conversational trust ramp and cognitive flow. Inline components (option chips, range pickers) handle structured data capture within the stream.
 
 The AI doesn't front-load questions. It asks for data when it needs it, explaining why.
 
@@ -110,29 +94,29 @@ The conversation starts simple and reveals complexity only when the user's behav
 
 ---
 
-## What "Woven" Looks Like — Three Scenarios
+## What "Integrated" Looks Like — Three Scenarios
 
 ### Scenario A: First-Time User
 
 1. **AI (text):** "Welcome. Let's figure out one thing: do you have an emergency fund?"
 2. **User (tap):** Selects "Not sure" from inline options
-3. **AI (text + visual):** "Most financial advisors say 3-6 months of expenses. Let me show you what that looks like." → An inline calculator appears with a slider for monthly expenses → user adjusts → result updates live
+3. **AI (text + inline visual):** "Most financial advisors say 3-6 months of expenses. Here's what that looks like for you." → An inline calculator appears with a slider for monthly expenses → user adjusts → result updates live
 4. **AI (text):** "Based on ₹45K/month, you'd want ₹1.35L–₹2.7L set aside. Want to set this as your first goal?"
 
 ### Scenario B: Returning User, Spending Alert
 
 1. **Ambient nudge:** "Your spending this week is 35% above average."
 2. **User taps nudge → opens conversational stream**
-3. **AI (text + chart):** "Here's the breakdown." → Category-level spending chart, inline, with dining and shopping highlighted.
+3. **AI (text + inline chart):** "Here's the breakdown." → Category-level spending chart, inline, with dining and shopping highlighted.
 4. **AI (text):** "Dining is the big one — ₹6K in 4 days. This pace would put you ₹12K over your monthly budget. Want me to set a dining spending alert?"
 
-### Scenario C: Experienced User, Portfolio Review
+### Scenario C: Experienced User, Portfolio Question
 
-1. **User:** "Show me how my portfolio is doing"
-2. **Composed surface renders:** Asset allocation donut, performance chart, benchmark comparison — all on one surface, no conversation needed.
-3. **AI annotation (text overlay on chart):** "Your small-cap allocation dropped from 15% to 11% due to market movement. Rebalancing would bring it back — should I show you how?"
-4. **User taps "Show me"** → inline projection appears comparing rebalanced vs. current trajectory.
+1. **User:** "How's my portfolio doing?"
+2. **AI (text + inline summary):** Responds with a performance summary inline — key metrics, a brief chart — plus interpretive framing: "You're up 12%, but small-cap allocation has drifted from 15% to 11%. Rebalancing is worth looking at."
+3. **User:** "Show me the rebalancing options"
+4. **AI:** Surfaces an inline comparison — current vs. rebalanced trajectory — within the same stream.
 
 ---
 
-*This file defines how CarrotFin's interactions work. It pairs with `screen-taxonomy.md` (which screens use which patterns) and `ux-philosophy.md` (why these patterns exist).*
+*This file defines how CarrotFin's interactions work today. It pairs with `screen-taxonomy.md` (component vocabulary within the stream) and `ux-philosophy.md` (why these patterns exist).*

@@ -1,7 +1,7 @@
 # CarrotFin — Design Principles
 
 > **Domain:** Design  
-> **Last updated:** 2026-07-30  
+> **Last updated:** 2026-08-28  
 > **Staleness threshold:** 90 days (foundational, low volatility)  
 > **Related assumptions:** C4, GP-01  
 > **Related decisions:** V1-Product-Scope, Data-Model
@@ -10,84 +10,69 @@
 
 ## Purpose
 
-Two governing axioms that define what CarrotFin is architecturally — not aspirationally. These are not feature requests or nice-to-haves. They are structural constraints that every screen, component, and interaction must satisfy. When the two principles conflict, the resolution framework below applies.
+Two governing axioms that define what CarrotFin is at the intent level — not implementation instructions. These are not feature specifications. They are constraints that every design decision should be held against. Implementations evolve; the intent behind them should be durable.
 
 ---
 
 ## The Two Axioms
 
-### 1. Adaptive Composition
+### 1. What the User Sees Should Depend on Who They Are
 
-Every touchpoint asks: **"What should this user see right now, and how should it be assembled?"**
+Every touchpoint asks: **"What does this specific user need right now — and is that what we're showing them?"**
 
-CarrotFin's interface is composed at render time by the AI from a palette of adaptive components and structural composition rules. The AI selects, orders, and configures components based on user context — financial literacy, risk tolerance, life stage, emotional state, trust level, and interaction history. This is not responsive design (adapting to screen sizes). This is behavioral adaptation — the interface restructures itself based on who the user is and what they need.
+CarrotFin is not a one-interface-fits-all product. Different users at different life stages, with different financial situations and different levels of confidence, should receive information and prompts calibrated to their actual context. This is the core bet: contextual relevance outperforms breadth and completeness.
 
-**What this means for design work:**
-- Design artifacts are not static screen mockups. They are component specs with adaptive behaviors, composition grammars, and context triggers.
-- The question is never "What does the home screen look like?" It's "What are the components the AI can place on a given surface, what rules govern their composition, and what user context triggers each one?"
-- Mockups are illustrative examples of possible compositions, not canonical layouts.
+**What this means in practice:**
+- A user being assessed for an emergency fund should not see the same prompts, depth, or framing as a returning user who already has one.
+- Onboarding a 26-year-old single professional looks and feels different from onboarding a 34-year-old in a dual-income household — not just in content, but in pacing, vocabulary, and what gets asked when.
+- The AI decides what to surface and how to frame it, based on its model of who the user is. What the user sees is an output of reasoning, not a template.
 
-**What it means concretely:**
-- A 26-year-old single professional (S1) sees an emergency fund progress bar with encouragement copy and a milestone animation when they hit their Starter Shield target.
-- A 32-year-old parent in a dual-income household (S2) sees family coverage gaps — an uninsured aging parent flagged as a medical buffer risk, a household income risk assessment, and a contribution plan calibrated to their joint cash flow.
-- Same app. Same surface. Fundamentally different rendering — driven by household context, not just individual demographics.
+**How this is implemented today:**
+The AI outputs structured data and contextual attributes (field labels, descriptions, shorthand). The app maps these to an appropriate component and renders it in context — inline in the conversation, or as part of a fixed flow. The AI focuses on advisory quality; rendering is a separate concern. This split was a deliberate choice for latency, reliability, and advisory focus — but the rendering mechanism may evolve.
 
-**When adaptive composition applies — and when it doesn't:**
+**The test:** If two users with meaningfully different financial contexts see the same thing — and serving them differently would have helped — that's a design failure. The mechanism for achieving differentiation can change; this intent cannot.
 
-Not every screen benefits from runtime composition. When AI-driven assembly doesn't add meaningful user value — for example, legal/regulatory screens, account settings, security flows — fixed or hybrid approaches are appropriate. The screen taxonomy ([screen-taxonomy.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/screen-taxonomy.md)) defines when each type applies:
-- **Generative screens:** AI composes the interface from components. This is where CarrotFin's differentiation lives.
-- **Static screens:** Fixed layout, every user sees the same structure. For legal, regulatory, security, and settings contexts.
-- **Hybrid screens:** Fixed structural skeleton with AI-generated content. For screens needing structural predictability with personalized content.
-
-Composition strategy should match the user's behavioral mode and context. Contexts where users need to monitor or glance at state frequently may benefit from structural stability (hybrid composition). Contexts where users are exploring, deciding, or being advised benefit from fully generative composition. Static and hybrid are legitimate design choices — not just concessions — when the behavioral mode warrants them.
-
-**The test:** If a screen looks identical for two users with different financial contexts — *and* context-dependent composition would add value — it's a design failure. Every non-generative screen needs a justification for why it's static or hybrid (regulatory, security, structural predictability, monitoring-mode behavioral fit).
-
-**The mental model:** Think of the AI as a compositor with a palette of components and a rule book. The designer creates the palette and writes the rules. Users never see the palette — they see the composition.
-
-**Scope note:** This axiom governs **interface assembly** — what users see and how it's arranged. Adaptive *advice* (what the AI recommends and how it frames it) is a separate concern, governed by the [Behavioral Intelligence Framework](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/behavioral-framework.md).
-
-> **Depends on:** C4 (AI-driven composition outperforms static, one-size-fits-all layouts) — untested, highest-conviction bet.
+> **Depends on:** C4 (contextual relevance outperforms one-size-fits-all) — untested, highest-conviction bet.
 
 ---
 
-### 2. Hyperpersonalization Is the Architecture
+### 2. Hyperpersonalization Is Architecture, Not a Feature Layer
 
-Personalization is not a feature layer bolted on top of a generic app. The entire UI stack is built to reason about the user.
+Personalization at CarrotFin is not a filter on top of a generic app. The product is designed from the ground up to reason about the user — their literacy, risk tolerance, life stage, emotional state, household structure, and trust level.
 
-**What this requires technically:**
-- Data models include user state (financial literacy score, risk tolerance, life stage, emotional indicators, interaction history).
-- Every component accepts user context as input — not just "data" but "who is looking at this data."
-- The AI decides what to show, when, and how — it composes the interface, it doesn't fill templates.
+**What this requires:**
+- The data model includes user state, not just user data. We track who the user is, not just what they've done.
+- Every component and prompt accepts user context as a first-class input. The question is never just "what is this user's balance?" but "what does this number mean for this specific user right now, and how should we frame it?"
+- The AI reasons about the user before it responds. Every advisory output is calibrated to that user's context — vocabulary, depth, tone, and recommendation confidence.
 
-**What this means for design:**
-- There is no "default" home screen to design in Figma. There are constraint systems that define what CAN appear and HOW the AI selects.
-- Component specs include adaptive behavior definitions: "At literacy level 1, show headline only. At level 3, show headline + sparkline + breakdown."
-- Onboarding is not a fixed flow — it's a conversation that progressively profiles the user, revealing interface complexity as the AI learns who they are.
+**What this does not mean:**
+- It doesn't mean designing three persona variants and switching between them. That's segment UX, not personalization.
+- It doesn't mean prioritizing UI novelty. Personalization lives in the quality and relevance of the advice, not in visual differentiation for its own sake.
+- It doesn't mean the layout must be different for every user. Personalized content within a consistent structure is still hyperpersonalization; the AI framing a recommendation differently for a novice vs. an expert is hyperpersonalization.
 
-**The trap to avoid:** Designing 3 "personas" and building 3 versions of each screen. That's segment-level personalization. CarrotFin does individual-level, contextual, real-time personalization.
+**Household dimension:** The personalization model extends to the household unit, not just the individual. Income structure, dependency load, and household decision-making style are all first-class inputs. A dual-income household gets different framing from a single-earner household — not as a persona, but as a continuous contextual dimension.
+
+> See [ux-philosophy.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/ux-philosophy.md) for the full User State Model.
 
 ---
 
 ## Conflict Resolution
 
-When axioms conflict — and they will — resolve using this hierarchy:
+When axioms conflict, resolve using this hierarchy:
 
 | Priority | Axiom | Rationale |
 |---|---|---|
-| 1 | Adaptive Composition | The core product thesis — both the bet (adaptive > static) and the mechanism (AI-composed interfaces). If this fails, we're building another dashboard. |
-| 2 | Hyperpersonalization Is Architecture | The long-term moat. Requires data depth that won't exist on day one. |
+| 1 | What the User Sees Should Depend on Who They Are | The core product thesis and the primary competitive bet. If users get the same experience regardless of context, CarrotFin is just another dashboard. |
+| 2 | Hyperpersonalization Is Architecture | The long-term moat. Data depth and a rich user state model take time to build. |
 
-**Example conflict:** Hyperpersonalization wants to render a 6-component information-dense surface for an advanced user. Adaptive Composition's composition rules limit a generative surface to 4 components maximum to maintain coherence. Resolution: Adaptive Composition wins — the AI selects the 4 highest-priority components, dropping the lowest-value two. Composition coherence outranks information density.
-
-> **Note on trust:** Progressive trust — when the AI earns the right to ask for data, how confidence is built, and how trust level governs the AI's behavior — is a product-level concern governed by the [Behavioral Intelligence Framework](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/behavioral-framework.md) (Part 6: Trust Architecture). Trust level is one of the context dimensions that Adaptive Composition composes against, but the trust architecture itself is not a design axiom — it's AI decision logic.
+**Example conflict:** Hyperpersonalization wants to show an advanced user 6 distinct data points relevant to their context. But showing 6 items creates cognitive overload in the current interaction context. Resolution: Axiom 1 wins — show the most relevant item clearly, and progressively disclose the rest. Relevance and clarity outrank completeness.
 
 ---
 
-> **Note on surface architecture:** The specific arrangement of surfaces (how many, their roles, and how users navigate between them) is a design decision that evolves with user data and product maturity — not a foundational axiom. Surface architecture decisions are recorded in the design-decisions layer as they are made and validated.
+> **Note on surface architecture and implementation:** How screens are structured, how many surfaces the app has, and how the AI's outputs are rendered are design decisions that belong in the product-design layer and evolve with user data and product maturity. These axioms govern *intent*, not implementation. A screen taxonomy, component palette, or interaction pattern that serves these axioms is correct — regardless of whether it matches what was built previously.
 
 ---
 
 *These axioms are foundational. They should rarely change. If one is invalidated, write a decision-log entry explaining why.*
 
-*Last revised 2026-07-30: Axiom 2 (Conversational + Visual Integration) deleted — prescribing surface architecture is an implementation decision, not a foundational constraint. Former Axiom 3 renumbered to Axiom 2. Axiom 1 scoped to acknowledge that composition strategy varies by behavioral mode.*
+*Last revised 2026-08-28: Reframed both axioms at the intent level to avoid locking in specific rendering mechanisms. Removed Generative/Static/Hybrid screen taxonomy (moved to screen-taxonomy.md as a living product-design artifact, not a foundational axiom). Updated Axiom 1 to describe the current LLM-output + app-rendering split as an implementation approach, not the definition of the axiom itself.*

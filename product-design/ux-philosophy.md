@@ -10,11 +10,11 @@
 
 ## The Thesis: Hyperpersonalization as Architecture
 
-CarrotFin's UX is not a better dashboard. It's not a chatbot with charts. It's a new category of financial interface — one where the AI is the architect of the experience, assembling a unique interface for each user based on who they are, what they need, and what they should do next.
+CarrotFin's UX is not a better dashboard. It's not a chatbot with charts bolted on. It's a different category of financial relationship — one where the AI understands who you are and what you need, and delivers advice calibrated to your actual situation.
 
-**Hyperpersonalization is not a feature.** It's not a settings page where users pick a theme. It's not segment-based targeting (millennials see green, boomers see blue). It's the governing architecture of every pixel on every screen.
+**Hyperpersonalization is not a feature.** It's not a settings page where users pick a theme. It's not segment-based targeting (millennials see green, boomers see blue). It's the governing intent behind every product decision: the experience should respond to who this specific user is, not to who the average user is.
 
-The closest analogy: a skilled human financial advisor. When you sit down with a good advisor, they don't hand you a standardized form. They ask you questions, read your body language, adjust their explanation depth, show you only the charts that matter for YOUR situation, and give you a recommendation calibrated to YOUR risk tolerance and life stage. CarrotFin does this — digitally, at scale, with an AI that gets better with every interaction.
+The closest analogy: a skilled human financial advisor. When you sit down with a good advisor, they don't hand you a standardized form. They ask you questions, adjust their explanation depth, show you only the charts that matter for YOUR situation, and give you a recommendation calibrated to YOUR risk tolerance and life stage. CarrotFin does this — through conversation, at scale, with an AI that gets better with every interaction.
 
 ---
 
@@ -28,7 +28,7 @@ Adaptive is the most overused word in product design. Here's what it means in Ca
 
 **Complexity calibration:** The same concept renders at different levels of depth. For a financially literate user: "Your equity allocation is 72% — consider rebalancing to 60/40 given your 5-year horizon." For a novice: "You have most of your money in stocks. Since you'll need this in 5 years, let's move some to safer options."
 
-**Component composition:** The home surface assembles from a palette of components — spending insight card, goal progress tracker, recommendation card, alert banner, SIP nudge. The AI selects which components appear, in what order, at what density, based on the user's current context. No two home screens are identical.
+**Contextual relevance:** What the user sees is calibrated to their current situation — not pulled from a fixed list of things to show everyone. A user who just received their salary sees something different from a user approaching tax-saving season. A user stressed about an uninsured parent sees something different from one in a fully-insured household. The AI reasons about what matters for this person right now before deciding what to surface.
 
 **Interaction mode adaptation:** Some users want to type. Some want to tap. Some want to scroll. The AI learns and adjusts. Heavy typists get richer conversational flows. Tap-oriented users get more card-based interactions with quick-action buttons.
 
@@ -47,8 +47,8 @@ Adaptive is the most overused word in product design. Here's what it means in Ca
 
 | Dimension | Category Norm (CRED, ET Money, INDmoney, Groww) | CarrotFin |
 |---|---|---|
-| **Home screen** | Fixed layout: net worth widget, recent transactions, portfolio chart. Same for everyone. | AI-composed content: different components for different users. A first-timer sees "Let's set up your emergency fund." A power user sees "Your SIP returns are underperforming — here's a rebalancing option." The specific surface structure is a design decision that evolves with user data. |
-| **Navigation** | Bottom tab bar: Home, Invest, Budget, Profile, More | Driven by what the AI surfaces as important. Navigation structure is a design decision — the key difference is that CarrotFin's AI determines *what matters* and surfaces it, rather than presenting a static menu of features to browse. |
+| **Entry experience** | Fixed layout: net worth widget, recent transactions, portfolio chart. Same for everyone. | Conversational: the AI greets the user based on context and surfaces the most relevant thing — not a fixed set of widgets. A first-timer gets "Let's set up your emergency fund." A power user gets "Your SIP returns are underperforming — here's a rebalancing option." |
+| **Navigation** | Bottom tab bar: Home, Invest, Budget, Profile, More | Driven by the conversation — the AI surfaces what matters next rather than asking the user to navigate to it. Navigation structure evolves with the product. |
 | **Onboarding** | 8-12 screen wizard: name, email, PAN, bank link, goals | Conversational. "Hi. How old are you?" → one answer → immediate value → "Want to know how much you'd need to retire?" → progressive profiling over time, not upfront interrogation. |
 | **Recommendations** | Generic: "Top SIPs this month" (same for every user) | Contextual: "You spent ₹14K on dining last month — that's 2× your usual. Want me to show how this affects your travel fund timeline?" |
 | **Insights** | Passive: "Your portfolio is up 12% YTD" | Active + prescriptive: "Your portfolio is up 12%, but you're over-allocated to large-cap. I'd move ₹50K into mid-cap to improve diversification for your 15-year horizon." |
@@ -72,7 +72,7 @@ Hyperpersonalization requires a rich model of who the user is. Not just demograp
 
 ---
 
-## The Data → Intelligence → Interface Pipeline
+## The Data → Intelligence → Experience Pipeline
 
 ```
 User Data (inputs, behavior, context)
@@ -83,18 +83,16 @@ AI Reasoning Layer (what does this user need right now?)
   → Governed by: behavioral-framework.md
   → Behavioral principles, adaptive rigor, content framing, verification anchors
     ↓
-Component Selection + Composition (assemble the interface)
+AI Output (what to surface, what to ask, how to frame it)
     ↓
 Rendered Experience (what the user sees and interacts with)
 ```
 
-Each layer in this pipeline is adaptive. Data informs the model. The model informs the AI's reasoning. The reasoning informs component selection. The components themselves adapt their rendering based on user context.
+Each layer in this pipeline is adaptive. Data informs the model. The model informs the AI's reasoning. The reasoning informs what the AI outputs — what to surface, how to explain it, what question to ask next. The rendering layer takes that output and presents it appropriately.
 
 **The AI Reasoning Layer** is operationalized by the [Behavioral Intelligence Framework](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/behavioral-framework.md) — the decision intelligence layer that translates user state into behaviorally informed decisions about what to show, when, and how to frame it. It defines the cognitive biases the AI leverages, the financial guardrails it cannot violate, and the trust-building mechanisms that earn the right to advise.
 
-**This is not a template system.** Template systems have pre-defined layouts that get populated with data. CarrotFin's system has a component palette and composition rules — the AI writes the layout at render time.
-
-**Surface architecture** — how many surfaces, their roles, and how users navigate — is a separate design decision that sits above this pipeline. The pipeline outputs to whatever surface architecture is chosen; the composition principles apply regardless of surface count.
+**Surface architecture** — how many surfaces, their roles, and how users navigate — sits above this pipeline. The pipeline outputs to whatever surface architecture is chosen; the personalization principles apply regardless.
 
 ---
 
@@ -120,13 +118,15 @@ The User State Model table above captures individual dimensions. Household-level
 
 Honesty about gaps is a design principle, not a weakness.
 
-- **Does adaptive UI actually outperform static?** (C4 — untested, highest-risk assumption)
-- **How complex can compositions get before users feel lost?** We need constraint guardrails — max components per surface, minimum consistency, anchor elements.
-- **How quickly can the AI build an accurate user state model?** If it takes 20 sessions to personalize meaningfully, the first 19 sessions might feel generic.
-- **Can users override the AI's composition?** Should they be able to pin components, hide recommendations, or switch to a fixed layout? Flexibility vs. coherence is an open tension.
+- **Does contextual, advisory-led UX outperform generic dashboards?** (C4 — untested, highest-risk assumption). We believe it does; we don't have data yet.
+- **How quickly can the AI build an accurate user state model?** If meaningful personalization requires 10+ sessions, the early experience may feel generic. Managing this gap is a design challenge.
+- **What monitoring/tracking patterns work in a chat-primary product?** Users who want to "check in" on portfolio state or spending need a fast path — one that doesn't require a full conversational exchange. How to serve this without a dashboard is an open design question.
+- **Can users override or influence AI surfacing?** Should users be able to pin topics, mute suggestions, or request a different focus? Flexibility vs. AI coherence is an open tension.
 
 > See [tension-log.md](file:///Users/kshekhaw/Documents/CarrotFin_strategy/product-design/tension-log.md) for the full list of unresolved design tensions.
 
 ---
 
-*This file defines what CarrotFin's experience IS at the deepest level. It should evolve rarely and only with a corresponding design-decision record.*
+*This file defines what CarrotFin's experience IS at the intent level. It should evolve rarely, and only when the fundamental thesis changes. Implementation details live in screen-taxonomy.md and interaction-model.md.*
+
+*Last revised 2026-08-28: Removed AI-as-layout-compositor and composed-dashboard framing. Reanchored to intent-level language — what the user sees should depend on who they are, delivered through conversation and contextually appropriate inline elements. Pipeline updated to remove hardcoded "Component Selection + Composition" step.*
